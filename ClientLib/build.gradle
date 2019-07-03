@@ -113,14 +113,11 @@ dependencies {
 
     implementation 'org.droidplanner.android:usb-serial-android:0.1.0'
 
-//    debugImplementation project(':Mavlink')
-//    sitlCompile project(':Mavlink')
-
-    implementation files('libs/Mavlink.jar')
+    implementation project(':Mavlink')
     implementation files('libs/d2xx.jar')
 
-    androidTestCompile 'junit:junit:4.12'
-    androidTestCompile "org.robolectric:robolectric:3.0"
+    androidTestImplementation 'junit:junit:4.12'
+    androidTestImplementation "org.robolectric:robolectric:3.0"
 }
 
 def getSoloLinkIp() {
