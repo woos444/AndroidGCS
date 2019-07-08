@@ -16,12 +16,16 @@ import com.naver.maps.map.OnMapReadyCallback;
 import com.naver.maps.map.overlay.InfoWindow;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.PathOverlay;
+import com.o3dr.android.client.interfaces.DroneListener;
+import com.o3dr.android.client.interfaces.LinkListener;
+import com.o3dr.android.client.interfaces.TowerListener;
+import com.o3dr.services.android.lib.gcs.link.LinkConnectionStatus;
 
 import java.lang.reflect.Array;
 import java.nio.file.Path;
 import java.util.Arrays;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback , DroneListener, TowerListener, LinkListener {
 
     boolean a = true;
     NaverMap naverMap;
@@ -166,6 +170,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
+    @Override
+    public void onDroneEvent(String event, Bundle extras) {
+
+    }
+
+    @Override
+    public void onDroneServiceInterrupted(String errorMsg) {
+
+    }
+
+    @Override
+    public void onLinkStateUpdated(@NonNull LinkConnectionStatus connectionStatus) {
+
+    }
+
+    @Override
+    public void onTowerConnected() {
+
+    }
+
+    @Override
+    public void onTowerDisconnected() {
+
+    }
 }
 
 
