@@ -217,7 +217,7 @@ public class DroidPlannerService extends Service {
 
     @SuppressLint("NewApi")
     private void updateForegroundNotification() {
-        final Context context = getApplicationContext();
+       /* final Context context = getApplicationContext();
 
         //Put the service in the foreground
         final NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(context)
@@ -231,7 +231,8 @@ public class DroidPlannerService extends Service {
         }
 
         final Notification notification = notifBuilder.build();
-        startForeground(FOREGROUND_ID, notification);
+        startForeground(FOREGROUND_ID, notification);*/
+       return ;
     }
 
     @Override

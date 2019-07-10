@@ -9,20 +9,53 @@
     <FrameLayout
         android:id="@+id/map"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_row="0"
-        android:layout_column="0">
+        android:layout_height="match_parent">
 
     </FrameLayout>
+
     <Button
-        android:id="@+id/button"
+        android:id="@+id/btnConnect"
+        android:layout_width="wrap_content"
+        android:layout_height="59dp"
+        android:layout_alignTop="@+id/map"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="41dp"
+        android:layout_marginEnd="36dp"
+        android:layout_marginRight="36dp"
+        android:onClick="onBtnConnectTap"
+        android:text="Connect" />
+
+    <Button
+        android:id="@+id/btnArmTakeOff"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/map"
+        android:layout_column="1"
         android:layout_alignBottom="@+id/map"
-        android:layout_marginEnd="29dp"
-        android:layout_marginBottom="33dp"
-        android:text="off"
-        tools:layout_editor_absoluteX="10dp"
-        tools:layout_editor_absoluteY="10dp" />
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginEnd="22dp"
+        android:layout_marginRight="22dp"
+        android:layout_marginBottom="40dp"
+        android:onClick="onArmButtonTap"
+        android:visibility="invisible" />
+
+    <Spinner
+        android:id="@+id/modeSelect"
+        android:layout_width="159dp"
+        android:layout_height="wrap_content"
+        android:layout_column="1"
+        android:layout_alignStart="@+id/map"
+        android:layout_alignTop="@+id/map"
+        android:layout_alignParentLeft="true"
+        android:layout_marginStart="113dp"
+        android:layout_marginLeft="113dp"
+        android:layout_marginTop="56dp"
+        android:layout_marginEnd="14dp"
+        android:layout_marginRight="14dp"
+        android:layout_toStartOf="@+id/btnConnect"
+        android:layout_toLeftOf="@+id/btnConnect"
+        android:spinnerMode="dropdown" />
+
+
 </RelativeLayout>
