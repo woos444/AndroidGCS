@@ -138,6 +138,7 @@
             android:textAppearance="?android:attr/textAppearanceMedium" />
     </TableRow>
 
+
     <TableRow
         android:id="@+id/vehTelemRow4"
         android:layout_width="200dp"
