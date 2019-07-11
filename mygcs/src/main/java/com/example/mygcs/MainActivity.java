@@ -60,28 +60,16 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback , DroneListener, TowerListener, LinkListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-
     private Drone drone;
     private int droneType = Type.TYPE_UNKNOWN;
     private ControlTower controlTower;
     private final Handler handler = new Handler();
-
     private static final int DEFAULT_UDP_PORT = 14550;
     private static final int DEFAULT_USB_BAUD_RATE = 57600;
 
     private Spinner modeSelector;
 
-    private Button startVideoStream;
-    private Button stopVideoStream;
-
-    private Button startVideoStreamUsingObserver;
-    private Button stopVideoStreamUsingObserver;
-
     private MediaCodecManager mediaCodecManager;
-
-    private TextureView videoView;
-
-    private String videoTag = "testvideotag";
 
     Handler mainHandler;
 
@@ -98,6 +86,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.controlTower = new ControlTower(context);
         this.drone = new Drone(context);
 
+        this.modeSelector = (Spinner) findViewById(R.id.modeSelect);
+        this.modeSelector.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                onFlightModeSelected(view);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Do nothing
+            }
+        });
+
         FragmentManager fm = getSupportFragmentManager();
         mNaverMapFragment = (MapFragment) fm.findFragmentById(R.id.map);
         if (mNaverMapFragment == null) {
@@ -112,13 +112,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     }
-
     @Override
     public void onStart() {
         super.onStart();
         this.controlTower.connect(this);
     }
-
     @Override
     public void onStop() {
         super.onStop();
@@ -137,17 +135,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             case AttributeEvent.STATE_CONNECTED:
                 alertUser("Drone Connected");
                 updateConnectedButton(this.drone.isConnected());
-                //updateArmButton();
-               // checkSoloState();
+                updateArmButton();
+                checkSoloState();
+                updateDronLatLng();
                 break;
 
             case AttributeEvent.STATE_DISCONNECTED:
                 alertUser("Drone Disconnected");
                 updateConnectedButton(this.drone.isConnected());
-              //  updateArmButton();
+                updateArmButton();
                 break;
 
-            /*case AttributeEvent.STATE_UPDATED:
+            case AttributeEvent.STATE_UPDATED:
             case AttributeEvent.STATE_ARMING:
                 updateArmButton();
                 break;
@@ -174,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             case AttributeEvent.HOME_UPDATED:
                 updateDistanceFromHome();
-                break;*/
+                break;
 
             default:
                 // Log.i("DRONE_EVENT", event); //Uncomment to see events from the drone
@@ -191,12 +190,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             alertUser("Solo state is up to date.");
         }
     }
-
     @Override
     public void onDroneServiceInterrupted(String errorMsg) {
 
     }
-
     @Override
     public void onLinkStateUpdated(@NonNull LinkConnectionStatus connectionStatus) {
         switch(connectionStatus.getStatusCode()){
@@ -211,7 +208,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
     }
-
     @Override
     public void onTowerConnected() {
         alertUser("DroneKit-Android Connected");
@@ -219,7 +215,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.drone.registerDroneListener(this);
 
     }
-
     @Override
     public void onTowerDisconnected() {
         alertUser("DroneKit-Android Interrupted");
@@ -235,7 +230,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             connectButton.setText("Connect");
         }
     }
-
     protected void updateArmButton() {
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
         Button armButton = (Button) findViewById(R.id.btnArmTakeOff);
@@ -257,13 +251,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             armButton.setText("ARM");
         }
     }
-
-   /* protected void updateAltitude() {
+    protected void updateAltitude() {
         TextView altitudeTextView = (TextView) findViewById(R.id.altitudeValueTextView);
         Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
         altitudeTextView.setText(String.format("%3.1f", droneAltitude.getAltitude()) + "m");
     }
-
     protected void updateSpeed() {
         TextView speedTextView = (TextView) findViewById(R.id.speedValueTextView);
         Speed droneSpeed = this.drone.getAttribute(AttributeType.SPEED);
@@ -274,6 +266,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         TextView distanceTextView = (TextView) findViewById(R.id.distanceValueTextView);
         Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
         double vehicleAltitude = droneAltitude.getAltitude();
+
         Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
         LatLong vehiclePosition = droneGps.getPosition();
 
@@ -286,9 +279,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else {
             distanceFromHome = 0;
         }
-
         distanceTextView.setText(String.format("%3.1f", distanceFromHome) + "m");
-    }*/
+    }
+
+    protected void updateDronLatLng()
+    {
+        final Marker dron =new Marker();
+        Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
+        LatLong vehiclePosition = droneGps.getPosition();
+        LatLng dorn_a= new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude());
+        dron.setPosition(dorn_a);
+        dron.setMap(naverMap);
+    }
 
     protected void updateVehicleModesForType(int droneType) {
 
@@ -297,14 +299,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         vehicleModeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         this.modeSelector.setAdapter(vehicleModeArrayAdapter);
     }
-
     protected void updateVehicleMode() {
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
         VehicleMode vehicleMode = vehicleState.getVehicleMode();
         ArrayAdapter arrayAdapter = (ArrayAdapter) this.modeSelector.getAdapter();
         this.modeSelector.setSelection(arrayAdapter.getPosition(vehicleMode));
     }
-
     protected void alertUser(String message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
         Log.d(TAG, message);
@@ -328,7 +328,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
     }
-
     public void onFlightModeSelected(View view) {
         VehicleMode vehicleMode = (VehicleMode) this.modeSelector.getSelectedItem();
 
@@ -412,6 +411,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         double dz = pointA.getAltitude() - pointB.getAltitude();
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
+
 }
 
 

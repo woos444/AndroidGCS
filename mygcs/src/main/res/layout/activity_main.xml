@@ -20,9 +20,9 @@
         android:layout_alignTop="@+id/map"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_marginTop="41dp"
-        android:layout_marginEnd="36dp"
-        android:layout_marginRight="36dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginRight="15dp"
         android:onClick="onBtnConnectTap"
         android:text="Connect" />
 
@@ -34,28 +34,143 @@
         android:layout_alignBottom="@+id/map"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_marginEnd="22dp"
-        android:layout_marginRight="22dp"
-        android:layout_marginBottom="40dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="15dp"
         android:onClick="onArmButtonTap"
         android:visibility="invisible" />
 
-    <Spinner
-        android:id="@+id/modeSelect"
-        android:layout_width="159dp"
+    <TableRow
+        android:id="@+id/vehTelemRow1"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_column="1"
         android:layout_alignStart="@+id/map"
-        android:layout_alignTop="@+id/map"
-        android:layout_alignParentLeft="true"
-        android:layout_marginStart="113dp"
-        android:layout_marginLeft="113dp"
-        android:layout_marginTop="56dp"
-        android:layout_marginEnd="14dp"
-        android:layout_marginRight="14dp"
-        android:layout_toStartOf="@+id/btnConnect"
-        android:layout_toLeftOf="@+id/btnConnect"
-        android:spinnerMode="dropdown" />
+        android:layout_alignBottom="@+id/map"
+        android:layout_marginStart="15dp"
+        android:layout_marginBottom="20dp">
+
+        <TextView
+            android:id="@+id/vehicleModeLabelTextView"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_column="0"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="Mode:"
+            android:textColor="#000000"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <Spinner
+            android:id="@+id/modeSelect"
+            android:layout_width="fill_parent"
+            android:layout_height="44dp"
+            android:layout_column="1"
+            android:layout_below="@+id/connectionTypeLabel"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/btnConnect"
+            android:spinnerMode="dropdown" />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/vehTelemRow2"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/vehTelemRow3"
+        android:layout_alignStart="@+id/map"
+        android:layout_marginStart="15dp"
+        android:layout_marginBottom="0dp">
+
+        <TextView
+            android:id="@+id/altitudeLabelTextView"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_column="0"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="고도:"
+            android:textColor="#000000"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/altitudeValueTextView"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_column="1"
+            android:layout_gravity="left"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="0m"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="#000000" />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/vehTelemRow3"
+        android:layout_width="200dp"
+        android:layout_height="32dp"
+        android:layout_above="@+id/vehTelemRow4"
+        android:layout_alignStart="@+id/map"
+        android:layout_marginStart="15dp"
+        android:layout_marginBottom="0dp">
+
+        <TextView
+            android:id="@+id/speedLabelTextView"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_column="0"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="속도:"
+            android:textColor="#000000"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/speedValueTextView"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_column="1"
+            android:layout_gravity="left"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="0m/s"
+            android:textColor="#000000"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/vehTelemRow4"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/vehTelemRow1"
+        android:layout_alignStart="@+id/map"
+        android:layout_marginStart="15dp"
+        android:layout_marginBottom="0dp">
+
+        <TextView
+            android:id="@+id/distanceLabelTextView"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_column="0"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="거리:"
+            android:textColor="#000000"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/distanceValueTextView"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_column="1"
+            android:layout_alignEnd="@+id/vehTelemRow4"
+            android:layout_gravity="left"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="0m"
+            android:textColor="#000000"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </TableRow>
 
 
 </RelativeLayout>

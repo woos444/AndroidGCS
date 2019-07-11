@@ -215,14 +215,12 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 
     // DroneKit-Android Listener
     // ==========================================================
-
     @Override
     public void onTowerConnected() {
         alertUser("DroneKit-Android Connected");
         this.controlTower.registerDrone(this.drone, this.handler);
         this.drone.registerDroneListener(this);
     }
-
     @Override
     public void onTowerDisconnected() {
         alertUser("DroneKit-Android Interrupted");
