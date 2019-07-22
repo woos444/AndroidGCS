@@ -24,6 +24,7 @@ import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.OnMapReadyCallback;
 import com.naver.maps.map.overlay.InfoWindow;
 import com.naver.maps.map.overlay.Marker;
+import com.naver.maps.map.overlay.OverlayImage;
 import com.naver.maps.map.overlay.PathOverlay;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
@@ -109,13 +110,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onMapReady(@NonNull final NaverMap naverMap) {
-
-
+        this.naverMap=naverMap;
     }
     @Override
     public void onStart() {
         super.onStart();
         this.controlTower.connect(this);
+
     }
     @Override
     public void onStop() {
@@ -137,7 +138,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 updateConnectedButton(this.drone.isConnected());
                 updateArmButton();
                 checkSoloState();
-                updateDronLatLng();
                 break;
 
             case AttributeEvent.STATE_DISCONNECTED:
@@ -174,6 +174,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             case AttributeEvent.HOME_UPDATED:
                 updateDistanceFromHome();
                 break;
+            case AttributeEvent.GPS_POSITION:
+                updateDronLatLng();
+                break;
+
 
             default:
                 // Log.i("DRONE_EVENT", event); //Uncomment to see events from the drone
@@ -261,9 +265,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Speed droneSpeed = this.drone.getAttribute(AttributeType.SPEED);
         speedTextView.setText(String.format("%3.1f", droneSpeed.getGroundSpeed()) + "m/s");
     }
-
     protected void updateDistanceFromHome() {
         TextView distanceTextView = (TextView) findViewById(R.id.distanceValueTextView);
+
         Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
         double vehicleAltitude = droneAltitude.getAltitude();
 
@@ -284,12 +288,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     protected void updateDronLatLng()
     {
-        final Marker dron =new Marker();
         Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
         LatLong vehiclePosition = droneGps.getPosition();
-        LatLng dorn_a= new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude());
-        dron.setPosition(dorn_a);
+        LatLng dron_a=new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude());
+        Log.i("test",String.valueOf(dron_a));
+
+        Marker dron = new Marker();
+        dron.setIcon(OverlayImage.fromResource(R.drawable.illuminati_48px));
+        dron.setPosition(dron_a);
+
+        CameraPosition cameraPosition = new CameraPosition(dron_a,12);//카메라중앙설정 및 줌값 설정
+        naverMap.setCameraPosition(cameraPosition);
+
         dron.setMap(naverMap);
+
     }
 
     protected void updateVehicleModesForType(int droneType) {
@@ -309,9 +321,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
         Log.d(TAG, message);
     }
-
-
-
 
     // UI Events
     // ==========================================================

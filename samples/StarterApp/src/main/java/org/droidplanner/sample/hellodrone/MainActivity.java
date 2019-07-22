@@ -88,6 +88,8 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         final Context context = getApplicationContext();
         this.controlTower = new ControlTower(context);
         this.drone = new Drone(context);
+
+
 /////////////
         this.modeSelector = (Spinner) findViewById(R.id.modeSelect);
         this.modeSelector.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
@@ -389,8 +391,6 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         }
     }
 
-    // UI updating
-    // ==========================================================
 
     protected void updateConnectedButton(Boolean isConnected) {
         Button connectButton = (Button) findViewById(R.id.btnConnect);
@@ -470,8 +470,6 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         this.modeSelector.setSelection(arrayAdapter.getPosition(vehicleMode));
     }
 
-    // Helper methods
-    // ==========================================================
 
     protected void alertUser(String message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
