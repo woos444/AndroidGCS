@@ -43,6 +43,7 @@ import com.o3dr.services.android.lib.drone.companion.solo.SoloState;
 import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 import com.o3dr.services.android.lib.drone.property.Altitude;
+import com.o3dr.services.android.lib.drone.property.Battery;
 import com.o3dr.services.android.lib.drone.property.Gps;
 import com.o3dr.services.android.lib.drone.property.Home;
 import com.o3dr.services.android.lib.drone.property.Speed;
@@ -170,7 +171,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             case AttributeEvent.ALTITUDE_UPDATED:
                 updateAltitude();
                 break;
-
+            case AttributeEvent.GPS_COUNT:
+                updateSatellitesnum();
+                break;
+            case AttributeEvent.BATTERY_UPDATED:
+                updateVoltage();
+                break;
             case AttributeEvent.HOME_UPDATED:
                 updateDistanceFromHome();
                 break;
@@ -265,6 +271,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Speed droneSpeed = this.drone.getAttribute(AttributeType.SPEED);
         speedTextView.setText(String.format("%3.1f", droneSpeed.getGroundSpeed()) + "m/s");
     }
+    protected void updateSatellitesnum() {
+        TextView SatelliteTextView = (TextView) findViewById(R.id.SatellitesnumTextView);
+        Gps num = this.drone.getAttribute(AttributeType.GPS);
+        SatelliteTextView.setText(String.format("%d", num.getSatellitesCount()) );
+    }
+    protected void updateVoltage() {
+        TextView VoltageTextView = (TextView) findViewById(R.id.VoltageValueTextView);
+        Battery Volt = this.drone.getAttribute(AttributeType.BATTERY);
+        VoltageTextView.setText(String.format("%d", Volt.getBatteryVoltage())+"V" );
+    }
+    protected void updateYAW() {
+        TextView YAWTextView = (TextView) findViewById(R.id.YAWValueTextView);
+        Gps YAW = this.drone.getAttribute(AttributeType.GPS);
+        YAWTextView.setText(String.format("%d", YAW.getSatellitesCount())+"deg" );
+    }
     protected void updateDistanceFromHome() {
         TextView distanceTextView = (TextView) findViewById(R.id.distanceValueTextView);
 
@@ -286,8 +307,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         distanceTextView.setText(String.format("%3.1f", distanceFromHome) + "m");
     }
 
-    protected void updateDronLatLng()
-    {
+    protected void updateDronLatLng() {
         Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
         LatLong vehiclePosition = droneGps.getPosition();
         LatLng dron_a=new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude());

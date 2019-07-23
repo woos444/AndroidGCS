@@ -42,29 +42,66 @@
 
     <TableRow
         android:id="@+id/jeongbochang"
-        android:layout_width="723dp"
-        android:layout_height="34dp"
-        android:layout_alignParentEnd="true"
+        android:layout_width="match_parent"
+        android:layout_height="23dp"
+        android:layout_alignStart="@+id/map"
+        android:layout_alignEnd="@+id/map"
+        android:layout_marginStart="0dp"
         android:layout_marginTop="0dp"
         android:layout_marginEnd="0dp"
-        >
+        android:background="#AA000000">
 
         <TableRow
-            android:id="@+id/vehTelemRow1"
-            android:layout_width="193dp"
+            android:id="@+id/VoltageTelemRow"
+            android:layout_width="50dp"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/map">
+            android:layout_marginStart="15dp">
 
             <TextView
-                android:id="@+id/vehicleModeLabelTextView"
-                android:layout_width="50dp"
+                android:id="@+id/VoltageLabelTextView"
+                android:layout_width="25dp"
                 android:layout_height="wrap_content"
                 android:layout_column="0"
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
-                android:text="Mode:"
+                android:text="전압"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="#000000" />
+                android:textColor="#ffffff"
+                android:textSize="10dp" />
+
+            <TextView
+                android:id="@+id/VoltageValueTextView"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
+                android:layout_gravity="left"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:text="0V"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="#ffffff"
+                android:textSize="10dp" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/ModeTelemRow"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/map"
+            android:layout_marginStart="5dp"
+            android:layout_toEndOf="@+id/VoltageTelemRow">
+
+            <TextView
+                android:id="@+id/vehicleModeLabelTextView"
+                android:layout_width="30dp"
+                android:layout_height="wrap_content"
+                android:layout_column="0"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:text="Mode"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="#ffffff"
+                android:textSize="10dp" />
 
             <Spinner
                 android:id="@+id/modeSelect"
@@ -75,27 +112,29 @@
                 android:layout_alignParentStart="true"
                 android:layout_alignParentLeft="true"
                 android:layout_toLeftOf="@+id/btnConnect"
-                android:spinnerMode="dropdown" />
+                android:spinnerMode="dropdown"
+                android:textSize="10dp" />
         </TableRow>
 
         <TableRow
-            android:id="@+id/vehTelemRow2"
-            android:layout_width="105dp"
+            android:id="@+id/AltTelemRow"
+            android:layout_width="50dp"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/map"
             android:layout_marginStart="0dp"
-            android:layout_toEndOf="@+id/vehTelemRow1">
+            android:layout_toEndOf="@+id/ModeTelemRow">
 
             <TextView
                 android:id="@+id/altitudeLabelTextView"
-                android:layout_width="50dp"
+                android:layout_width="25dp"
                 android:layout_height="wrap_content"
                 android:layout_column="0"
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
-                android:text="고도:"
+                android:text="고도"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="#000000" />
+                android:textColor="#ffffff"
+                android:textSize="10dp" />
 
             <TextView
                 android:id="@+id/altitudeValueTextView"
@@ -107,27 +146,28 @@
                 android:paddingBottom="5dp"
                 android:text="0m"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="#000000" />
+                android:textColor="#ffffff"
+                android:textSize="10dp" />
         </TableRow>
 
         <TableRow
-            android:id="@+id/vehTelemRow3"
-            android:layout_width="114dp"
-            android:layout_height="32dp"
-            android:layout_alignBottom="@+id/map"
-            android:layout_marginStart="0dp"
-            android:layout_toEndOf="@+id/vehTelemRow2">
+            android:id="@+id/SpeedTelemRow"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_toEndOf="@+id/AltTelemRow">
 
             <TextView
                 android:id="@+id/speedLabelTextView"
-                android:layout_width="50dp"
+                android:layout_width="25dp"
                 android:layout_height="wrap_content"
                 android:layout_column="0"
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
-                android:text="속도:"
+                android:text="속도"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="#000000" />
+                android:textColor="#ffffff"
+                android:textSize="10dp" />
 
             <TextView
                 android:id="@+id/speedValueTextView"
@@ -139,42 +179,112 @@
                 android:paddingBottom="5dp"
                 android:text="0m/s"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="#000000" />
+                android:textColor="#ffffff"
+                android:textSize="10dp" />
         </TableRow>
 
 
         <TableRow
-            android:id="@+id/vehTelemRow4"
-            android:layout_width="106dp"
+            android:id="@+id/distanceTelemRow"
+            android:layout_width="60dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="0dp"
-            android:layout_toEndOf="@+id/vehTelemRow3">
+            android:layout_marginStart="5dp"
+            android:layout_toEndOf="@+id/SpeedTelemRow">
 
             <TextView
                 android:id="@+id/distanceLabelTextView"
-                android:layout_width="50dp"
+                android:layout_width="25dp"
                 android:layout_height="wrap_content"
                 android:layout_column="0"
-                android:layout_alignStart="@+id/vehTelemRow4"
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
-                android:text="거리:"
+                android:text="거리"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="#000000" />
+                android:textColor="#ffffff"
+                android:textSize="10dp" />
+
 
             <TextView
                 android:id="@+id/distanceValueTextView"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_column="1"
-                android:layout_alignEnd="@+id/vehTelemRow4"
                 android:layout_gravity="left"
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
                 android:text="0m"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="#000000" />
+                android:textColor="#ffffff"
+                android:textSize="10dp" />
         </TableRow>
+
+        <TableRow
+            android:id="@+id/YAWTelemRow"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_toEndOf="@+id/distanceTelemRow">
+
+            <TextView
+                android:id="@+id/YAWLabelTextView"
+                android:layout_width="27dp"
+                android:layout_height="wrap_content"
+                android:layout_column="0"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:text="YAW"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="#ffffff"
+                android:textSize="10dp" />
+
+            <TextView
+                android:id="@+id/YAWValueTextView"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
+                android:layout_gravity="left"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:text="0deg"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="#ffffff"
+                android:textSize="10dp" />
+        </TableRow>
+
+
+        <TableRow
+            android:id="@+id/satellitesTelemRow"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_toEndOf="@+id/YAWTelemRow">
+
+            <TextView
+                android:id="@+id/SatellitesTextView"
+                android:layout_width="20dp"
+                android:layout_height="wrap_content"
+                android:layout_column="0"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:text="위성"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="#ffffff"
+                android:textSize="10dp" />
+
+            <TextView
+                android:id="@+id/SatellitesnumTextView"
+                android:layout_width="74dp"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
+                android:layout_gravity="left"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:text="0"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="#ffffff"
+                android:textSize="10dp" />
+        </TableRow>
+
 
     </TableRow>
 
