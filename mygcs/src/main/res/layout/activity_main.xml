@@ -17,12 +17,11 @@
         android:id="@+id/btnConnect"
         android:layout_width="wrap_content"
         android:layout_height="59dp"
-        android:layout_alignTop="@+id/map"
+        android:layout_alignBottom="@+id/map"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_marginTop="52dp"
         android:layout_marginEnd="15dp"
-        android:layout_marginRight="15dp"
+        android:layout_marginBottom="15dp"
         android:onClick="onBtnConnectTap"
         android:text="Connect" />
 
@@ -31,11 +30,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_column="1"
+        android:layout_alignStart="@+id/map"
         android:layout_alignBottom="@+id/map"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginEnd="15dp"
-        android:layout_marginRight="15dp"
+        android:layout_marginStart="15dp"
         android:layout_marginBottom="15dp"
         android:onClick="onArmButtonTap"
         android:visibility="invisible" />

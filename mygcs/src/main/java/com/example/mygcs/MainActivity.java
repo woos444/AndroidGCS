@@ -1,6 +1,7 @@
 package com.example.mygcs;
 
 import android.content.Context;
+import android.graphics.PointF;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.geometry.LatLngBounds;
 import com.naver.maps.map.CameraPosition;
+import com.naver.maps.map.CameraUpdate;
 import com.naver.maps.map.MapFragment;
 import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.OnMapReadyCallback;
@@ -43,6 +45,7 @@ import com.o3dr.services.android.lib.drone.companion.solo.SoloState;
 import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 import com.o3dr.services.android.lib.drone.property.Altitude;
+import com.o3dr.services.android.lib.drone.property.Attitude;
 import com.o3dr.services.android.lib.drone.property.Battery;
 import com.o3dr.services.android.lib.drone.property.Gps;
 import com.o3dr.services.android.lib.drone.property.Home;
@@ -53,6 +56,8 @@ import com.o3dr.services.android.lib.drone.property.VehicleMode;
 import com.o3dr.services.android.lib.gcs.link.LinkConnectionStatus;
 import com.o3dr.services.android.lib.model.AbstractCommandListener;
 import com.o3dr.services.android.lib.model.SimpleCommandListener;
+
+import org.droidplanner.services.android.impl.core.drone.variables.Camera;
 
 import java.lang.reflect.Array;
 import java.nio.file.Path;
@@ -68,6 +73,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private final Handler handler = new Handler();
     private static final int DEFAULT_UDP_PORT = 14550;
     private static final int DEFAULT_USB_BAUD_RATE = 57600;
+
+    Marker dron_M = new Marker();
+    private double yaw_value;
 
     private Spinner modeSelector;
 
@@ -183,8 +191,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             case AttributeEvent.GPS_POSITION:
                 updateDronLatLng();
                 break;
-
-
+            case AttributeEvent.ATTITUDE_UPDATED:
+                updateYAW();
+                break;
             default:
                 // Log.i("DRONE_EVENT", event); //Uncomment to see events from the drone
                 break;
@@ -279,12 +288,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void updateVoltage() {
         TextView VoltageTextView = (TextView) findViewById(R.id.VoltageValueTextView);
         Battery Volt = this.drone.getAttribute(AttributeType.BATTERY);
-        VoltageTextView.setText(String.format("%d", Volt.getBatteryVoltage())+"V" );
+        VoltageTextView.setText(String.format("%.1f", Volt.getBatteryVoltage())+"V" );
     }
     protected void updateYAW() {
         TextView YAWTextView = (TextView) findViewById(R.id.YAWValueTextView);
-        Gps YAW = this.drone.getAttribute(AttributeType.GPS);
-        YAWTextView.setText(String.format("%d", YAW.getSatellitesCount())+"deg" );
+        Attitude YAW = this.drone.getAttribute(AttributeType.ATTITUDE);
+        yaw_value = YAW.getYaw();
+        YAWTextView.setText(String.format("%.0f", yaw_value)+"deg");
     }
     protected void updateDistanceFromHome() {
         TextView distanceTextView = (TextView) findViewById(R.id.distanceValueTextView);
@@ -306,21 +316,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         distanceTextView.setText(String.format("%3.1f", distanceFromHome) + "m");
     }
-
     protected void updateDronLatLng() {
+        float drac=0;
         Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
         LatLong vehiclePosition = droneGps.getPosition();
         LatLng dron_a=new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude());
         Log.i("test",String.valueOf(dron_a));
 
-        Marker dron = new Marker();
-        dron.setIcon(OverlayImage.fromResource(R.drawable.illuminati_48px));
-        dron.setPosition(dron_a);
+       // Marker dron = new Marker();
+        dron_M.setIcon(OverlayImage.fromResource(R.drawable.illuminati_48px));
+        dron_M.setFlat(true);
+        if(yaw_value>=0){ drac =(float) yaw_value;}
+        else if(yaw_value<0) {drac = (float)(180+(180+yaw_value)); }
 
-        CameraPosition cameraPosition = new CameraPosition(dron_a,12);//카메라중앙설정 및 줌값 설정
-        naverMap.setCameraPosition(cameraPosition);
+        dron_M.setAngle(drac);
+        dron_M.setPosition(dron_a);
 
-        dron.setMap(naverMap);
+        CameraUpdate cameraPosition = CameraUpdate.scrollTo(dron_a);//카메라중앙설정 및 줌값 설정
+        naverMap.moveCamera(cameraPosition);
+        dron_M.setMap(naverMap);
 
     }
 
