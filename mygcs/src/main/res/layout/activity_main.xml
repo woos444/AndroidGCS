@@ -13,15 +13,72 @@
 
     </FrameLayout>
 
+    <TableLayout
+        android:id="@+id/MapChange"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/map"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_toStartOf="@+id/btnConnect">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/SatlliteMap_bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="위성지도"
+                android:visibility="invisible" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/TerrainMap_bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="지형도"
+                android:visibility="invisible" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/BasicMap_bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="일반지도"
+                android:visibility="invisible" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/Maptype_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="일반지도" />
+        </TableRow>
+    </TableLayout>
+
     <Button
         android:id="@+id/btnConnect"
         android:layout_width="wrap_content"
-        android:layout_height="59dp"
+        android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/map"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_marginEnd="15dp"
-        android:layout_marginBottom="15dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
         android:onClick="onBtnConnectTap"
         android:text="Connect" />
 
@@ -32,10 +89,20 @@
         android:layout_column="1"
         android:layout_alignStart="@+id/map"
         android:layout_alignBottom="@+id/map"
-        android:layout_marginStart="15dp"
-        android:layout_marginBottom="15dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="10dp"
         android:onClick="onArmButtonTap"
         android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/Maplock_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/map"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_toStartOf="@+id/MapChange"
+        android:text="맵이동" />
 
     <TableRow
         android:id="@+id/jeongbochang"
@@ -112,7 +179,6 @@
                 android:spinnerMode="dropdown"
                 android:textSize="10dp" />
         </TableRow>
-
         <TableRow
             android:id="@+id/AltTelemRow"
             android:layout_width="50dp"
@@ -146,7 +212,6 @@
                 android:textColor="#ffffff"
                 android:textSize="10dp" />
         </TableRow>
-
         <TableRow
             android:id="@+id/SpeedTelemRow"
             android:layout_width="60dp"
@@ -179,8 +244,6 @@
                 android:textColor="#ffffff"
                 android:textSize="10dp" />
         </TableRow>
-
-
         <TableRow
             android:id="@+id/distanceTelemRow"
             android:layout_width="60dp"
@@ -214,7 +277,6 @@
                 android:textColor="#ffffff"
                 android:textSize="10dp" />
         </TableRow>
-
         <TableRow
             android:id="@+id/YAWTelemRow"
             android:layout_width="100dp"
@@ -247,8 +309,6 @@
                 android:textColor="#ffffff"
                 android:textSize="10dp" />
         </TableRow>
-
-
         <TableRow
             android:id="@+id/satellitesTelemRow"
             android:layout_width="60dp"
@@ -281,7 +341,6 @@
                 android:textColor="#ffffff"
                 android:textSize="10dp" />
         </TableRow>
-
 
     </TableRow>
 

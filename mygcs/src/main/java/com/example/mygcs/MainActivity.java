@@ -74,7 +74,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final int DEFAULT_UDP_PORT = 14550;
     private static final int DEFAULT_USB_BAUD_RATE = 57600;
 
+    boolean Map_L=true;
     Marker dron_M = new Marker();
+    LatLng dron_A;
+    int M_Type=1;
     private double yaw_value;
 
     private Spinner modeSelector;
@@ -120,6 +123,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(@NonNull final NaverMap naverMap) {
         this.naverMap=naverMap;
+        Maplock();
+        Maptype();
+
     }
     @Override
     public void onStart() {
@@ -141,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onDroneEvent(String event, Bundle extras) {
+
         switch (event) {
             case AttributeEvent.STATE_CONNECTED:
                 alertUser("Drone Connected");
@@ -320,24 +327,33 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         float drac=0;
         Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
         LatLong vehiclePosition = droneGps.getPosition();
-        LatLng dron_a=new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude());
-        Log.i("test",String.valueOf(dron_a));
+        dron_A=new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude());
 
-       // Marker dron = new Marker();
         dron_M.setIcon(OverlayImage.fromResource(R.drawable.illuminati_48px));
         dron_M.setFlat(true);
         if(yaw_value>=0){ drac =(float) yaw_value;}
         else if(yaw_value<0) {drac = (float)(180+(180+yaw_value)); }
 
         dron_M.setAngle(drac);
-        dron_M.setPosition(dron_a);
+        dron_M.setPosition(dron_A);
 
-        CameraUpdate cameraPosition = CameraUpdate.scrollTo(dron_a);//카메라중앙설정 및 줌값 설정
-        naverMap.moveCamera(cameraPosition);
+        if (Map_L==true)
+        {
+            naverMap.moveCamera(null);
+        }
+        else if(Map_L==false)
+        {
+            CameraPosition cameraPosition = new CameraPosition(dron_A,14);
+            naverMap.setCameraPosition(cameraPosition);
+        }
+        if(M_Type==1)naverMap.setMapType(NaverMap.MapType.Basic);
+        if(M_Type==2)naverMap.setMapType(NaverMap.MapType.Satellite);
+        if(M_Type==3)naverMap.setMapType(NaverMap.MapType.Terrain);
+
+
         dron_M.setMap(naverMap);
 
     }
-
     protected void updateVehicleModesForType(int droneType) {
 
         List<VehicleMode> vehicleModes = VehicleMode.getVehicleModePerDroneType(droneType);
@@ -358,6 +374,75 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // UI Events
     // ==========================================================
+
+
+    public void Maplock() {
+
+        final Button Maplock= (Button)findViewById(R.id.Maplock_button);
+        Maplock.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(Map_L==true) {
+                    Map_L=false;
+                    Maplock.setText("맵잠금");
+                }
+                else if(Map_L==false) {
+                    Map_L=true;
+                    Maplock.setText("맵이동");
+                }
+            }
+        });
+
+
+    }
+
+    public void Maptype()
+    {
+        final Button Maptype= (Button)findViewById(R.id.Maptype_button);
+        final Button T_bt = (Button)findViewById(R.id.TerrainMap_bt);
+        final Button B_bt = (Button)findViewById(R.id.BasicMap_bt);
+        final Button S_bt = (Button)findViewById(R.id.SatlliteMap_bt);
+        Maptype.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (T_bt.getVisibility()==View.INVISIBLE) {
+                    T_bt.setVisibility(View.VISIBLE);
+                    B_bt.setVisibility(View.VISIBLE);
+                    S_bt.setVisibility(View.VISIBLE);
+                }
+                else if(T_bt.getVisibility()==View.VISIBLE)
+                {
+                    T_bt.setVisibility(View.INVISIBLE);
+                    B_bt.setVisibility(View.INVISIBLE);
+                    S_bt.setVisibility(View.INVISIBLE);
+
+                }
+            }
+        });
+
+        T_bt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Maptype.setText(T_bt.getText());
+                M_Type=3;
+            }
+        });
+        S_bt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Maptype.setText(S_bt.getText());
+                M_Type=2;
+            }
+        });
+        B_bt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Maptype.setText(B_bt.getText());
+                M_Type=1;
+            }
+        });
+
+    }
 
     public void onBtnConnectTap(View view) {
         if (this.drone.isConnected()) {
@@ -391,7 +476,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
-
     public void onArmButtonTap(View view) {
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
 
