@@ -20,7 +20,7 @@
         android:layout_alignBottom="@+id/map"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="10dp"
-        android:layout_toStartOf="@+id/btnConnect">
+        android:layout_toStartOf="@+id/CadaStral_button">
 
         <TableRow
             android:layout_width="match_parent"
@@ -102,7 +102,20 @@
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="10dp"
         android:layout_toStartOf="@+id/MapChange"
-        android:text="맵이동" />
+        android:text="맵이동"
+        android:onClick="onMapMoveTap"/>
+
+    <Button
+        android:id="@+id/CadaStral_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/map"
+        android:layout_alignBottom="@+id/map"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="66dp"
+        android:onClick="onCADAtap"
+        android:text="지적도off" />
+
 
     <TableRow
         android:id="@+id/jeongbochang"

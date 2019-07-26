@@ -75,9 +75,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final int DEFAULT_USB_BAUD_RATE = 57600;
 
     boolean Map_L=true;
+    boolean Map_C=false;
     Marker dron_M = new Marker();
     LatLng dron_A;
-    int M_Type=1;
     private double yaw_value;
 
     private Spinner modeSelector;
@@ -118,20 +118,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             fm.beginTransaction().add(R.id.map, mNaverMapFragment).commit();
         }
         mNaverMapFragment.getMapAsync(this);
-    }
+        Maptype();
 
+    }
     @Override
     public void onMapReady(@NonNull final NaverMap naverMap) {
         this.naverMap=naverMap;
-        Maplock();
-        Maptype();
-
     }
     @Override
     public void onStart() {
         super.onStart();
         this.controlTower.connect(this);
-
     }
     @Override
     public void onStop() {
@@ -343,14 +340,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         else if(Map_L==false)
         {
-            CameraPosition cameraPosition = new CameraPosition(dron_A,14);
-            naverMap.setCameraPosition(cameraPosition);
+            CameraUpdate cameraUpdate = CameraUpdate.scrollTo(dron_A);
+            naverMap.moveCamera(cameraUpdate);
         }
-        if(M_Type==1)naverMap.setMapType(NaverMap.MapType.Basic);
-        if(M_Type==2)naverMap.setMapType(NaverMap.MapType.Satellite);
-        if(M_Type==3)naverMap.setMapType(NaverMap.MapType.Terrain);
-
-
         dron_M.setMap(naverMap);
 
     }
@@ -375,29 +367,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     // UI Events
     // ==========================================================
 
-
-    public void Maplock() {
-
-        final Button Maplock= (Button)findViewById(R.id.Maplock_button);
-        Maplock.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(Map_L==true) {
-                    Map_L=false;
-                    Maplock.setText("맵잠금");
-                }
-                else if(Map_L==false) {
-                    Map_L=true;
-                    Maplock.setText("맵이동");
-                }
-            }
-        });
-
-
-    }
-
-    public void Maptype()
-    {
+    public void Maptype() {
         final Button Maptype= (Button)findViewById(R.id.Maptype_button);
         final Button T_bt = (Button)findViewById(R.id.TerrainMap_bt);
         final Button B_bt = (Button)findViewById(R.id.BasicMap_bt);
@@ -424,26 +394,54 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View v) {
                 Maptype.setText(T_bt.getText());
-                M_Type=3;
+                naverMap.setMapType(NaverMap.MapType.Terrain);
             }
         });
         S_bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Maptype.setText(S_bt.getText());
-                M_Type=2;
+                naverMap.setMapType(NaverMap.MapType.Satellite);
             }
         });
         B_bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Maptype.setText(B_bt.getText());
-                M_Type=1;
+                naverMap.setMapType(NaverMap.MapType.Basic);
             }
         });
 
-    }
 
+
+    }
+    public void onCADAtap(View view) {
+        Button CADA = (Button)findViewById(R.id.CadaStral_button);
+        if(Map_C==false) {
+            CADA.setText("지적도on");
+            naverMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_CADASTRAL,true);
+            Map_C=true;
+        }
+        else if(Map_C==true){
+            CADA.setText("지적도off");
+            naverMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_CADASTRAL,false);
+            Map_C=false;
+        }
+
+
+    }
+    public void onMapMoveTap(View view) {
+        Button Maplock= (Button)findViewById(R.id.Maplock_button);
+        if(Map_L==true) {
+            Map_L=false;
+            Maplock.setText("맵잠금");
+        }
+        else if(Map_L==false) {
+            Map_L=true;
+            Maplock.setText("맵이동");
+        }
+
+    }
     public void onBtnConnectTap(View view) {
         if (this.drone.isConnected()) {
             this.drone.disconnect();
