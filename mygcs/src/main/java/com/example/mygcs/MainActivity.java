@@ -77,7 +77,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     boolean Map_L=true;
     boolean Map_C=false;
     Marker dron_M = new Marker();
+    Marker My_M = new Marker();
     LatLng dron_A;
+    LatLng Home_A;
     private double yaw_value;
 
     private Spinner modeSelector;
@@ -194,6 +196,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
             case AttributeEvent.GPS_POSITION:
                 updateDronLatLng();
+                updateHomeLatLng();
                 break;
             case AttributeEvent.ATTITUDE_UPDATED:
                 updateYAW();
@@ -320,6 +323,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         distanceTextView.setText(String.format("%3.1f", distanceFromHome) + "m");
     }
+    protected void updateHomeLatLng(){
+        Home My_H =this.drone.getAttribute(AttributeType.HOME);
+        LatLong HomePosition = My_H.getCoordinate();
+        Home_A = new LatLng(HomePosition.getLatitude(),HomePosition.getLongitude());
+
+        My_M.setIcon(OverlayImage.fromResource(R.drawable.ethereum_48px));
+        My_M.setPosition(Home_A);
+        My_M.setMap(naverMap);
+
+
+
+    }
     protected void updateDronLatLng() {
         float drac=0;
         Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
@@ -333,6 +348,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         dron_M.setAngle(drac);
         dron_M.setPosition(dron_A);
+        dron_M.setHeight(230);
+        dron_M.setWidth(120);
 
         if (Map_L==true)
         {
@@ -492,7 +509,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             });
         } else if (vehicleState.isArmed()) {
             // Take off
-            ControlApi.getApi(this.drone).takeoff(10, new AbstractCommandListener() {
+            ControlApi.getApi(this.drone).takeoff(3, new AbstractCommandListener() {
 
                 @Override
                 public void onSuccess() {
