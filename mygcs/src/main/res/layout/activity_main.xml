@@ -13,6 +13,17 @@
 
     </FrameLayout>
 
+    <Button
+        android:id="@+id/Clear_Butten"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/map"
+        android:layout_alignBottom="@+id/map"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="122dp"
+        android:text="Clear"
+        android:onClick="onClearButtenTap"/>
+
     <TableLayout
         android:id="@+id/MapChange"
         android:layout_width="wrap_content"

@@ -1,6 +1,7 @@
 package com.example.mygcs;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -28,6 +29,7 @@ import com.naver.maps.map.overlay.InfoWindow;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.OverlayImage;
 import com.naver.maps.map.overlay.PathOverlay;
+import com.naver.maps.map.overlay.PolylineOverlay;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
 import com.o3dr.android.client.apis.ControlApi;
@@ -61,6 +63,7 @@ import org.droidplanner.services.android.impl.core.drone.variables.Camera;
 
 import java.lang.reflect.Array;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -80,6 +83,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     Marker My_M = new Marker();
     LatLng dron_A;
     LatLng Home_A;
+
+    ArrayList Drone_line = new ArrayList();
+    LatLng point = null;
+
+
     private double yaw_value;
 
     private Spinner modeSelector;
@@ -195,8 +203,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 updateDistanceFromHome();
                 break;
             case AttributeEvent.GPS_POSITION:
-                updateDronLatLng();
+                updateDroneLatLng();
                 updateHomeLatLng();
+                updateDroneroute();
                 break;
             case AttributeEvent.ATTITUDE_UPDATED:
                 updateYAW();
@@ -335,7 +344,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     }
-    protected void updateDronLatLng() {
+    protected void updateDroneLatLng() {
         float drac=0;
         Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
         LatLong vehiclePosition = droneGps.getPosition();
@@ -375,6 +384,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         VehicleMode vehicleMode = vehicleState.getVehicleMode();
         ArrayAdapter arrayAdapter = (ArrayAdapter) this.modeSelector.getAdapter();
         this.modeSelector.setSelection(arrayAdapter.getPosition(vehicleMode));
+    }
+    protected void updateDroneroute(){
+        PolylineOverlay line = new PolylineOverlay();
+        Drone_line.add(dron_A);
+        line.setCoords(Drone_line);
+        line.setWidth(10);
+        line.setColor(Color.YELLOW);
+        line.setJoinType(PolylineOverlay.LineJoin.Round);
+        line.setMap(naverMap);
     }
     protected void alertUser(String message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
@@ -457,6 +475,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             Map_L=true;
             Maplock.setText("맵이동");
         }
+
+    }
+    public void onClearButtenTap(View view)
+    {
+        Drone_line.clear();
 
     }
     public void onBtnConnectTap(View view) {
