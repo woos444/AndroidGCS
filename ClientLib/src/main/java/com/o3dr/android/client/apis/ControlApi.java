@@ -2,6 +2,7 @@ package com.o3dr.android.client.apis;
 
 import android.os.Bundle;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.o3dr.android.client.Drone;
 import com.o3dr.services.android.lib.coordinate.LatLong;
 import com.o3dr.services.android.lib.coordinate.LatLongAlt;

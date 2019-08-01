@@ -9,20 +9,53 @@
     <FrameLayout
         android:id="@+id/map"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"/>
 
-    </FrameLayout>
+    <Button
+        android:id="@+id/tackoff_al"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_above="@+id/btnArmTakeOff"
+        android:layout_alignStart="@+id/map"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="10dp"
+        android:textSize="7dp"
+        android:onClick="onTakeoffALTap" />
+
+    <Button
+        android:id="@+id/al_UP"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_above="@+id/btnArmTakeOff"
+        android:layout_marginStart="0dp"
+        android:layout_marginBottom="10dp"
+        android:layout_toEndOf="@+id/tackoff_al"
+        android:drawableBottom="@drawable/up_arrow_26px"
+        android:visibility="invisible" />
+
+
+    <Button
+        android:id="@+id/al_DOWN"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_above="@+id/btnArmTakeOff"
+        android:layout_marginStart="0dp"
+        android:layout_marginBottom="10dp"
+        android:layout_toEndOf="@+id/al_UP"
+        android:drawableBottom="@drawable/down_arrow_26px"
+        android:visibility="invisible" />
 
     <Button
         android:id="@+id/Clear_Butten"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+
+        android:layout_above="@+id/CadaStral_button"
         android:layout_alignEnd="@+id/map"
-        android:layout_alignBottom="@+id/map"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="122dp"
-        android:text="Clear"
-        android:onClick="onClearButtenTap"/>
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="0dp"
+        android:onClick="onClearButtenTap"
+        android:text="Clear" />
 
     <TableLayout
         android:id="@+id/MapChange"
@@ -83,15 +116,16 @@
 
     <Button
         android:id="@+id/btnConnect"
-        android:layout_width="wrap_content"
+        android:layout_width="99dp"
         android:layout_height="wrap_content"
+
         android:layout_alignBottom="@+id/map"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp"
         android:layout_marginBottom="10dp"
+        android:layout_toEndOf="@+id/btnArmTakeOff"
         android:onClick="onBtnConnectTap"
-        android:text="Connect" />
+        android:text="Connect"
+        android:textSize="10dp"/>
 
     <Button
         android:id="@+id/btnArmTakeOff"
@@ -123,7 +157,7 @@
         android:layout_alignEnd="@+id/map"
         android:layout_alignBottom="@+id/map"
         android:layout_marginEnd="10dp"
-        android:layout_marginBottom="66dp"
+        android:layout_marginBottom="10dp"
         android:onClick="onCADAtap"
         android:text="지적도off" />
 
