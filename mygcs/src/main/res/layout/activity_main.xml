@@ -17,8 +17,8 @@
         android:layout_height="50dp"
         android:layout_above="@+id/btnArmTakeOff"
         android:layout_alignStart="@+id/map"
-        android:layout_marginStart="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginBottom="0dp"
         android:textSize="7dp"
         android:onClick="onTakeoffALTap" />
 
@@ -28,7 +28,7 @@
         android:layout_height="50dp"
         android:layout_above="@+id/btnArmTakeOff"
         android:layout_marginStart="0dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="0dp"
         android:layout_toEndOf="@+id/tackoff_al"
         android:drawableBottom="@drawable/up_arrow_26px"
         android:visibility="invisible" />
@@ -40,7 +40,7 @@
         android:layout_height="50dp"
         android:layout_above="@+id/btnArmTakeOff"
         android:layout_marginStart="0dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="0dp"
         android:layout_toEndOf="@+id/al_UP"
         android:drawableBottom="@drawable/down_arrow_26px"
         android:visibility="invisible" />
@@ -52,7 +52,7 @@
 
         android:layout_above="@+id/CadaStral_button"
         android:layout_alignEnd="@+id/map"
-        android:layout_marginEnd="10dp"
+        android:layout_marginEnd="0dp"
         android:layout_marginBottom="0dp"
         android:onClick="onClearButtenTap"
         android:text="Clear" />
@@ -62,8 +62,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/map"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="0dp"
         android:layout_toStartOf="@+id/CadaStral_button">
 
         <TableRow
@@ -120,8 +120,8 @@
         android:layout_height="wrap_content"
 
         android:layout_alignBottom="@+id/map"
-        android:layout_marginStart="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginBottom="0dp"
         android:layout_toEndOf="@+id/btnArmTakeOff"
         android:onClick="onBtnConnectTap"
         android:text="Connect"
@@ -134,8 +134,8 @@
         android:layout_column="1"
         android:layout_alignStart="@+id/map"
         android:layout_alignBottom="@+id/map"
-        android:layout_marginStart="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginBottom="0dp"
         android:onClick="onArmButtonTap"
         android:visibility="invisible" />
 
@@ -144,8 +144,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/map"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="0dp"
         android:layout_toStartOf="@+id/MapChange"
         android:text="맵이동"
         android:onClick="onMapMoveTap"/>
@@ -156,8 +156,8 @@
         android:layout_height="wrap_content"
         android:layout_alignEnd="@+id/map"
         android:layout_alignBottom="@+id/map"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="0dp"
         android:onClick="onCADAtap"
         android:text="지적도off" />
 
