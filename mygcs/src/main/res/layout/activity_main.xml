@@ -9,14 +9,93 @@
     <FrameLayout
         android:id="@+id/map"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent">
+
+    </FrameLayout>
+
+    <RelativeLayout
+        android:id = "@+id/Control_Type"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:layout_above="@+id/tackoff"
+        android:background="#00FFFFFF">
+    <Button
+        android:id="@+id/Area_monitoring"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginBottom="0dp"
+        android:textSize="10dp"
+        android:layout_toEndOf="@+id/Interval_monitoring"
+        android:text="면적감시"
+        android:visibility="invisible"/>
+    <Button
+        android:id="@+id/Interval_monitoring"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginBottom="0dp"
+        android:textSize="10dp"
+        android:layout_toEndOf="@+id/Flight_mode"
+        android:text="간격감시"
+        android:visibility="invisible"/>
+    <Button
+        android:id="@+id/Flight_mode"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginBottom="0dp"
+        android:textSize="10dp"
+        android:layout_toEndOf="@+id/normalmode"
+        android:text="경로비행"
+        android:visibility="invisible"/>
+    <Button
+        android:id="@+id/normalmode"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginBottom="0dp"
+        android:textSize="10dp"
+        android:layout_toEndOf="@+id/control_type"
+        android:text="일반모드"
+        android:visibility="invisible"/>
+    <Button
+        android:id="@+id/control_type"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="0dp"
+        android:text="일반모드"
+        android:textSize="10dp"
+        android:onClick="onControlTypeTap"/>
+    </RelativeLayout>
+
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="152dp"
+        android:layout_height="76dp"
+        android:layout_below="@+id/jeongbochang"
+        android:layout_alignStart="@+id/map"
+        android:layout_marginStart="0dp"
+        android:background="#00FFFFFF" />
+
+    <RelativeLayout
+        android:id="@+id/tackoff"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:background="#00FFFFFF"
+        android:layout_above="@+id/btnArmTakeOff">
 
     <Button
         android:id="@+id/tackoff_al"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_above="@+id/btnArmTakeOff"
-        android:layout_alignStart="@+id/map"
+
         android:layout_marginStart="0dp"
         android:layout_marginBottom="0dp"
         android:textSize="7dp"
@@ -26,30 +105,27 @@
         android:id="@+id/al_UP"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_above="@+id/btnArmTakeOff"
         android:layout_marginStart="0dp"
         android:layout_marginBottom="0dp"
         android:layout_toEndOf="@+id/tackoff_al"
         android:drawableBottom="@drawable/up_arrow_26px"
         android:visibility="invisible" />
 
-
     <Button
         android:id="@+id/al_DOWN"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_above="@+id/btnArmTakeOff"
         android:layout_marginStart="0dp"
         android:layout_marginBottom="0dp"
         android:layout_toEndOf="@+id/al_UP"
         android:drawableBottom="@drawable/down_arrow_26px"
         android:visibility="invisible" />
+    </RelativeLayout>
 
     <Button
         android:id="@+id/Clear_Butten"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
         android:layout_above="@+id/CadaStral_button"
         android:layout_alignEnd="@+id/map"
         android:layout_marginEnd="0dp"

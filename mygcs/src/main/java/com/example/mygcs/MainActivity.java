@@ -10,6 +10,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
@@ -23,8 +25,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.geometry.LatLngBounds;
+import com.naver.maps.geometry.MathUtils;
 import com.naver.maps.map.CameraPosition;
 import com.naver.maps.map.CameraUpdate;
 import com.naver.maps.map.MapFragment;
@@ -34,6 +38,7 @@ import com.naver.maps.map.overlay.InfoWindow;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.OverlayImage;
 import com.naver.maps.map.overlay.PathOverlay;
+import com.naver.maps.map.overlay.PolygonOverlay;
 import com.naver.maps.map.overlay.PolylineOverlay;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
@@ -66,6 +71,7 @@ import com.o3dr.services.android.lib.model.SimpleCommandListener;
 
 import org.droidplanner.services.android.impl.core.drone.variables.Camera;
 import org.droidplanner.services.android.impl.core.drone.variables.GuidedPoint;
+import org.droidplanner.services.android.impl.core.gcs.location.Location;
 
 import java.lang.reflect.Array;
 import java.nio.file.Path;
@@ -80,31 +86,36 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private int droneType = Type.TYPE_UNKNOWN;
     private ControlTower controlTower;
     private final Handler handler = new Handler();
-    private static final int DEFAULT_UDP_PORT = 14550;
-    private static final int DEFAULT_USB_BAUD_RATE = 57600;
 
     boolean Map_L=true;
     boolean Map_C=false;
+    boolean getPoint_AB = true;
     Marker drone_M = new Marker();
     Marker My_M = new Marker();
     Marker GO_M = new Marker();
+
+    int control_mode = 0;
+
+    Marker getPoint_A = new Marker();
+    Marker getPoint_B = new Marker();
     LatLng drone_A;
     LatLng Home_A;
 
+    private RecyclerViewAdapter adapter;
+    ArrayList<String> listTitle = new ArrayList<>();
+
     double al=3;
 
-    PolylineOverlay line= new PolylineOverlay(); ;
+    PolylineOverlay line_AB= new PolylineOverlay();
+    PolylineOverlay line= new PolylineOverlay();
+    ArrayList A_line = new ArrayList();
     ArrayList Drone_line = new ArrayList();
-    LatLng point = null;
 
 
     private double yaw_value;
 
     private Spinner modeSelector;
 
-    private MediaCodecManager mediaCodecManager;
-
-    Handler mainHandler;
 
     boolean a = true;
     NaverMap naverMap;
@@ -141,6 +152,66 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Maptype();
 
     }
+
+
+    private void rcv_init() {
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(linearLayoutManager);
+
+        adapter = new RecyclerViewAdapter();
+        recyclerView.setAdapter(adapter);
+    }
+    private void rcv_getData() {
+        for (int i = 0 ;i < listTitle.size();i++) {
+            recyclerview_Data data = new recyclerview_Data();
+            // 각 List의 값들을 data 객체에 set 해줍니다.
+            //recyclerview_Data data = new recyclerview_Data();
+            data.setTitle(listTitle.get(i));
+            data.setResId(R.drawable.icons8_star_64px);
+            // 각 값이 들어간 data를 adapter에 추가합니다.
+            adapter.addItem(data);
+            // adapter의 값이 변경되었다는 것을 알려줍니다.
+        }
+        adapter.notifyDataSetChanged();
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(listTitle.size()==3)
+                {
+                    listTitle.set(0,listTitle.get(1));
+                    listTitle.set(1,listTitle.get(2));
+                    listTitle.remove(2);
+                }
+                else  if(listTitle.size()==2)
+                {
+                    listTitle.set(0,listTitle.get(1));
+                    listTitle.remove(1);
+                }
+                else  if(listTitle.size()==1)
+                {
+                    listTitle.remove(0);
+                }
+
+                rcv_init();
+                for (int i = 0 ;i < listTitle.size();i++) {
+                    recyclerview_Data data = new recyclerview_Data();
+                    // 각 List의 값들을 data 객체에 set 해줍니다.
+                    //recyclerview_Data data = new recyclerview_Data();
+                    data.setTitle(listTitle.get(i));
+                    data.setResId(R.drawable.icons8_star_64px);
+                    // 각 값이 들어간 data를 adapter에 추가합니다.
+                    adapter.addItem(data);
+                    // adapter의 값이 변경되었다는 것을 알려줍니다.
+                }
+                adapter.notifyDataSetChanged();
+
+            }
+        },30000);
+    }
+
     @Override
     public void onMapReady(@NonNull final NaverMap naverMap) {
         this.naverMap=naverMap;
@@ -162,20 +233,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.controlTower.unregisterDrone(this.drone);
         this.controlTower.disconnect();
     }
-
     @Override
     public void onDroneEvent(String event, Bundle extras) {
 
         switch (event) {
             case AttributeEvent.STATE_CONNECTED:
-                alertUser("Drone Connected");
+                alertUser("드론연결");
                 updateConnectedButton(this.drone.isConnected());
                 updateArmButton();
                 checkSoloState();
+                getp_AB();
                 break;
 
             case AttributeEvent.STATE_DISCONNECTED:
-                alertUser("Drone Disconnected");
+                alertUser("드론분리");
                updateConnectedButton(this.drone.isConnected());
                 updateArmButton();
                 break;
@@ -202,7 +273,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
 
             case AttributeEvent.GUIDED_POINT_UPDATED:
-                getClick_LatLng();
+                if(control_mode == 0) {getClick_LatLng();}
                 break;
 
             case AttributeEvent.ALTITUDE_UPDATED:
@@ -226,19 +297,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 updateYAW();
                 break;
             default:
-                // Log.i("DRONE_EVENT", event); //Uncomment to see events from the drone
                 break;
         }
 
     }
     private void checkSoloState() {
         final SoloState soloState = drone.getAttribute(SoloAttributes.SOLO_STATE);
-        if (soloState == null){
-            alertUser("Unable to retrieve the solo state.");
-        }
-        else {
-            alertUser("Solo state is up to date.");
-        }
     }
     @Override
     public void onDroneServiceInterrupted(String errorMsg) {
@@ -253,22 +317,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (extras != null) {
                     msg = extras.getString(LinkConnectionStatus.EXTRA_ERROR_MSG);
                 }
-                alertUser("Connection Failed:" + msg);
                 break;
         }
 
     }
     @Override
     public void onTowerConnected() {
-        alertUser("DroneKit-Android Connected");
         this.controlTower.registerDrone(this.drone, this.handler);
         this.drone.registerDroneListener(this);
-
     }
     @Override
-    public void onTowerDisconnected() {
-        alertUser("DroneKit-Android Interrupted");
-    }
+    public void onTowerDisconnected() { }
 
 
     /////////////////////////////
@@ -348,6 +407,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         distanceTextView.setText(String.format("%3.1f", distanceFromHome) + "m");
     }
     protected void updateHomeLatLng(){
+
         Home My_H =this.drone.getAttribute(AttributeType.HOME);
         LatLong HomePosition = My_H.getCoordinate();
         Home_A = new LatLng(HomePosition.getLatitude(),HomePosition.getLongitude());
@@ -411,8 +471,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         line.setMap(naverMap);
     }
     protected void alertUser(String message) {
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-        Log.d(TAG, message);
+        if (listTitle.size() <= 2) {listTitle.add(message);}
+        else if(listTitle.size() > 2){
+            listTitle.set(0,listTitle.get(1));
+            listTitle.set(1,listTitle.get(2));
+            listTitle.set(2,message);
+        }
+        rcv_init();
+        rcv_getData();
     }
     protected void setTakeoff_al(){
         Button takeoff_al = (Button)findViewById(R.id.tackoff_al);
@@ -420,38 +486,70 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         final SpannableStringBuilder sps = new SpannableStringBuilder(al_text);
         sps.setSpan(new AbsoluteSizeSpan(30),1,3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         takeoff_al.setText(sps);
+        alertUser(al+"m 이륙고도");
 
     }
     protected void getClick_LatLng(){
-        naverMap.setOnMapLongClickListener((pointF, latLng) -> {
-
-            GO_M.setPosition(latLng);
-            //GO_M.setIcon(OverlayImage.fromResource(R.drawable.empty_flag_64px));
-            GO_M.setMap(naverMap);
+            naverMap.setOnMapLongClickListener((pointF, latLng) -> {
+                GO_M.setPosition(latLng);
+                GO_M.setIcon(OverlayImage.fromResource(R.drawable.empty_flag_64px));
+                GO_M.setHeight(50);
+                GO_M.setWidth(50);
+                GO_M.setMap(naverMap);
             /*VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_GUIDED, new SimpleCommandListener() {
                 @Override
-                public void onSuccess() {alertUser("Unable to Guided the vehicle."); }
+                public void onSuccess() {alertUser("성공"); }
             });*/
-            /*LatLongAlt LLA= new LatLongAlt(latLng.latitude,latLng.longitude,al);
-            ControlApi.getApi(this.drone).lookAt(LLA, true, new AbstractCommandListener() {
-                @Override
-                public void onSuccess() { }
-                @Override
-                public void onError(int executionError) { }
-                @Override
-                public void onTimeout() { }
-            });*/
+                LatLong goA = new LatLong(latLng.latitude, latLng.longitude);
 
-            LatLong goA = new LatLong(latLng.latitude,latLng.longitude);
-            ControlApi.getApi(this.drone).goTo(goA, true, new SimpleCommandListener() {
-                @Override
-                public void onSuccess() { alertUser("GO TO"); }
-                @Override
-                public void onError(int executionError) { alertUser("Unable"); }
+                alertUser("출발");
+                ControlApi.getApi(this.drone).goTo(goA, true, new SimpleCommandListener() {
+                    @Override
+                    public void onSuccess() { alertUser("도착"); }
+                    @Override
+                    public void onError(int executionError) { alertUser("실패"); }
 
+                });
             });
-        });
+    }
 
+    protected void getp_AB()
+    {
+
+        naverMap.setOnMapLongClickListener((pointF, latLng) -> {
+            if (getPoint_AB == true) {
+
+
+               // LatLong A_p = new  LatLong(latLng.latitude,latLng.longitude);
+                A_line.clear();
+                line_AB.setMap(null);
+                A_line.add(latLng);
+                getPoint_A.setPosition(latLng);
+                getPoint_A.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px));
+                getPoint_A.setMap(naverMap);
+                getPoint_B.setMap(null);
+                getPoint_AB = false;
+
+
+            }
+            else if (getPoint_AB == false) {
+
+               // LatLong B_p = new  LatLong(latLng.latitude,latLng.longitude);
+                A_line.add(latLng);
+                getPoint_B.setPosition(latLng);
+                getPoint_B.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px_3));
+                getPoint_B.setMap(naverMap);
+                getPoint_AB = true;
+
+                line_AB.setCoords(A_line);
+                line_AB.setWidth(10);
+                line_AB.setMap(naverMap);
+
+
+
+
+            }
+        });
     }
     // UI Events
     // ==========================================================
@@ -484,6 +582,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View v) {
                 Maptype.setText(T_bt.getText());
                 naverMap.setMapType(NaverMap.MapType.Terrain);
+                alertUser("지형도");
             }
         });
         S_bt.setOnClickListener(new View.OnClickListener() {
@@ -491,6 +590,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View v) {
                 Maptype.setText(S_bt.getText());
                 naverMap.setMapType(NaverMap.MapType.Satellite);
+                alertUser("위성지도");
             }
         });
         B_bt.setOnClickListener(new View.OnClickListener() {
@@ -498,6 +598,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View v) {
                 Maptype.setText(B_bt.getText());
                 naverMap.setMapType(NaverMap.MapType.Basic);
+                alertUser("일반지도");
             }
         });
 
@@ -508,11 +609,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Button CADA = (Button)findViewById(R.id.CadaStral_button);
         if(Map_C==false) {
             CADA.setText("지적도on");
+            alertUser("지적도on");
             naverMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_CADASTRAL,true);
             Map_C=true;
         }
         else if(Map_C==true){
             CADA.setText("지적도off");
+            alertUser("지적도off");
             naverMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_CADASTRAL,false);
             Map_C=false;
         }
@@ -524,10 +627,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if(Map_L==true) {
             Map_L=false;
             Maplock.setText("맵잠금");
+            alertUser("맵 잠금");
         }
         else if(Map_L==false) {
             Map_L=true;
             Maplock.setText("맵이동");
+            alertUser("맵 이동");
         }
 
     }
@@ -536,6 +641,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         line.setMap(null);
         Drone_line.clear();
         GO_M.setMap(null);
+        getPoint_A.setMap(null);
+        getPoint_B.setMap(null);
+        alertUser("맵 클리어");
 
     }
     public void onBtnConnectTap(View view) {
@@ -555,18 +663,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         VehicleApi.getApi(this.drone).setVehicleMode(vehicleMode, new AbstractCommandListener() {
             @Override
-            public void onSuccess() {
-                alertUser("Vehicle mode change successful.");
-            }
-
+            public void onSuccess() { alertUser("비행모드변경 성공"); }
             @Override
-            public void onError(int executionError) {
-                alertUser("Vehicle mode change failed: " + executionError);
-            }
-
+            public void onError(int executionError) { alertUser("비행모드변경실패: " + executionError); }
             @Override
             public void onTimeout() {
-                alertUser("Vehicle mode change timed out.");
             }
         });
     }
@@ -608,18 +709,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             // Land
             VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_LAND, new SimpleCommandListener() {
                 @Override
-                public void onError(int executionError) {
-                    alertUser("Unable to land the vehicle.");
-                }
-
+                public void onError(int executionError) { alertUser("착륙불가"); }
                 @Override
                 public void onTimeout() {
-                    alertUser("Unable to land the vehicle.");
+                    alertUser("착륙불가");
                 }
             });
         } else if (vehicleState.isArmed()) {
 
-            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+          /*  AlertDialog.Builder alert = new AlertDialog.Builder(this);
             alert.setTitle("발진!");
             alert.setMessage("설정고도:"+al+"\n비행을 시작할까요?");
             alert.setPositiveButton("확인", new DialogInterface.OnClickListener() {
@@ -628,44 +726,38 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     ControlApi.getApi(drone).takeoff(al, new AbstractCommandListener() {
                         @Override
                         public void onSuccess() {
-                            alertUser("Taking off...");
+                            alertUser("발진!!!");
                         }
                         @Override
-                        public void onError(int i) {
-                            alertUser("Unable to take off.");
-                        }
+                        public void onError(int i) { alertUser("이륙불가"); }
                         @Override
-                        public void onTimeout() { alertUser("Unable to take off."); }
+                        public void onTimeout() { alertUser("이륙시간초과"); }
                     });
-
                 }
             });
             alert.setNegativeButton("취소", new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                }
+                public void onClick(DialogInterface dialog, int which) { }
             });
-
             alert.show();
-
+*/
             // Take off
-           /* ControlApi.getApi(this.drone).takeoff(al, new AbstractCommandListener() {
+            ControlApi.getApi(this.drone).takeoff(al, new AbstractCommandListener() {
                 @Override
                 public void onSuccess() {
-                    alertUser("Taking off...");
+                    alertUser("발진!!!");
                 }
                 @Override
                 public void onError(int i) {
-                    alertUser("Unable to take off.");
+                    alertUser("이륙불가");
                 }
                 @Override
-                public void onTimeout() { alertUser("Unable to take off."); }
-            });*/
+                public void onTimeout() { alertUser("이륙시간초과"); }
+            });
 
         } else if (!vehicleState.isConnected()) {
             // Connect
-            alertUser("Connect to a drone first");
+            alertUser("드론에 먼저 연결");
         } else {
             // Connected but not Armed
 
@@ -675,28 +767,116 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             alert.setPositiveButton("확인", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    VehicleApi.getApi(drone).arm(true, false, new SimpleCommandListener() {
+                    VehicleApi.getApi(drone).arm(true, false, new AbstractCommandListener() {
                         @Override
-                        public void onError(int executionError) {
-                            alertUser("Unable to arm vehicle.");
+                        public void onSuccess() {
+                            alertUser("시동중...");
                         }
-
                         @Override
-                        public void onTimeout() {
-                            alertUser("Arming operation timed out.");
-                        }
+                        public void onError(int i) { alertUser("ARMING 실패"); }
+                        @Override
+                        public void onTimeout() { alertUser("작업시간초과"); }
                     });
                 }
             });
             alert.setNegativeButton("취소", new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                }
+                public void onClick(DialogInterface dialog, int which) { }
             });
             alert.show();
         }
     }
+    public void onControlTypeTap(View view){
+
+        Button normalmode = (Button)findViewById(R.id.normalmode);
+        Button Flight_mode = (Button)findViewById(R.id.Flight_mode);
+        Button Interval_monitoring = (Button)findViewById(R.id.Interval_monitoring);
+        Button Area_monitoring = (Button)findViewById(R.id.Area_monitoring);
+        Button control_type = (Button)findViewById(R.id.control_type);
+
+        if (normalmode.getVisibility()==View.INVISIBLE)
+        {
+            normalmode.setVisibility(View.VISIBLE);
+            Flight_mode.setVisibility(View.VISIBLE);
+            Interval_monitoring.setVisibility(View.VISIBLE);
+            Area_monitoring.setVisibility(View.VISIBLE);
+
+        }
+        else if (normalmode.getVisibility()==View.VISIBLE)
+        {
+            normalmode.setVisibility(View.INVISIBLE);
+            Flight_mode.setVisibility(View.INVISIBLE);
+            Interval_monitoring.setVisibility(View.INVISIBLE);
+            Area_monitoring.setVisibility(View.INVISIBLE);
+        }
+
+        normalmode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                control_mode = 0;
+                normalmode.setVisibility(View.INVISIBLE);
+                Flight_mode.setVisibility(View.INVISIBLE);
+                Interval_monitoring.setVisibility(View.INVISIBLE);
+                Area_monitoring.setVisibility(View.INVISIBLE);
+                control_type.setText(normalmode.getText());
+                alertUser("일반모드");
+
+                Log.i("mode","="+control_mode);
+            }
+        });
+        Flight_mode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                control_mode = 1;
+                normalmode.setVisibility(View.INVISIBLE);
+                Flight_mode.setVisibility(View.INVISIBLE);
+                Interval_monitoring.setVisibility(View.INVISIBLE);
+                Area_monitoring.setVisibility(View.INVISIBLE);
+                control_type.setText(Flight_mode.getText());
+                alertUser("경로비행");
+
+                Log.i("mode","="+control_mode);
+
+            }
+        });
+        Interval_monitoring.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                control_mode = 2;
+                normalmode.setVisibility(View.INVISIBLE);
+                Flight_mode.setVisibility(View.INVISIBLE);
+                Interval_monitoring.setVisibility(View.INVISIBLE);
+                Area_monitoring.setVisibility(View.INVISIBLE);
+                control_type.setText(Interval_monitoring.getText());
+                alertUser("간격감시");
+
+                Log.i("mode","="+control_mode);
+
+            }
+        });
+        Area_monitoring.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                control_mode = 3;
+                normalmode.setVisibility(View.INVISIBLE);
+                Flight_mode.setVisibility(View.INVISIBLE);
+                Interval_monitoring.setVisibility(View.INVISIBLE);
+                Area_monitoring.setVisibility(View.INVISIBLE);
+                control_type.setText(Area_monitoring.getText());
+                alertUser("면적감시");
+
+                Log.i("mode","="+control_mode);
+
+            }
+        });
+
+
+
+
+
+
+    }
+
     protected double distanceBetweenPoints(LatLongAlt pointA, LatLongAlt pointB) {
         if (pointA == null || pointB == null) {
             return 0;
