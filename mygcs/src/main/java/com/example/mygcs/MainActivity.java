@@ -16,38 +16,33 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
 import android.util.Log;
-import android.view.TextureView;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 import com.naver.maps.geometry.LatLng;
-import com.naver.maps.geometry.LatLngBounds;
-import com.naver.maps.geometry.MathUtils;
-import com.naver.maps.map.CameraPosition;
 import com.naver.maps.map.CameraUpdate;
 import com.naver.maps.map.MapFragment;
 import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.OnMapReadyCallback;
-import com.naver.maps.map.overlay.InfoWindow;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.OverlayImage;
-import com.naver.maps.map.overlay.PathOverlay;
-import com.naver.maps.map.overlay.PolygonOverlay;
 import com.naver.maps.map.overlay.PolylineOverlay;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
 import com.o3dr.android.client.apis.ControlApi;
 import com.o3dr.android.client.apis.VehicleApi;
+import com.o3dr.android.client.apis.MissionApi;
 import com.o3dr.android.client.interfaces.DroneListener;
 import com.o3dr.android.client.interfaces.LinkListener;
 import com.o3dr.android.client.interfaces.TowerListener;
-import com.o3dr.android.client.utils.video.MediaCodecManager;
+import com.o3dr.services.android.lib.util.MathUtils;
+import com.o3dr.services.android.lib.drone.mission.item.spatial.Waypoint;
+import com.o3dr.services.android.lib.drone.mission.Mission;
 import com.o3dr.services.android.lib.coordinate.LatLong;
 import com.o3dr.services.android.lib.coordinate.LatLongAlt;
 import com.o3dr.services.android.lib.drone.attribute.AttributeEvent;
@@ -55,7 +50,6 @@ import com.o3dr.services.android.lib.drone.attribute.AttributeType;
 import com.o3dr.services.android.lib.drone.companion.solo.SoloAttributes;
 import com.o3dr.services.android.lib.drone.companion.solo.SoloState;
 import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
-import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 import com.o3dr.services.android.lib.drone.property.Altitude;
 import com.o3dr.services.android.lib.drone.property.Attitude;
 import com.o3dr.services.android.lib.drone.property.Battery;
@@ -69,15 +63,9 @@ import com.o3dr.services.android.lib.gcs.link.LinkConnectionStatus;
 import com.o3dr.services.android.lib.model.AbstractCommandListener;
 import com.o3dr.services.android.lib.model.SimpleCommandListener;
 
-import org.droidplanner.services.android.impl.core.drone.variables.Camera;
-import org.droidplanner.services.android.impl.core.drone.variables.GuidedPoint;
-import org.droidplanner.services.android.impl.core.gcs.location.Location;
-
-import java.lang.reflect.Array;
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback , DroneListener, TowerListener, LinkListener {
 
@@ -96,20 +84,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     int control_mode = 0;
 
-    Marker getPoint_A = new Marker();
-    Marker getPoint_B = new Marker();
+    Marker Point_A = new Marker();
+    Marker Point_B = new Marker();
+    Marker aaa = new Marker();
+    Marker bbb = new Marker();
     LatLng drone_A;
     LatLng Home_A;
-
     private RecyclerViewAdapter adapter;
     ArrayList<String> listTitle = new ArrayList<>();
 
     double al=3;
 
     PolylineOverlay line_AB= new PolylineOverlay();
+    PolylineOverlay Square= new PolylineOverlay();
     PolylineOverlay line= new PolylineOverlay();
-    ArrayList A_line = new ArrayList();
-    ArrayList Drone_line = new ArrayList();
+
+
+    ArrayList<LatLng> A_line = new ArrayList();
+    ArrayList<LatLng> Square_line = new ArrayList();
+    ArrayList<LatLng> Drone_line = new ArrayList();
 
 
     private double yaw_value;
@@ -512,35 +505,58 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 });
             });
     }
-
     protected void getp_AB()
     {
-
         naverMap.setOnMapLongClickListener((pointF, latLng) -> {
             if (getPoint_AB == true) {
-
-
-               // LatLong A_p = new  LatLong(latLng.latitude,latLng.longitude);
                 A_line.clear();
+                Square_line.clear();
+                Square.setMap(null);
                 line_AB.setMap(null);
+                aaa.setMap(null);
+                bbb.setMap(null);
+                Point_B.setMap(null);
+
                 A_line.add(latLng);
-                getPoint_A.setPosition(latLng);
-                getPoint_A.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px));
-                getPoint_A.setMap(naverMap);
-                getPoint_B.setMap(null);
+                Point_A.setPosition(A_line.get(0));
+                Point_A.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px));
+                Point_A.setMap(naverMap);
+                Point_B.setMap(null);
                 getPoint_AB = false;
+
 
 
             }
             else if (getPoint_AB == false) {
-
-               // LatLong B_p = new  LatLong(latLng.latitude,latLng.longitude);
                 A_line.add(latLng);
-                getPoint_B.setPosition(latLng);
-                getPoint_B.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px_3));
-                getPoint_B.setMap(naverMap);
+                Point_B.setPosition(A_line.get(1));
+                Point_B.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px_3));
+                Point_B.setMap(naverMap);
                 getPoint_AB = true;
 
+
+                LatLong n = MathUtils.newCoordFromBearingAndDistance(change_LngLong(A_line.get(0)),90+(int)MathUtils.getHeadingFromCoordinates(change_LngLong(A_line.get(0)),change_LngLong(A_line.get(1))),50);
+                LatLong m = MathUtils.newCoordFromBearingAndDistance(change_LngLong(A_line.get(1)),90+(int)MathUtils.getHeadingFromCoordinates(change_LngLong(A_line.get(0)),change_LngLong(A_line.get(1))),50);
+
+                Square_line.add(A_line.get(0));
+                Square_line.add(change_LongLng(n));
+                Square_line.add(change_LongLng(m));
+                Square_line.add(A_line.get(1));
+
+
+                aaa.setPosition(change_LongLng(n));
+                aaa.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px));
+                bbb.setPosition(change_LongLng(m));
+                bbb.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px_3));
+
+                bbb.setMap(naverMap);
+                aaa.setMap(naverMap);
+
+                alertUser("A to B = "+(int)MathUtils.getDistance2D(change_LngLong(A_line.get(0)),change_LngLong(A_line.get(1)))+"m");
+
+                Square.setCoords(Square_line);
+                Square.setWidth(10);
+                Square.setMap(naverMap);
                 line_AB.setCoords(A_line);
                 line_AB.setWidth(10);
                 line_AB.setMap(naverMap);
@@ -548,9 +564,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
 
+
+
             }
         });
     }
+
+    public LatLong change_LngLong(LatLng latLng){
+        LatLong latLong = new LatLong(latLng.latitude,latLng.longitude);
+        return latLong;
+    }
+    public LatLng change_LongLng(LatLong latLong){
+        LatLng latLng = new LatLng(latLong.getLatitude(),latLong.getLongitude());
+        return latLng;
+    }
+
     // UI Events
     // ==========================================================
 
@@ -641,8 +669,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         line.setMap(null);
         Drone_line.clear();
         GO_M.setMap(null);
-        getPoint_A.setMap(null);
-        getPoint_B.setMap(null);
+        Point_A.setMap(null);
+        Point_B.setMap(null);
+        line_AB.setMap(null);
         alertUser("맵 클리어");
 
     }
