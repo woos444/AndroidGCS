@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ControlTower controlTower;
     private final Handler handler = new Handler();
 
+    boolean MP=true;
     boolean Map_L=true;
     boolean Map_C=false;
     boolean getPoint_AB = true;
@@ -96,19 +97,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     double al=3;
 
     PolylineOverlay line_AB= new PolylineOverlay();
-    PolylineOverlay Square= new PolylineOverlay();
+    PolylineOverlay Square_line= new PolylineOverlay();
+    PolylineOverlay Mission_line = new PolylineOverlay();
     PolylineOverlay line= new PolylineOverlay();
 
-
     ArrayList<LatLng> A_line = new ArrayList();
-    ArrayList<LatLng> Square_line = new ArrayList();
+    ArrayList<LatLng> Square_Point = new ArrayList();
     ArrayList<LatLng> Drone_line = new ArrayList();
-
+    ArrayList<LatLng> Mission_Point = new ArrayList();
+    ArrayList<Waypoint> way = new ArrayList();
 
     private double yaw_value;
-
     private Spinner modeSelector;
-
 
     boolean a = true;
     NaverMap naverMap;
@@ -145,7 +145,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Maptype();
 
     }
-
 
     private void rcv_init() {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
@@ -505,13 +504,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 });
             });
     }
-    protected void getp_AB()
-    {
+    protected void getp_AB() {
         naverMap.setOnMapLongClickListener((pointF, latLng) -> {
             if (getPoint_AB == true) {
                 A_line.clear();
-                Square_line.clear();
-                Square.setMap(null);
+                Square_Point.clear();
+                Square_line.setMap(null);
+                Mission_Point.clear();
+                Mission_line.setMap(null);
                 line_AB.setMap(null);
                 aaa.setMap(null);
                 bbb.setMap(null);
@@ -535,36 +535,55 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 getPoint_AB = true;
 
 
-                LatLong n = MathUtils.newCoordFromBearingAndDistance(change_LngLong(A_line.get(0)),90+(int)MathUtils.getHeadingFromCoordinates(change_LngLong(A_line.get(0)),change_LngLong(A_line.get(1))),50);
-                LatLong m = MathUtils.newCoordFromBearingAndDistance(change_LngLong(A_line.get(1)),90+(int)MathUtils.getHeadingFromCoordinates(change_LngLong(A_line.get(0)),change_LngLong(A_line.get(1))),50);
-
-                Square_line.add(A_line.get(0));
-                Square_line.add(change_LongLng(n));
-                Square_line.add(change_LongLng(m));
-                Square_line.add(A_line.get(1));
 
 
-                aaa.setPosition(change_LongLng(n));
-                aaa.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px));
-                bbb.setPosition(change_LongLng(m));
-                bbb.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px_3));
+                for(int i=0 ; i<=50 ; i+=5)
+                {
+                    LatLong n = MathUtils.newCoordFromBearingAndDistance(change_LngLong(A_line.get(0)),90+(int)MathUtils.getHeadingFromCoordinates(change_LngLong(A_line.get(0)),change_LngLong(A_line.get(1))),i);
+                    LatLong m = MathUtils.newCoordFromBearingAndDistance(change_LngLong(A_line.get(1)),90+(int)MathUtils.getHeadingFromCoordinates(change_LngLong(A_line.get(0)),change_LngLong(A_line.get(1))),i);
+                    if(MP==true){
+                        Mission_Point.add(change_LongLng(n));
+                        Mission_Point.add(change_LongLng(m));
+                        MP=false;
+                    }
+                    else if(MP==false){
+                        Mission_Point.add(change_LongLng(m));
+                        Mission_Point.add(change_LongLng(n));
+                        MP=true;
+                    }
 
-                bbb.setMap(naverMap);
-                aaa.setMap(naverMap);
+                    if(i==50)
+                    {
+                        Square_Point.add(A_line.get(0));
+                        Square_Point.add(change_LongLng(n));
+                        Square_Point.add(change_LongLng(m));
+                        Square_Point.add(A_line.get(1));
+
+                        aaa.setPosition(change_LongLng(n));
+                        aaa.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px));
+                        bbb.setPosition(change_LongLng(m));
+                        bbb.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px_3));
+
+                        bbb.setMap(naverMap);
+                        aaa.setMap(naverMap);
+
+                    }
+                }
 
                 alertUser("A to B = "+(int)MathUtils.getDistance2D(change_LngLong(A_line.get(0)),change_LngLong(A_line.get(1)))+"m");
 
-                Square.setCoords(Square_line);
-                Square.setWidth(10);
-                Square.setMap(naverMap);
+                Mission_line.setCoords(Mission_Point);
+                Mission_line.setWidth(10);
+                Mission_line.setColor(Color.GREEN);
+                Mission_line.setMap(naverMap);
+
+                Square_line.setCoords(Square_Point);
+                Square_line.setWidth(10);
+                Square_line.setMap(naverMap);
+
                 line_AB.setCoords(A_line);
                 line_AB.setWidth(10);
                 line_AB.setMap(naverMap);
-
-
-
-
-
 
             }
         });
@@ -672,6 +691,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Point_A.setMap(null);
         Point_B.setMap(null);
         line_AB.setMap(null);
+        Square_Point.clear();
+        Square_line.setMap(null);
+        Mission_Point.clear();
+        Mission_line.setMap(null);
+        aaa.setMap(null);
+        bbb.setMap(null);
+
         alertUser("맵 클리어");
 
     }

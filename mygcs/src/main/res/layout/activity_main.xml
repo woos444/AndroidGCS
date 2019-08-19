@@ -13,6 +13,13 @@
 
     </FrameLayout>
 
+    <Button
+        android:id="@+id/Mission_start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btnArmTakeOff"
+        android:visibility="invisible"/>
+
     <RelativeLayout
         android:id = "@+id/Control_Type"
         android:layout_width="250dp"
@@ -89,7 +96,7 @@
         android:gravity="center_vertical"
         android:orientation="vertical"
         android:background="#00FFFFFF"
-        android:layout_above="@+id/btnArmTakeOff">
+        android:layout_above="@+id/Mission_start">
 
     <Button
         android:id="@+id/tackoff_al"
