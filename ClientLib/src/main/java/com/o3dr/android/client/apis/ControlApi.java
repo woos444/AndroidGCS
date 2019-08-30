@@ -79,6 +79,7 @@ public class ControlApi extends Api {
 
     /**
      * Pause the vehicle at its current location.
+     * 차량을 현재 위치에서 멈춥니다.
      *
      * @param listener Register a callback to receive update of the command execution state.
      */
@@ -118,7 +119,7 @@ public class ControlApi extends Api {
 
     /**
      * Instructs the vehicle to climb to the specified altitude.
-     *
+     *차량이 지정된 고도로 올라가도록 지시합니다.
      * @param altitude altitude in meters
      */
     public void climbTo(double altitude) {
@@ -128,7 +129,7 @@ public class ControlApi extends Api {
     }
 
     /**
-     * Instructs the vehicle to turn to the specified target angle
+     * 지정된 각도로 회전하도록 지시합니다.
      *
      * @param targetAngle Target angle in degrees [0-360], with 0 == north.
      * @param turnRate    Turning rate normalized to the range [-1.0f, 1.0f]. Positive values for clockwise turns, and negative values for counter-clockwise turns.
@@ -150,6 +151,7 @@ public class ControlApi extends Api {
 
     /**
      * Move the vehicle along the specified normalized velocity vector.
+     * 지정된 정규화 된 속도 벡터를 따라 차량을 이동하십시오.
      *
      * @param vx       x velocity normalized to the range [-1.0f, 1.0f]. Generally correspond to the pitch of the vehicle.
      * @param vy       y velocity normalized to the range [-1.0f, 1.0f]. Generally correspond to the roll of the vehicle.
