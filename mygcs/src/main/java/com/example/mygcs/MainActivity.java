@@ -131,6 +131,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 onFlightModeSelected(view);
+                ((TextView)parent.getChildAt(0)).setTextColor(Color.WHITE);
+                ((TextView)parent.getChildAt(0)).setTextSize(10);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -294,7 +296,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             case AttributeEvent.GPS_POSITION:
                 updateDistanceFromHome();
                 updateDroneLatLng();
-                updateHomeLatLng();
+                //updateHomeLatLng();
                 //updateDroneroute();
                 break;
             case AttributeEvent.ATTITUDE_UPDATED:
@@ -410,6 +412,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         distanceTextView.setText(String.format("%3.1f", distanceFromHome) + "m");
     }
+
     protected void updateHomeLatLng(){
 
         Home My_H =this.drone.getAttribute(AttributeType.HOME);
@@ -419,10 +422,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         My_M.setIcon(OverlayImage.fromResource(R.drawable.ethereum_48px));
         My_M.setPosition(Home_A);
         My_M.setMap(naverMap);
-
-
-
     }
+
     protected void updateDroneLatLng() {
         float drac=0;
         Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
@@ -519,7 +520,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     public void onSuccess() { alertUser("출발"); }
                     @Override
                     public void onError(int executionError) { alertUser("실패"); }
-
                 });
             }
             else if (control_mode == 1){
@@ -534,7 +534,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     public void onSuccess() { alertUser("회전"); }
                     @Override
                     public void onError(int executionError) { alertUser("실패"); }
-
                 });
 
             }
@@ -558,7 +557,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Point_A.setMap(naverMap);
                     Point_B.setMap(null);
                     getPoint_AB = false;
-
                 }
                 else if (getPoint_AB == false) {
                     A_line.add(latLng);
@@ -568,7 +566,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     getPoint_AB = true;
 
                     show();
-
                 }
             }
             else if (control_mode == 3){
@@ -581,7 +578,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 });
             }
-
         });
     }
 
