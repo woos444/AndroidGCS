@@ -101,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     LatLng drone_A;
     LatLng Home_A;
     LatLongAlt My_A;
+
     private RecyclerViewAdapter adapter;
     ArrayList<String> listTitle = new ArrayList<>();
 
@@ -231,9 +232,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.naverMap=naverMap;
         naverMap.setLocationSource(locationSource);
         naverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
-        naverMap.addOnLocationChangeListener(location ->
-                My_A = new LatLongAlt(location.getLatitude(),location.getLongitude(),0)
-        );
+
     }
     @Override
     public void onStart() {
@@ -261,7 +260,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 updateConnectedButton(this.drone.isConnected());
                 updateArmButton();
                 checkSoloState();
-                Log.i("test","my_a:"+My_A);
                 break;
 
             case AttributeEvent.STATE_DISCONNECTED:
@@ -304,7 +302,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
 
             case AttributeEvent.ALTITUDE_UPDATED:
-                updateDistanceFromHome();
+                //updateDistanceFromHome();
                 updateAltitude();
                 break;
             case AttributeEvent.GPS_COUNT:
@@ -314,13 +312,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 updateVoltage();
                 break;
             case AttributeEvent.HOME_UPDATED:
-                //updateDistanceFromHome();
+               // updateDistanceFromHome();
                 break;
             case AttributeEvent.GPS_POSITION:
-                updateDistanceFromHome();
+
                 updateDroneLatLng();
-                //updateHomeLatLng();
-                //updateDroneroute();
+                updateHomeLatLng();
+               // updateDistanceFromHome();
                 break;
             case AttributeEvent.ATTITUDE_UPDATED:
                 updateYAW();
@@ -438,6 +436,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     protected void updateDistanceFromMe() {
         TextView distanceTextView = (TextView) findViewById(R.id.distanceValueTextView);
+        naverMap.addOnLocationChangeListener(location -> My_A = new LatLongAlt(location.getLatitude(),location.getLongitude(),0));
 
         Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
         double vehicleAltitude = droneAltitude.getRelativeAltitude();
@@ -462,6 +461,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Home_A = new LatLng(HomePosition.getLatitude(),HomePosition.getLongitude());
 
         Home_M.setIcon(OverlayImage.fromResource(R.drawable.ethereum_48px));
+        Home_M.setHeight(70);
+        Home_M.setWidth(50);
         Home_M.setPosition(Home_A);
         Home_M.setMap(naverMap);
     }
