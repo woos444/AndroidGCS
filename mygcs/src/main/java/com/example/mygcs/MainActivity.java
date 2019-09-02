@@ -26,12 +26,14 @@ import android.widget.TextView;
 
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.map.CameraUpdate;
+import com.naver.maps.map.LocationTrackingMode;
 import com.naver.maps.map.MapFragment;
 import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.OnMapReadyCallback;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.OverlayImage;
 import com.naver.maps.map.overlay.PolylineOverlay;
+import com.naver.maps.map.util.FusedLocationSource;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
 import com.o3dr.android.client.apis.ControlApi;
@@ -69,6 +71,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback , DroneListener, TowerListener, LinkListener {
 
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
+    private FusedLocationSource locationSource;
+
     private static final String TAG = MainActivity.class.getSimpleName();
     private Drone drone;
     private int droneType = Type.TYPE_UNKNOWN;
@@ -80,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     boolean Map_C=false;
     boolean getPoint_AB = true;
     Marker drone_M = new Marker();
-    Marker My_M = new Marker();
+    Marker Home_M = new Marker();
     Marker GO_M = new Marker();
 
     int control_mode = 0;
@@ -95,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     Marker bbb = new Marker();
     LatLng drone_A;
     LatLng Home_A;
+    LatLongAlt My_A;
     private RecyclerViewAdapter adapter;
     ArrayList<String> listTitle = new ArrayList<>();
 
@@ -121,6 +127,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        locationSource = new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
 
         final Context context = getApplicationContext();
         this.controlTower = new ControlTower(context);
@@ -210,8 +218,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode,@NonNull String[] permissions,  @NonNull int[] grantResults) {
+        if (locationSource.onRequestPermissionsResult(
+                requestCode, permissions, grantResults)) {
+            return;
+        }
+        super.onRequestPermissionsResult(
+                requestCode, permissions, grantResults);
+    }
+    @Override
     public void onMapReady(@NonNull final NaverMap naverMap) {
         this.naverMap=naverMap;
+        naverMap.setLocationSource(locationSource);
+        naverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
+        naverMap.addOnLocationChangeListener(location ->
+                My_A = new LatLongAlt(location.getLatitude(),location.getLongitude(),0)
+        );
     }
     @Override
     public void onStart() {
@@ -239,6 +261,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 updateConnectedButton(this.drone.isConnected());
                 updateArmButton();
                 checkSoloState();
+                Log.i("test","my_a:"+My_A);
                 break;
 
             case AttributeEvent.STATE_DISCONNECTED:
@@ -413,15 +436,34 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         distanceTextView.setText(String.format("%3.1f", distanceFromHome) + "m");
     }
 
+    protected void updateDistanceFromMe() {
+        TextView distanceTextView = (TextView) findViewById(R.id.distanceValueTextView);
+
+        Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
+        double vehicleAltitude = droneAltitude.getRelativeAltitude();
+
+        Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
+        LatLong vehiclePosition = droneGps.getPosition();
+
+        double distanceFromMe = 0;
+
+        if (droneGps.isValid()) {
+            LatLongAlt vehicle3DPosition = new LatLongAlt(vehiclePosition.getLatitude(), vehiclePosition.getLongitude(), vehicleAltitude);
+            distanceFromMe = distanceBetweenPoints(My_A, vehicle3DPosition);
+        } else {
+            distanceFromMe = 0;
+        }
+        distanceTextView.setText(String.format("%3.1f", distanceFromMe) + "m");
+    }
     protected void updateHomeLatLng(){
 
         Home My_H =this.drone.getAttribute(AttributeType.HOME);
         LatLong HomePosition = My_H.getCoordinate();
         Home_A = new LatLng(HomePosition.getLatitude(),HomePosition.getLongitude());
 
-        My_M.setIcon(OverlayImage.fromResource(R.drawable.ethereum_48px));
-        My_M.setPosition(Home_A);
-        My_M.setMap(naverMap);
+        Home_M.setIcon(OverlayImage.fromResource(R.drawable.ethereum_48px));
+        Home_M.setPosition(Home_A);
+        Home_M.setMap(naverMap);
     }
 
     protected void updateDroneLatLng() {
