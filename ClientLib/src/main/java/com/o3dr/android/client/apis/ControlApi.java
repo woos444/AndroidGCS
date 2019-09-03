@@ -160,9 +160,9 @@ public class ControlApi extends Api {
      * @since 2.6.9
      */
     public void manualControl(float vx, float vy, float vz, AbstractCommandListener listener) {
-        if (!isWithinBounds(vx, -1f, 1f) || !isWithinBounds(vy, -1f, 1f) || !isWithinBounds(vz, -1f, 1f)) {
-            postErrorEvent(CommandExecutionError.COMMAND_FAILED, listener);
-            return;
+                if (!isWithinBounds(vx, -1f, 1f) || !isWithinBounds(vy, -1f, 1f) || !isWithinBounds(vz, -1f, 1f)) {
+                    postErrorEvent(CommandExecutionError.COMMAND_FAILED, listener);
+                    return;
         }
 
         Bundle params = new Bundle();
