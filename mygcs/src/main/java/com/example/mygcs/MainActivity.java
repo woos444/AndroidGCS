@@ -434,6 +434,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         distanceTextView.setText(String.format("%3.1f", distanceFromHome) + "m");
     }
 
+
     protected void updateDistanceFromMe() {
         TextView distanceTextView = (TextView) findViewById(R.id.distanceValueTextView);
         naverMap.addOnLocationChangeListener(location -> My_A = new LatLongAlt(location.getLatitude(),location.getLongitude(),0));
