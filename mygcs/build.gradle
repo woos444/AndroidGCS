@@ -42,4 +42,5 @@ dependencies {
     implementation 'com.naver.maps:map-sdk:3.4.0'
 
     implementation project(':ClientLib')
+    compile project(path: ':Mavlink')
 }

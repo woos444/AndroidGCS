@@ -26,12 +26,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 
+import com.MAVLink.common.msg_rc_channels_override;
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.map.CameraUpdate;
 import com.naver.maps.map.LocationTrackingMode;
 import com.naver.maps.map.MapFragment;
 import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.OnMapReadyCallback;
+import com.naver.maps.map.UiSettings;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.OverlayImage;
 import com.naver.maps.map.overlay.PolylineOverlay;
@@ -39,11 +41,13 @@ import com.naver.maps.map.util.FusedLocationSource;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
 import com.o3dr.android.client.apis.ControlApi;
+import com.o3dr.android.client.apis.ExperimentalApi;
 import com.o3dr.android.client.apis.VehicleApi;
 import com.o3dr.android.client.apis.MissionApi;
 import com.o3dr.android.client.interfaces.DroneListener;
 import com.o3dr.android.client.interfaces.LinkListener;
 import com.o3dr.android.client.interfaces.TowerListener;
+import com.o3dr.services.android.lib.mavlink.MavlinkMessageWrapper;
 import com.o3dr.services.android.lib.util.MathUtils;
 import com.o3dr.services.android.lib.drone.mission.item.spatial.Waypoint;
 import com.o3dr.services.android.lib.drone.mission.Mission;
@@ -241,6 +245,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.naverMap=naverMap;
         naverMap.setLocationSource(locationSource);
         naverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
+
+        UiSettings uiSettings = naverMap.getUiSettings();
+        uiSettings.setZoomControlEnabled(false);
 
     }
     @Override
@@ -1178,37 +1185,307 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
     }
+
+
     public void controlDrone() {
+//////////왼쪽 위 버튼
         final Button btncontrol_LU = (Button) findViewById(R.id.btnControl_LU);
         btncontrol_LU.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (MotionEvent.ACTION_DOWN == event.getAction()) {
-                    controlCh1 = 2000;
+
+                    msg_rc_channels_override rc_override;
+                    rc_override = new msg_rc_channels_override();
+                    rc_override.chan1_raw = 1500; //right; 2000 //left
+                    rc_override.chan2_raw = 1500;
+                    rc_override.chan3_raw = 1750; //back; 2000 //forward
+                    rc_override.chan4_raw = 1500;
+
+                    rc_override.target_system = 0;
+                    rc_override.target_component = 0;
+
+                    ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
+
                     alertUser("상승");
                 }
                 if (MotionEvent.ACTION_UP == event.getAction()) {
-                    controlCh1 = 1500;
+                    msg_rc_channels_override rc_override;
+                    rc_override = new msg_rc_channels_override();
+                    rc_override.chan1_raw = 1500; //right; 2000 //left
+                    rc_override.chan2_raw = 1500;
+                    rc_override.chan3_raw = 1500; //back; 2000 //forward
+                    rc_override.chan4_raw = 1500;
+
+                    rc_override.target_system = 0;
+                    rc_override.target_component = 0;
+
+                    ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
                     alertUser("정지");
                 }
                 return true;
             }
         });
+//////////왼쪽 아래 버튼
         final Button btncontrol_LD = (Button) findViewById(R.id.btnControl_LD);
         btncontrol_LD.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (MotionEvent.ACTION_DOWN == event.getAction()) {
-                    controlCh1 = 1000;
+                    msg_rc_channels_override rc_override;
+                    rc_override = new msg_rc_channels_override();
+                    rc_override.chan1_raw = 1500; //right; 2000 //left
+                    rc_override.chan2_raw = 1500;
+                    rc_override.chan3_raw = 1250; //back; 2000 //forward
+                    rc_override.chan4_raw = 1500;
+
+                    rc_override.target_system = 0;
+                    rc_override.target_component = 0;
+
+                    ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
                     alertUser("하강");
                 }
                 if (MotionEvent.ACTION_UP == event.getAction()) {
-                    controlCh1 = 1500;
+                    msg_rc_channels_override rc_override;
+                    rc_override = new msg_rc_channels_override();
+                    rc_override.chan1_raw = 1500; //right; 2000 //left
+                    rc_override.chan2_raw = 1500;
+                    rc_override.chan3_raw = 1500; //back; 2000 //forward
+                    rc_override.chan4_raw = 1500;
+
+                    rc_override.target_system = 0;
+                    rc_override.target_component = 0;
+
+                    ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
                     alertUser("정지");
                 }
                 return true;
             }
         });
+//////////왼쪽 우측버튼
+        final Button btncontrol_LR = (Button) findViewById(R.id.btnControl_LR);
+        btncontrol_LR.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (MotionEvent.ACTION_DOWN == event.getAction()) {
+
+                    msg_rc_channels_override rc_override;
+                    rc_override = new msg_rc_channels_override();
+                    rc_override.chan1_raw = 1500; //right; 2000 //left
+                    rc_override.chan2_raw = 1500;
+                    rc_override.chan3_raw = 1500; //back; 2000 //forward
+                    rc_override.chan4_raw = 1750;
+
+                    rc_override.target_system = 0;
+                    rc_override.target_component = 0;
+
+                    ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
+                    alertUser("시계회전");
+                }
+                if (MotionEvent.ACTION_UP == event.getAction()) {
+                    msg_rc_channels_override rc_override;
+                    rc_override = new msg_rc_channels_override();
+                    rc_override.chan1_raw = 1500; //right; 2000 //left
+                    rc_override.chan2_raw = 1500;
+                    rc_override.chan3_raw = 1500; //back; 2000 //forward
+                    rc_override.chan4_raw = 1500;
+
+                    rc_override.target_system = 0;
+                    rc_override.target_component = 0;
+
+                    ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
+                    alertUser("정지");
+                }
+                return true;
+            }
+        });
+//////////왼쪽 좌측 버튼
+        final Button btncontrol_LL = (Button) findViewById(R.id.btnControl_LL);
+        btncontrol_LL.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (MotionEvent.ACTION_DOWN == event.getAction()) {
+                    msg_rc_channels_override rc_override;
+                    rc_override = new msg_rc_channels_override();
+                    rc_override.chan1_raw = 1500; //right; 2000 //left
+                    rc_override.chan2_raw = 1500;
+                    rc_override.chan3_raw = 1500; //back; 2000 //forward
+                    rc_override.chan4_raw = 1250;
+
+                    rc_override.target_system = 0;
+                    rc_override.target_component = 0;
+
+                    ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
+                    alertUser("반시계회전");
+                }
+                if (MotionEvent.ACTION_UP == event.getAction()) {
+                    msg_rc_channels_override rc_override;
+                    rc_override = new msg_rc_channels_override();
+                    rc_override.chan1_raw = 1500; //right; 2000 //left
+                    rc_override.chan2_raw = 1500;
+                    rc_override.chan3_raw = 1500; //back; 2000 //forward
+                    rc_override.chan4_raw = 1500;
+
+                    rc_override.target_system = 0;
+                    rc_override.target_component = 0;
+
+                    ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
+                    alertUser("정지");
+                }
+                return true;
+            }
+        });
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        //////////오른쪽 위 버튼
+        final Button btncontrol_RU = (Button) findViewById(R.id.btnControl_RU);
+        btncontrol_RU.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (MotionEvent.ACTION_DOWN == event.getAction()) {
+
+                    msg_rc_channels_override rc_override;
+                    rc_override = new msg_rc_channels_override();
+                    rc_override.chan1_raw = 1500;
+                    rc_override.chan2_raw = 1250;
+                    rc_override.chan3_raw = 1500;
+                    rc_override.chan4_raw = 1500;
+
+                    rc_override.target_system = 0;
+                    rc_override.target_component = 0;
+
+                    ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
+                    alertUser("전진");
+                }
+                if (MotionEvent.ACTION_UP == event.getAction()) {
+                    msg_rc_channels_override rc_override;
+                    rc_override = new msg_rc_channels_override();
+                    rc_override.chan1_raw = 1500; //right; 2000 //left
+                    rc_override.chan2_raw = 1500;
+                    rc_override.chan3_raw = 1500; //back; 2000 //forward
+                    rc_override.chan4_raw = 1500;
+
+                    rc_override.target_system = 0;
+                    rc_override.target_component = 0;
+
+                    ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
+                    alertUser("정지");
+                }
+                return true;
+            }
+        });
+//////////오른쪽 아래 버튼
+        final Button btncontrol_RD = (Button) findViewById(R.id.btnControl_RD);
+        btncontrol_RD.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (MotionEvent.ACTION_DOWN == event.getAction()) {
+                    msg_rc_channels_override rc_override;
+                    rc_override = new msg_rc_channels_override();
+                    rc_override.chan1_raw = 1500; //right; 2000 //left
+                    rc_override.chan2_raw = 1750;
+                    rc_override.chan3_raw = 1500; //back; 2000 //forward
+                    rc_override.chan4_raw = 1500;
+
+                    rc_override.target_system = 0;
+                    rc_override.target_component = 0;
+
+                    ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
+                    alertUser("후진");
+                }
+                if (MotionEvent.ACTION_UP == event.getAction()) {
+                    msg_rc_channels_override rc_override;
+                    rc_override = new msg_rc_channels_override();
+                    rc_override.chan1_raw = 1500; //right; 2000 //left
+                    rc_override.chan2_raw = 1500;
+                    rc_override.chan3_raw = 1500; //back; 2000 //forward
+                    rc_override.chan4_raw = 1500;
+
+                    rc_override.target_system = 0;
+                    rc_override.target_component = 0;
+
+                    ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
+                    alertUser("정지");
+                }
+                return true;
+            }
+        });
+//////////오른쪽 우측버튼
+        final Button btncontrol_RR = (Button) findViewById(R.id.btnControl_RR);
+        btncontrol_RR.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (MotionEvent.ACTION_DOWN == event.getAction()) {
+
+                    msg_rc_channels_override rc_override;
+                    rc_override = new msg_rc_channels_override();
+                    rc_override.chan1_raw = 1750; //right; 2000 //left
+                    rc_override.chan2_raw = 1500;
+                    rc_override.chan3_raw = 1500; //back; 2000 //forward
+                    rc_override.chan4_raw = 1500;
+
+                    rc_override.target_system = 0;
+                    rc_override.target_component = 0;
+
+                    ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
+                    alertUser("우회전");
+                }
+                if (MotionEvent.ACTION_UP == event.getAction()) {
+                    msg_rc_channels_override rc_override;
+                    rc_override = new msg_rc_channels_override();
+                    rc_override.chan1_raw = 1500; //right; 2000 //left
+                    rc_override.chan2_raw = 1500;
+                    rc_override.chan3_raw = 1500; //back; 2000 //forward
+                    rc_override.chan4_raw = 1500;
+
+                    rc_override.target_system = 0;
+                    rc_override.target_component = 0;
+
+                    ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
+                    alertUser("정지");
+                }
+                return true;
+            }
+        });
+//////////오른쪽 좌측 버튼
+        final Button btncontrol_RL = (Button) findViewById(R.id.btnControl_RL);
+        btncontrol_RL.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (MotionEvent.ACTION_DOWN == event.getAction()) {
+                    msg_rc_channels_override rc_override;
+                    rc_override = new msg_rc_channels_override();
+                    rc_override.chan1_raw = 1250; //right; 2000 //left
+                    rc_override.chan2_raw = 1500;
+                    rc_override.chan3_raw = 1500; //back; 2000 //forward
+                    rc_override.chan4_raw = 1500;
+
+                    rc_override.target_system = 0;
+                    rc_override.target_component = 0;
+
+                    ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
+                    alertUser("좌회전");
+                }
+                if (MotionEvent.ACTION_UP == event.getAction()) {
+                    msg_rc_channels_override rc_override;
+                    rc_override = new msg_rc_channels_override();
+                    rc_override.chan1_raw = 1500; //right; 2000 //left
+                    rc_override.chan2_raw = 1500;
+                    rc_override.chan3_raw = 1500; //back; 2000 //forward
+                    rc_override.chan4_raw = 1500;
+
+                    rc_override.target_system = 0;
+                    rc_override.target_component = 0;
+
+                    ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
+                    alertUser("정지");
+                }
+                return true;
+            }
+        });
+
+
+
 
     }
 
