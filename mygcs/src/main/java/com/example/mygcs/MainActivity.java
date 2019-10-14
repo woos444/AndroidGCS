@@ -16,10 +16,12 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -88,6 +90,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     Marker Home_M = new Marker();
     Marker GO_M = new Marker();
 
+    int controlCh1 = 1500;
+    int controlCh2 = 1500;
+    int controlCh3 = 1500;
+    int controlCh4 = 1500;
+
+    int cameraType = 0;
     int control_mode = 0;
     int missionC=0;
 
@@ -157,6 +165,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         mNaverMapFragment.getMapAsync(this);
         Maptype();
+        controlDrone();
 
     }
 
@@ -1127,6 +1136,82 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         double dz = pointA.getAltitude() - pointB.getAltitude();
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
+
+    public void onCameraModeChange(View view){
+        final Button btnconnect= (Button)findViewById(R.id.btnConnect);
+        final Button btntackoffaltitude= (Button)findViewById(R.id.tackoff_al);
+        final Button btncontroltype= (Button)findViewById(R.id.control_type);
+        final Button btnclear= (Button)findViewById(R.id.Clear_Butten);
+        final Button btncadastral= (Button)findViewById(R.id.CadaStral_button);
+        final Button btnmaptypechange= (Button)findViewById(R.id.Maptype_button);
+        final Button btnmaplock= (Button)findViewById(R.id.Maplock_button);
+        final Button btnarm= (Button)findViewById(R.id.btnArmTakeOff);
+
+        final RelativeLayout videocontrolview= findViewById(R.id.VideoControlView);
+        if(cameraType==0){
+            btncadastral.setVisibility(View.INVISIBLE);
+            btnconnect.setVisibility(View.INVISIBLE);
+            btntackoffaltitude.setVisibility(View.INVISIBLE);
+            btncontroltype.setVisibility(View.INVISIBLE);
+            btnclear.setVisibility(View.INVISIBLE);
+            btnmaptypechange.setVisibility(View.INVISIBLE);
+            btnmaplock.setVisibility(View.INVISIBLE);
+            btnarm.setVisibility(View.INVISIBLE);
+
+            videocontrolview.setVisibility(View.VISIBLE);
+            cameraType=1;
+        }
+        else if(cameraType==1)
+        {
+            btncadastral.setVisibility(View.VISIBLE);
+            btnconnect.setVisibility(View.VISIBLE);
+            btntackoffaltitude.setVisibility(View.VISIBLE);
+            btncontroltype.setVisibility(View.VISIBLE);
+            btnclear.setVisibility(View.VISIBLE);
+            btnmaptypechange.setVisibility(View.VISIBLE);
+            btnmaplock.setVisibility(View.VISIBLE);
+            btnarm.setVisibility(View.VISIBLE);
+
+            videocontrolview.setVisibility(View.INVISIBLE);
+            cameraType=0;
+
+        }
+
+    }
+    public void controlDrone() {
+        final Button btncontrol_LU = (Button) findViewById(R.id.btnControl_LU);
+        btncontrol_LU.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (MotionEvent.ACTION_DOWN == event.getAction()) {
+                    controlCh1 = 2000;
+                    alertUser("상승");
+                }
+                if (MotionEvent.ACTION_UP == event.getAction()) {
+                    controlCh1 = 1500;
+                    alertUser("정지");
+                }
+                return true;
+            }
+        });
+        final Button btncontrol_LD = (Button) findViewById(R.id.btnControl_LD);
+        btncontrol_LD.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (MotionEvent.ACTION_DOWN == event.getAction()) {
+                    controlCh1 = 1000;
+                    alertUser("하강");
+                }
+                if (MotionEvent.ACTION_UP == event.getAction()) {
+                    controlCh1 = 1500;
+                    alertUser("정지");
+                }
+                return true;
+            }
+        });
+
+    }
+
 
 }
 

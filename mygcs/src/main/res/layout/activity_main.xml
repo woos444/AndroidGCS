@@ -203,7 +203,6 @@
         android:id="@+id/btnConnect"
         android:layout_width="99dp"
         android:layout_height="wrap_content"
-
         android:layout_alignBottom="@+id/map"
         android:layout_marginStart="0dp"
         android:layout_marginBottom="0dp"
@@ -486,6 +485,106 @@
         </TableRow>
 
     </TableRow>
+    <RelativeLayout
+        android:id="@+id/VideoControlView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible">
+
+        <Button
+            android:id="@+id/btnControl_RL"
+            android:layout_width="60dp"
+            android:layout_height="30dp"
+            android:layout_above="@+id/btnControl_RD"
+            android:layout_marginEnd="0dp"
+            android:layout_marginBottom="0dp"
+            android:layout_toStartOf="@+id/btnControl_RD"
+            android:background="@drawable/left" />
+
+        <Button
+            android:id="@+id/btnControl_RD"
+            android:layout_width="30dp"
+            android:layout_height="60dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="70dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/under" />
+
+        <Button
+            android:id="@+id/btnControl_RU"
+            android:layout_width="30dp"
+            android:layout_height="60dp"
+            android:layout_above="@+id/btnControl_RL"
+            android:layout_alignStart="@+id/btnControl_RD"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="0dp"
+            android:background="@drawable/top" />
+
+        <Button
+            android:id="@+id/btnControl_RR"
+            android:layout_width="60dp"
+            android:layout_height="30dp"
+            android:layout_above="@+id/btnControl_RD"
+            android:layout_marginStart="30dp"
+            android:layout_marginBottom="0dp"
+            android:layout_toEndOf="@+id/btnControl_RL"
+            android:background="@drawable/right" />
+
+
+        <Button
+            android:id="@+id/btnControl_LL"
+            android:layout_width="60dp"
+            android:layout_height="30dp"
+            android:layout_above="@+id/btnControl_LD"
+            android:layout_marginEnd="30dp"
+            android:layout_marginBottom="0dp"
+            android:layout_toStartOf="@+id/btnControl_LR"
+            android:background="@drawable/left" />
+
+        <Button
+            android:id="@+id/btnControl_LD"
+            android:layout_width="30dp"
+            android:layout_height="60dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="70dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/under" />
+
+        <Button
+            android:id="@+id/btnControl_LU"
+            android:layout_width="30dp"
+            android:layout_height="60dp"
+            android:layout_above="@+id/btnControl_LL"
+            android:layout_alignStart="@+id/btnControl_LD"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="0dp"
+            android:background="@drawable/top" />
+
+        <Button
+            android:id="@+id/btnControl_LR"
+            android:layout_width="60dp"
+            android:layout_height="30dp"
+            android:layout_above="@+id/btnControl_LD"
+            android:layout_marginStart="0dp"
+            android:layout_marginBottom="0dp"
+            android:layout_toEndOf="@+id/btnControl_LD"
+            android:background="@drawable/right" />
+    </RelativeLayout>
+    <Button
+        android:id="@+id/btncameraMode"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_below="@+id/jeongbochang"
+        android:layout_alignEnd="@+id/map"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="0dp"
+        android:text="camera"
+        android:textSize="10sp"
+        android:onClick="onCameraModeChange"/>
 
 
 </RelativeLayout>
