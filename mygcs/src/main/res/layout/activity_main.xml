@@ -579,6 +579,9 @@
             android:layout_toEndOf="@+id/btnControl_LD"
             android:background="@drawable/right" />
 
+
+
+
     </RelativeLayout>
     <Button
         android:id="@+id/btncameraMode"

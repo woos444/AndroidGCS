@@ -1641,6 +1641,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return true;
             }
         });
+
 //////////오른쪽 좌측 버튼
         final Button btncontrol_RL = (Button) findViewById(R.id.btnControl_RL);
         btncontrol_RL.setOnTouchListener(new View.OnTouchListener() {
