@@ -139,7 +139,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     NaverMap naverMap;
     MapFragment mNaverMapFragment = null;
 
+    //컨트롤러
     msg_rc_channels_override rc_override;
+
+    //조이스틱
+    RelativeLayout layout_joystick,layout_joystick2;
+    TextView textView1, textView2, textView3, textView4, textView5,textView11, textView22, textView33, textView44, textView55;
+    JoyStickClass js,js2;
 
 
     @Override
@@ -189,9 +195,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         rc_override.target_system = 0;
         rc_override.target_component = 0;
-        ///
-        controlDrone2();
-        mjpgstream();
+        joystick();
 
     }
 
@@ -1209,7 +1213,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-    public void controlDrone() {
+    /*public void controlDrone() {
 //////////왼쪽 위 버튼
         final Button btncontrol_LU = (Button) findViewById(R.id.btnControl_LU);
         btncontrol_LU.setOnTouchListener(new View.OnTouchListener() {
@@ -1518,9 +1522,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (MotionEvent.ACTION_DOWN == event.getAction()) {
-                    rc_override.chan3_raw = 1750;
-                    ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
-                    alertUser("상승");
+                        rc_override.chan3_raw = 1750;
+                        ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
+                        alertUser("상승");
                 }
                 if (MotionEvent.ACTION_UP == event.getAction()) {
                     rc_override.chan3_raw = 1500;
@@ -1664,9 +1668,129 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
+*/
 
+    public void joystick(){
+
+        textView1 = (TextView)findViewById(R.id.textView1);
+        textView2 = (TextView)findViewById(R.id.textView2);
+        textView3 = (TextView)findViewById(R.id.textView3);
+        textView4 = (TextView)findViewById(R.id.textView4);
+        textView5 = (TextView)findViewById(R.id.textView5);
+
+        textView11 = (TextView)findViewById(R.id.textView11);
+        textView22 = (TextView)findViewById(R.id.textView22);
+        textView33 = (TextView)findViewById(R.id.textView33);
+        textView44 = (TextView)findViewById(R.id.textView44);
+        textView55 = (TextView)findViewById(R.id.textView55);
+
+        layout_joystick = (RelativeLayout)findViewById(R.id.layout_joystick);
+        layout_joystick2 = (RelativeLayout)findViewById(R.id.layout_joystick2);
+
+        js = new JoyStickClass(getApplicationContext()
+                , layout_joystick, R.drawable.image_button);
+        js.setStickSize(150, 150);
+        js.setLayoutSize(500, 500);
+        js.setLayoutAlpha(150);
+        js.setStickAlpha(100);
+        js.setOffset(90);
+        js.setMinimumDistance(50);
+
+        js2 = new JoyStickClass(getApplicationContext()
+                , layout_joystick2, R.drawable.image_button);
+        js2.setStickSize(150, 150);
+        js2.setLayoutSize(500, 500);
+        js2.setLayoutAlpha(150);
+        js2.setStickAlpha(100);
+        js2.setOffset(90);
+        js2.setMinimumDistance(50);
+
+        layout_joystick.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View arg0, MotionEvent arg1) {
+                js.drawStick(arg1);
+                if(arg1.getAction() == MotionEvent.ACTION_DOWN
+                        || arg1.getAction() == MotionEvent.ACTION_MOVE) {
+                    textView1.setText("X : " + String.valueOf(js.getX()));
+                    textView2.setText("Y : " + String.valueOf(js.getY()));
+                    textView3.setText("Angle : " + String.valueOf(js.getAngle()));
+                    textView4.setText("Distance : " + String.valueOf(js.getDistance()));
+
+                    int direction = js.get8Direction();
+                    if(direction == JoyStickClass.STICK_UP) {
+                        textView5.setText("Direction : Up");
+                    } else if(direction == JoyStickClass.STICK_UPRIGHT) {
+                        textView5.setText("Direction : Up Right");
+                    } else if(direction == JoyStickClass.STICK_RIGHT) {
+                        textView5.setText("Direction : Right");
+                    } else if(direction == JoyStickClass.STICK_DOWNRIGHT) {
+                        textView5.setText("Direction : Down Right");
+                    } else if(direction == JoyStickClass.STICK_DOWN) {
+                        textView5.setText("Direction : Down");
+                    } else if(direction == JoyStickClass.STICK_DOWNLEFT) {
+                        textView5.setText("Direction : Down Left");
+                    } else if(direction == JoyStickClass.STICK_LEFT) {
+                        textView5.setText("Direction : Left");
+                    } else if(direction == JoyStickClass.STICK_UPLEFT) {
+                        textView5.setText("Direction : Up Left");
+                    } else if(direction == JoyStickClass.STICK_NONE) {
+                        textView5.setText("Direction : Center");
+                    }
+                } else if(arg1.getAction() == MotionEvent.ACTION_UP) {
+                    textView1.setText("X :");
+                    textView2.setText("Y :");
+                    textView3.setText("Angle :");
+                    textView4.setText("Distance :");
+                    textView5.setText("Direction :");
+                }
+                return true;
+            }
+        });
+
+        layout_joystick2.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View arg0, MotionEvent arg1) {
+                js2.drawStick(arg1);
+                if(arg1.getAction() == MotionEvent.ACTION_DOWN
+                        || arg1.getAction() == MotionEvent.ACTION_MOVE) {
+
+                    textView11.setText("X : " + String.valueOf(js2.getX()));
+                    textView22.setText("Y : " + String.valueOf(js2.getY()));
+                    textView33.setText("Angle : " + String.valueOf(js2.getAngle()));
+                    textView44.setText("Distance : " + String.valueOf(js2.getDistance()));
+
+                    int direction = js2.get8Direction();
+                    if(direction == JoyStickClass.STICK_UP) {
+                        textView55.setText("Direction : Up");
+                    } else if(direction == JoyStickClass.STICK_UPRIGHT) {
+                        textView55.setText("Direction : Up Right");
+                    } else if(direction == JoyStickClass.STICK_RIGHT) {
+                        textView55.setText("Direction : Right");
+                    } else if(direction == JoyStickClass.STICK_DOWNRIGHT) {
+                        textView55.setText("Direction : Down Right");
+                    } else if(direction == JoyStickClass.STICK_DOWN) {
+                        textView55.setText("Direction : Down");
+                    } else if(direction == JoyStickClass.STICK_DOWNLEFT) {
+                        textView55.setText("Direction : Down Left");
+                    } else if(direction == JoyStickClass.STICK_LEFT) {
+                        textView55.setText("Direction : Left");
+                    } else if(direction == JoyStickClass.STICK_UPLEFT) {
+                        textView55.setText("Direction : Up Left");
+                    } else if(direction == JoyStickClass.STICK_NONE) {
+                        textView55.setText("Direction : Center");
+                    }
+                } else if(arg1.getAction() == MotionEvent.ACTION_UP) {
+                    textView11.setText("X :");
+                    textView22.setText("Y :");
+                    textView33.setText("Angle :");
+                    textView44.setText("Distance :");
+                    textView55.setText("Direction :");
+                }
+                return true;
+            }
+        });
+
+    }
     public void mjpgstream(){
-        RaspberryStream = (WebView) findViewById(R.id.webView);
+        //RaspberryStream = (WebView) findViewById(R.id.webView);
 
         WebSettings streamingSet = RaspberryStream.getSettings();//Mobile Web Setting
         streamingSet.setJavaScriptEnabled(true);//자바스크립트 허용
