@@ -18,11 +18,15 @@ import android.text.style.AbsoluteSizeSpan;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 
@@ -85,6 +89,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private int droneType = Type.TYPE_UNKNOWN;
     private ControlTower controlTower;
     private final Handler handler = new Handler();
+
+    WebView RaspberryStream;
+    TableRow InfoWindow;
+    RecyclerView NotificationWindow;
 
     boolean MP=true;
     boolean Map_L=true;
@@ -167,7 +175,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         mNaverMapFragment.getMapAsync(this);
         Maptype();
-        ///
+
+        InfoWindow=(TableRow)findViewById(R.id.jeongbochang);
+        InfoWindow.bringToFront();
+        NotificationWindow=(RecyclerView)findViewById(R.id.recyclerView);
+        NotificationWindow.bringToFront();
+        //////
         rc_override = new msg_rc_channels_override();
         rc_override.chan1_raw = 1500; //right; 2000 //left
         rc_override.chan2_raw = 1500;
@@ -178,6 +191,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         rc_override.target_component = 0;
         ///
         controlDrone2();
+        mjpgstream();
+
     }
 
     private void rcv_init() {
@@ -1645,9 +1660,28 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+    }
 
 
 
+    public void mjpgstream(){
+        RaspberryStream = (WebView) findViewById(R.id.webView);
+
+        WebSettings streamingSet = RaspberryStream.getSettings();//Mobile Web Setting
+        streamingSet.setJavaScriptEnabled(true);//자바스크립트 허용
+        streamingSet.setLoadWithOverviewMode(true);//컨텐츠가 웹뷰보다 클 경우 스크린 크기에 맞게 조정
+
+        streamingSet.setBuiltInZoomControls(false);
+        streamingSet.setUseWideViewPort(true);
+
+        RaspberryStream.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                view.loadUrl(url);
+                return true;
+            }
+        });
+        RaspberryStream.loadUrl("http://192.168.43.169:8090/?action=stream");
     }
 
 

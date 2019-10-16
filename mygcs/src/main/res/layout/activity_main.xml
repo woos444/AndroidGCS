@@ -491,6 +491,11 @@
         android:layout_height="match_parent"
         android:visibility="invisible">
 
+        <WebView
+            android:id="@+id/webView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
         <Button
             android:id="@+id/btnControl_RL"
             android:layout_width="60dp"
@@ -573,6 +578,7 @@
             android:layout_marginBottom="0dp"
             android:layout_toEndOf="@+id/btnControl_LD"
             android:background="@drawable/right" />
+
     </RelativeLayout>
     <Button
         android:id="@+id/btncameraMode"
