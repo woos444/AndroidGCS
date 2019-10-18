@@ -196,8 +196,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         rc_override.target_system = 0;
         rc_override.target_component = 0;
 
+        mjpgstream();
         joystick();
-
     }
 
     private void rcv_init() {
@@ -835,9 +835,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
 
-    // UI Events
-    // ==========================================================
-
     public void Maptype() {
         final Button Maptype= (Button)findViewById(R.id.Maptype_button);
         final Button T_bt = (Button)findViewById(R.id.TerrainMap_bt);
@@ -1261,8 +1258,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     if(Ypoint<0){Ypoint= -Ypoint;}
                     else if(Ypoint>200){Ypoint=200;}
 
-                    double XmotorValue = Xpoint*2.5;
-                    double YmotorValue = Ypoint*2.5;
+                    double XmotorValue = Xpoint*2;
+                    double YmotorValue = Ypoint*2;
 
 
                     textView1.setText("X : " + String.valueOf(jstickLeft.getX()));
@@ -1355,8 +1352,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     if(Ypoint<0){Ypoint= -Ypoint;}
                     else if(Ypoint>200){Ypoint=200;}
 
-                    double XmotorValue = Xpoint*2.5;
-                    double YmotorValue = Ypoint*2.5;
+                    double XmotorValue = Xpoint*2;
+                    double YmotorValue = Ypoint*2;
 
                     textView11.setText("X : " + String.valueOf(jstickRight.getX()));
                     textView22.setText("Y : " + String.valueOf(jstickRight.getY()));
@@ -1437,7 +1434,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
     public void mjpgstream(){
-        //RaspberryStream = (WebView) findViewById(R.id.webView);
+        RaspberryStream = (WebView) findViewById(R.id.webView);
 
         WebSettings streamingSet = RaspberryStream.getSettings();//Mobile Web Setting
         streamingSet.setJavaScriptEnabled(true);//자바스크립트 허용
@@ -1453,6 +1450,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return true;
             }
         });
+
+        //pi4
+        //RaspberryStream.loadUrl("http://192.168.43.13:8090/?action=stream");
+        //pi3
         RaspberryStream.loadUrl("http://192.168.43.169:8090/?action=stream");
     }
 
