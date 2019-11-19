@@ -109,6 +109,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     int M_W=0;
     int M_L=0;
 
+    //조이스틱 조작시 드론의 속도
+    double speedYaw =1.25;
+    double speedUpDown = 1.5;
+    double speedMove = 1.25;
+
     Marker Point_A = new Marker();
     Marker Point_B = new Marker();
     Marker aaa = new Marker();
@@ -120,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private RecyclerViewAdapter adapter;
     ArrayList<String> listTitle = new ArrayList<>();
 
+    //초기고도설정값
     double al=3;
 
     PolylineOverlay Square_line= new PolylineOverlay();
@@ -139,12 +145,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     NaverMap naverMap;
     MapFragment mNaverMapFragment = null;
 
-    //컨트롤러
+    //rc컨트롤러
     msg_rc_channels_override rc_override;
 
     //조이스틱
     RelativeLayout layout_Leftjoystick,layout_Rightjoystick;
-    TextView textView1, textView2, textView3, textView4, textView5,textView11, textView22, textView33, textView44, textView55;
     JoyStickClass jstickLeft,jstickRight;
 
 
@@ -1212,18 +1217,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void joystick(){
 
-        textView1 = (TextView)findViewById(R.id.textView1);
-        textView2 = (TextView)findViewById(R.id.textView2);
-        textView3 = (TextView)findViewById(R.id.textView3);
-        textView4 = (TextView)findViewById(R.id.textView4);
-        textView5 = (TextView)findViewById(R.id.textView5);
-
-        textView11 = (TextView)findViewById(R.id.textView11);
-        textView22 = (TextView)findViewById(R.id.textView22);
-        textView33 = (TextView)findViewById(R.id.textView33);
-        textView44 = (TextView)findViewById(R.id.textView44);
-        textView55 = (TextView)findViewById(R.id.textView55);
-
         layout_Leftjoystick = (RelativeLayout)findViewById(R.id.layout_joystick);
         layout_Rightjoystick = (RelativeLayout)findViewById(R.id.layout_joystick2);
 
@@ -1246,6 +1239,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         jstickRight.setMinimumDistance(20);
 
 
+        //조이스틱 왼쪽 컨트롤러
         layout_Leftjoystick.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View arg0, MotionEvent arg1) {
                 jstickLeft.drawStick(arg1);
@@ -1258,64 +1252,49 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     if(Ypoint<0){Ypoint= -Ypoint;}
                     else if(Ypoint>200){Ypoint=200;}
 
-                    double XmotorValue = Xpoint*2;
-                    double YmotorValue = Ypoint*2;
-
-
-                    textView1.setText("X : " + String.valueOf(jstickLeft.getX()));
-                    textView2.setText("Y : " + String.valueOf(jstickLeft.getY()));
-                    textView3.setText("Angle : " + String.valueOf(jstickLeft.getAngle()));
+                    double XmotorValue = Xpoint*speedYaw;
+                    double YmotorValue = Ypoint*speedUpDown;
 
                     if(jstickLeft.getDistance()>200) { float distance = 200; }
-                    textView4.setText("Distance : " + String.valueOf(jstickLeft.getDistance()));
 
                     int direction = jstickLeft.get8Direction();
                     if(direction == JoyStickClass.STICK_UP) {
                         rc_override.chan3_raw = 1500 + (int)YmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
                         alertUser("상승");
-                        textView5.setText("Direction : Up");
                     } else if(direction == JoyStickClass.STICK_UPRIGHT) {
                         rc_override.chan3_raw = 1500 + (int)YmotorValue;
                         rc_override.chan4_raw = 1500 + (int)XmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
 
-                        textView5.setText("Direction : Up Right");
                     } else if(direction == JoyStickClass.STICK_RIGHT) {
                         rc_override.chan4_raw = 1500 + (int)XmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
                         alertUser("시계회전");
-                        textView5.setText("Direction : Right");
                     } else if(direction == JoyStickClass.STICK_DOWNRIGHT) {
                         rc_override.chan3_raw = 1500 - (int)YmotorValue;
                         rc_override.chan4_raw = 1500 + (int)XmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
 
-                        textView5.setText("Direction : Down Right");
                     } else if(direction == JoyStickClass.STICK_DOWN) {
                         rc_override.chan3_raw = 1500 - (int)YmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
                         alertUser("하강");
-                        textView5.setText("Direction : Down");
                     } else if(direction == JoyStickClass.STICK_DOWNLEFT) {
                         rc_override.chan3_raw = 1500 - (int)YmotorValue;
                         rc_override.chan4_raw = 1500 - (int)XmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
 
-                        textView5.setText("Direction : Down Left");
                     } else if(direction == JoyStickClass.STICK_LEFT) {
                         rc_override.chan4_raw = 1500 - (int)XmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
                         alertUser("반시계회전");
-                        textView5.setText("Direction : Left");
                     } else if(direction == JoyStickClass.STICK_UPLEFT) {
                         rc_override.chan3_raw = 1500 + (int)YmotorValue;
                         rc_override.chan4_raw = 1500 - (int)XmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
 
-                        textView5.setText("Direction : Up Left");
                     } else if(direction == JoyStickClass.STICK_NONE) {
-                        textView5.setText("Direction : Center");
                         rc_override.chan1_raw = 1500;
                         rc_override.chan2_raw = 1500;
                         rc_override.chan3_raw = 1500;
@@ -1324,11 +1303,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         alertUser("정지");
                     }
                 } else if(arg1.getAction() == MotionEvent.ACTION_UP) {
-                    textView1.setText("X :");
-                    textView2.setText("Y :");
-                    textView3.setText("Angle :");
-                    textView4.setText("Distance :");
-                    textView5.setText("Direction :");
                     rc_override.chan1_raw = 1500;
                     rc_override.chan2_raw = 1500;
                     rc_override.chan3_raw = 1500;
@@ -1340,6 +1314,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        //조이스틱 오른쪽 컨트롤러
         layout_Rightjoystick.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View arg0, MotionEvent arg1) {
                 jstickRight.drawStick(arg1);
@@ -1347,65 +1322,54 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         || arg1.getAction() == MotionEvent.ACTION_MOVE) {
                     int Xpoint = jstickRight.getX();
                     int Ypoint = jstickRight.getY();
-                    if(Xpoint<0){Xpoint= -Xpoint;}
-                    else if(Xpoint>200){Xpoint=200;}
-                    if(Ypoint<0){Ypoint= -Ypoint;}
-                    else if(Ypoint>200){Ypoint=200;}
+                    if(Xpoint < 0){Xpoint = - Xpoint;}
+                    else if(Xpoint > 200){Xpoint = 200;}
+                    if(Ypoint < 0){Ypoint = - Ypoint;}
+                    else if(Ypoint > 200){Ypoint = 200;}
 
-                    double XmotorValue = Xpoint*2;
-                    double YmotorValue = Ypoint*2;
-
-                    textView11.setText("X : " + String.valueOf(jstickRight.getX()));
-                    textView22.setText("Y : " + String.valueOf(jstickRight.getY()));
-                    textView33.setText("Angle : " + String.valueOf(jstickRight.getAngle()));
-                    textView44.setText("Distance : " + String.valueOf(jstickRight.getDistance()));
+                    double XmotorValue = Xpoint * speedMove;
+                    double YmotorValue = Ypoint * speedMove;
 
                     int direction = jstickRight.get8Direction();
                     if(direction == JoyStickClass.STICK_UP) {
                         rc_override.chan2_raw = 1500 - (int)YmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
                         alertUser("전진");
-                        textView55.setText("Direction : Up");
                     } else if(direction == JoyStickClass.STICK_UPRIGHT) {
                         rc_override.chan2_raw = 1500 - (int)YmotorValue;
                         rc_override.chan1_raw = 1500 + (int)XmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
 
-                        textView55.setText("Direction : Up Right");
                     } else if(direction == JoyStickClass.STICK_RIGHT) {
                         rc_override.chan1_raw = 1500 + (int)XmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
                         alertUser("우회전");
-                        textView55.setText("Direction : Right");
+
                     } else if(direction == JoyStickClass.STICK_DOWNRIGHT) {
                         rc_override.chan2_raw = 1500 + (int)YmotorValue;
                         rc_override.chan1_raw = 1500 + (int)XmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
 
-                        textView55.setText("Direction : Down Right");
                     } else if(direction == JoyStickClass.STICK_DOWN) {
                         rc_override.chan2_raw = 1500 + (int)YmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
                         alertUser("후진");
-                        textView55.setText("Direction : Down");
-
                     } else if(direction == JoyStickClass.STICK_DOWNLEFT) {
                         rc_override.chan2_raw = 1500 + (int)YmotorValue;
                         rc_override.chan1_raw = 1500 - (int)XmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
-                        textView55.setText("Direction : Down Left");
 
                     } else if(direction == JoyStickClass.STICK_LEFT) {
                         rc_override.chan1_raw = 1500 - (int)XmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
                         alertUser("좌회전");
-                        textView55.setText("Direction : Left");
+
                     } else if(direction == JoyStickClass.STICK_UPLEFT) {
                         rc_override.chan1_raw = 1500 - (int)XmotorValue;
                         rc_override.chan2_raw = 1500 - (int)YmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
 
-                        textView55.setText("Direction : Up Left");
+
                     } else if(direction == JoyStickClass.STICK_NONE) {
                         rc_override.chan1_raw = 1500;
                         rc_override.chan2_raw = 1500;
@@ -1413,7 +1377,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         rc_override.chan4_raw = 1500;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
                         alertUser("정지");
-                        textView55.setText("Direction : Center");
+
                     }
                 } else if(arg1.getAction() == MotionEvent.ACTION_UP) {
                     rc_override.chan1_raw = 1500;
@@ -1422,11 +1386,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     rc_override.chan4_raw = 1500;
                     ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
                     alertUser("정지");
-                    textView11.setText("X :");
-                    textView22.setText("Y :");
-                    textView33.setText("Angle :");
-                    textView44.setText("Distance :");
-                    textView55.setText("Direction :");
+
                 }
                 return true;
             }
@@ -1451,10 +1411,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        //pi4
-        //RaspberryStream.loadUrl("http://192.168.43.13:8090/?action=stream");
-        //pi3
-        RaspberryStream.loadUrl("http://192.168.43.169:8090/?action=stream");
+        //pi3 스트리밍 ip
+        RaspberryStream.loadUrl("http://192.168.43.84:8090/?action=stream");
     }
 
 
