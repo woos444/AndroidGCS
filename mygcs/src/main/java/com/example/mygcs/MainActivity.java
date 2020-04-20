@@ -406,6 +406,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onTowerDisconnected() { }
 
 
+
+
     /////////////////////////////
     protected void updateConnectedButton(Boolean isConnected) {
         Button connectButton = (Button) findViewById(R.id.btnConnect);
