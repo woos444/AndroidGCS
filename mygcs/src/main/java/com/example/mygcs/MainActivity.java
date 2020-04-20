@@ -95,10 +95,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     RecyclerView NotificationWindow;
 
     boolean MP=true;
-    boolean Map_L=true;
+    boolean MapLock=true;
     boolean Map_C=false;
     boolean getPoint_AB = true;
-    Marker drone_M = new Marker();
+    Marker droneMarker = new Marker();
     Marker Home_M = new Marker();
     Marker GO_M = new Marker();
 
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     Marker Point_B = new Marker();
     Marker aaa = new Marker();
     Marker bbb = new Marker();
-    LatLng drone_A;
+    LatLng dronelocation;
     LatLng Home_A;
     LatLongAlt My_A;
 
@@ -335,7 +335,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             case AttributeEvent.SPEED_UPDATED:
                 //수정
-                updateSpeed();
+                //updateSpeed();
                 break;
 
             case AttributeEvent.GUIDED_POINT_UPDATED:
@@ -365,8 +365,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
             case AttributeEvent.GPS_POSITION:
 
-                updateDroneLatLng();
-                updateHomeLatLng();
+                updateDroneLocation();
+                //updateDroneLatLng();
+                //updateHomeLatLng();
                // updateDistanceFromHome();
                 break;
             case AttributeEvent.ATTITUDE_UPDATED:
@@ -416,7 +417,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else {
             connectButton.setText("Connect");
         }
-    }
+    }//연결
     protected void updateArmButton() {
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
         Button armButton = (Button) findViewById(R.id.btnArmTakeOff);
@@ -437,36 +438,41 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             // Connected but not Armed
             armButton.setText("ARM");
         }
-    }
+    }//시동
     protected void updateAltitude() {
         TextView altitudeTextView = (TextView) findViewById(R.id.altitudeValueTextView);
         Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
         altitudeTextView.setText(String.format("%3.1f", droneAltitude.getRelativeAltitude()) + "m");
-    }
-
-    //제거
-    protected void updateSpeed() {
-        TextView speedTextView = (TextView) findViewById(R.id.speedValueTextView);
-        Speed droneSpeed = this.drone.getAttribute(AttributeType.SPEED);
-        speedTextView.setText(String.format("%3.1f", droneSpeed.getGroundSpeed()) + "m/s");
-    }
+    }//고도
     protected void updateSatellitesnum() {
         TextView SatelliteTextView = (TextView) findViewById(R.id.SatellitesnumTextView);
         Gps num = this.drone.getAttribute(AttributeType.GPS);
         SatelliteTextView.setText(String.format("%d", num.getSatellitesCount()) );
-    }
+    }//위성수
     protected void updateVoltage() {
         TextView VoltageTextView = (TextView) findViewById(R.id.VoltageValueTextView);
         Battery Volt = this.drone.getAttribute(AttributeType.BATTERY);
         VoltageTextView.setText(String.format("%.1f", Volt.getBatteryVoltage())+"V" );
-    }
+    }//전압
     protected void updateYAW() {
         TextView YAWTextView = (TextView) findViewById(R.id.YAWValueTextView);
         Attitude YAW = this.drone.getAttribute(AttributeType.ATTITUDE);
         yaw_value = YAW.getYaw();
         YAWTextView.setText(String.format("%.0f", yaw_value)+"deg");
-    }
-    protected void updateDistanceFromHome() {
+    }//방향
+
+
+    protected void update() {
+        //속도함수
+    /*protected void updateSpeed() {
+        TextView speedTextView = (TextView) findViewById(R.id.speedValueTextView);
+        Speed droneSpeed = this.drone.getAttribute(AttributeType.SPEED);
+        speedTextView.setText(String.format("%3.1f", droneSpeed.getGroundSpeed()) + "m/s");
+    }*/
+
+
+        //거리함수
+    /*protected void updateDistanceFromHome() {
         TextView distanceTextView = (TextView) findViewById(R.id.distanceValueTextView);
 
         Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
@@ -520,43 +526,49 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Home_M.setPosition(Home_A);
         Home_M.setMap(naverMap);
     }
+*/
+    }
+    protected void updateDroneLocation(){
+        float droneAngle = 0;
 
-    protected void updateDroneLatLng() {
-        float drac=0;
         Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
-        LatLong vehiclePosition = droneGps.getPosition();
-        drone_A =change_LongLng(vehiclePosition);
-        Drone_line.add(drone_A);
+        LatLong GpsLocation = droneGps.getPosition();
+        dronelocation = change_LongLng(GpsLocation);
 
-        drone_M.setIcon(OverlayImage.fromResource(R.drawable.fighter_jet_24px));
-        drone_M.setFlat(true);
-        if(yaw_value>=0){ drac =(float) yaw_value;}
-        else if(yaw_value<0) {drac = (float)(180+(180+yaw_value)); }
+        //아이콘이 바라보는 방향 조절
+        if(yaw_value>=0){ droneAngle =(float) yaw_value;}
+        else if(yaw_value<0) {droneAngle = (float)(180+(180+yaw_value)); }
 
-        drone_M.setAngle(drac);
-        drone_M.setPosition(drone_A);
-        drone_M.setHeight(300);
-        drone_M.setWidth(100);
-        drone_M.setAnchor(new PointF((float)0.5,(float)0.85));
+        //드론의 이동경로 표시// 보류
+        Drone_line.add(dronelocation);
 
         line.setCoords(Drone_line);
         line.setWidth(20);
         line.setColor(Color.YELLOW);
         line.setJoinType(PolylineOverlay.LineJoin.Round);
+
+
+        //드론의 위치 표시
+        droneMarker.setPosition(dronelocation);
+        droneMarker.setAngle(droneAngle);
+        droneMarker.setIcon(OverlayImage.fromResource(R.drawable.fighter_jet_24px));
+        droneMarker.setFlat(true);
+        droneMarker.setHeight(300);
+        droneMarker.setWidth(100);
+        droneMarker.setAnchor(new PointF((float)0.5,(float)0.85));
+        droneMarker.setMap(naverMap);
         line.setMap(naverMap);
 
-        if (Map_L==true)
+        //맵잠금시 드론위치로 화면 고정
+        if (MapLock==true) { naverMap.moveCamera(null); }
+        else if(MapLock==false)
         {
-            naverMap.moveCamera(null);
-        }
-        else if(Map_L==false)
-        {
-            CameraUpdate cameraUpdate = CameraUpdate.scrollTo(drone_A);
+            CameraUpdate cameraUpdate = CameraUpdate.scrollTo(dronelocation);
             naverMap.moveCamera(cameraUpdate);
         }
-        drone_M.setMap(naverMap);
 
     }
+
     protected void updateVehicleModesForType(int droneType) {
 
         List<VehicleMode> vehicleModes = VehicleMode.getVehicleModePerDroneType(droneType);
@@ -915,13 +927,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
     public void onMapMoveTap(View view) {
         Button Maplock= (Button)findViewById(R.id.Maplock_button);
-        if(Map_L==true) {
-            Map_L=false;
+        if(MapLock==true) {
+            MapLock=false;
             Maplock.setText("맵잠금");
             alertUser("맵 잠금");
         }
-        else if(Map_L==false) {
-            Map_L=true;
+        else if(MapLock==false) {
+            MapLock=true;
             Maplock.setText("맵이동");
             alertUser("맵 이동");
         }
@@ -949,36 +961,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (this.drone.isConnected()) {
 
             this.drone.disconnect();
-
         }
         else {
-           // Spinner connectionSelector = (Spinner) findViewById(R.id.selectConnectionType);
-           // int selectedConnectionType = connectionSelector.getSelectedItemPosition();
-
             ConnectionParameter connectionParams = ConnectionParameter.newUsbConnection(null);
             this.drone.connect(connectionParams);
         }
 
     }
 
-    /*
-    public void onBtnConnectTap(View view) {
-        if (this.drone.isConnected()) {
-            this.drone.disconnect();
-        }
-        else {
-            Spinner connectionSelector = (Spinner) findViewById(R.id.selectConnectionType);
-            int selectedConnectionType = connectionSelector.getSelectedItemPosition();
-
-            ConnectionParameter connectionParams = selectedConnectionType == ConnectionType.TYPE_USB
-                ? ConnectionParameter.newUsbConnection(null)
-                : ConnectionParameter.newUdpConnection(null);
-
-            this.drone.connect(connectionParams);
-        }
-
-    }
-     */
     public void onFlightModeSelected(View view) {
         VehicleMode vehicleMode = (VehicleMode) this.modeSelector.getSelectedItem();
 
@@ -1426,7 +1416,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-    //
+    //삭제
     public void mjpgstream(){
         RaspberryStream = (WebView) findViewById(R.id.webView);
 

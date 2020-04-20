@@ -505,7 +505,7 @@
                 android:textSize="10dp" />
         </TableRow>
 
-        <TableRow
+        <!--<TableRow
             android:id="@+id/SpeedTelemRow"
             android:layout_width="60dp"
             android:layout_height="wrap_content"
@@ -570,7 +570,7 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="#ffffff"
                 android:textSize="10dp" />
-        </TableRow>
+        </TableRow>-->
 
         <TableRow
             android:id="@+id/YAWTelemRow"
