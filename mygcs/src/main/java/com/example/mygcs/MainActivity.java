@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     boolean getPoint_AB = true;
     Marker droneMarker = new Marker();
     Marker Home_M = new Marker();
-    Marker GO_M = new Marker();
+    Marker goalMarker = new Marker();
 
     int cameraType = 0;
     int control_mode = 0;
@@ -201,7 +201,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         rc_override.target_system = 0;
         rc_override.target_component = 0;
 
-        mjpgstream();
         joystick();
     }
 
@@ -280,13 +279,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         UiSettings uiSettings = naverMap.getUiSettings();
         uiSettings.setZoomControlEnabled(false);
+        MissionSelect();
 
     }
     @Override
     public void onStart() {
         super.onStart();
         this.controlTower.connect(this);
-        setTakeoff_al();
+        setTakeoffAltitude();
     }
     @Override
     public void onStop() {
@@ -339,7 +339,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
 
             case AttributeEvent.GUIDED_POINT_UPDATED:
-                getP();
+                //MissionSelect();
                 break;
 
             case AttributeEvent.MISSION_SENT:
@@ -366,7 +366,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             case AttributeEvent.GPS_POSITION:
 
                 updateDroneLocation();
-                //updateDroneLatLng();
                 //updateHomeLatLng();
                // updateDistanceFromHome();
                 break;
@@ -378,6 +377,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
         }
     }
+
     private void checkSoloState() {
         final SoloState soloState = drone.getAttribute(SoloAttributes.SOLO_STATE);
     }
@@ -417,7 +417,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else {
             connectButton.setText("Connect");
         }
-    }//연결
+    }//드론과연결
     protected void updateArmButton() {
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
         Button armButton = (Button) findViewById(R.id.btnArmTakeOff);
@@ -459,7 +459,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Attitude YAW = this.drone.getAttribute(AttributeType.ATTITUDE);
         yaw_value = YAW.getYaw();
         YAWTextView.setText(String.format("%.0f", yaw_value)+"deg");
-    }//방향
+    }//드론의방향
 
 
     protected void update() {
@@ -527,7 +527,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Home_M.setMap(naverMap);
     }
 */
-    }
+    }//개발 보류중인 함수
+
     protected void updateDroneLocation(){
         float droneAngle = 0;
 
@@ -539,7 +540,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if(yaw_value>=0){ droneAngle =(float) yaw_value;}
         else if(yaw_value<0) {droneAngle = (float)(180+(180+yaw_value)); }
 
-        //드론의 이동경로 표시// 보류
+        //드론의 이동경로 표시
         Drone_line.add(dronelocation);
 
         line.setCoords(Drone_line);
@@ -567,7 +568,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             naverMap.moveCamera(cameraUpdate);
         }
 
-    }
+
+    }//드론의 위치 및 이동경로 표시
 
     protected void updateVehicleModesForType(int droneType) {
 
@@ -591,8 +593,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         rcv_init();
         rcv_getData();
-    }
-    protected void setTakeoff_al(){
+    }//리사이클러뷰 안내문 출력
+    protected void setTakeoffAltitude(){
         Button takeoff_al = (Button)findViewById(R.id.tackoff_al);
         String al_text = (int)al+"m\n이륙고도";
         final SpannableStringBuilder sps = new SpannableStringBuilder(al_text);
@@ -600,9 +602,56 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         takeoff_al.setText(sps);
         alertUser(al+"m 이륙고도");
 
-    }
-    protected void getP() {
+    }//이륙고도설정
+
+
+    protected void MissionSelect() {
+
         naverMap.setOnMapLongClickListener((pointF, latLng) -> {
+
+            //기본모드 - 목적지 터치시 이동
+            if(control_mode==0){
+
+                //터치한곳에 깃발표시
+                goalMarker.setPosition(latLng);
+                goalMarker.setIcon(OverlayImage.fromResource(R.drawable.empty_flag_64px));
+                goalMarker.setHeight(70);
+                goalMarker.setWidth(70);
+                goalMarker.setMap(naverMap);
+                alertUser(latLng.latitude+" , "+latLng.longitude);
+
+
+                /*VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_GUIDED, new SimpleCommandListener() {
+                    @Override
+                    public void onSuccess() {alertUser("가이드모드");}
+                });
+                //LatLong goA =  new LatLong(latLng.latitude, latLng.longitude);*/
+
+                ControlApi.getApi(this.drone).goTo(change_LngLong(latLng), true, new SimpleCommandListener() {
+                    @Override
+                    public void onSuccess() { alertUser("출발"); }
+                    @Override
+                    public void onError(int executionError) { alertUser("실패"); }
+                });
+
+
+
+            }
+
+
+
+
+
+        });
+    }
+
+
+    /*protected void MissionSelect() {
+
+        naverMap.setOnMapLongClickListener((pointF, latLng) -> {
+
+
+            // 목적지 클릭시 이동
             if(control_mode == 0) {
                 Point_A.setMap(null);
                 Point_B.setMap(null);
@@ -613,24 +662,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 aaa.setMap(null);
                 bbb.setMap(null);
 
-                GO_M.setPosition(latLng);
-                GO_M.setIcon(OverlayImage.fromResource(R.drawable.empty_flag_64px));
-                GO_M.setHeight(70);
-                GO_M.setWidth(70);
-                GO_M.setMap(naverMap);
+
+                goalMarker.setPosition(latLng);
+                goalMarker.setIcon(OverlayImage.fromResource(R.drawable.empty_flag_64px));
+                goalMarker.setHeight(70);
+                goalMarker.setWidth(70);
+                goalMarker.setMap(naverMap);
+
             VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_GUIDED, new SimpleCommandListener() {
                 @Override
                 public void onSuccess() {alertUser("가이드모드");}
             });
-                LatLong goA = new LatLong(latLng.latitude, latLng.longitude);
+                //LatLong goA =  new LatLong(latLng.latitude, latLng.longitude);
 
-                ControlApi.getApi(this.drone).goTo(goA, true, new SimpleCommandListener() {
+                ControlApi.getApi(this.drone).goTo(change_LngLong(latLng), true, new SimpleCommandListener() {
                     @Override
                     public void onSuccess() { alertUser("출발"); }
                     @Override
                     public void onError(int executionError) { alertUser("실패"); }
                 });
             }
+
+
+
+            //클릭시 기체회전
             else if (control_mode == 1){
 
                 VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_GUIDED, new SimpleCommandListener() {
@@ -646,9 +701,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 });
 
             }
+
+
+            //ㄹ경로설정후 이동
             else if (control_mode == 2){
                 if (getPoint_AB == true){
-                    GO_M.setMap(null);
+
+                    goalMarker.setMap(null);
                     MP=true;
                     A_line.clear();
                     mission1.clear();
@@ -677,19 +736,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     show();
                 }
             }
+
+            //없음
             else if (control_mode == 3){
 
-                ControlApi.getApi(this.drone).manualControl(1.0f,1.0f, 1.0f, new SimpleCommandListener() {
-                    @Override
-                    public void onSuccess() { alertUser("메뉴얼컨트롤"); }
-                    @Override
-                    public void onError(int executionError) { alertUser("실패"); }
-
-                });
             }
         });
-    }
+    }*/
 
+
+    //미션 전송,시작,중단 함수
     protected void Send_MiSSION(){
         for(int i = 0; i<Mission_Point.size();i++) {
             mission1.addMissionItem(make_waypoint(Mission_Point.get(i)));
@@ -709,7 +765,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
     }
-
+    //
+    //좌표변수 변수값 변경함수
     public LatLong change_LngLong(LatLng latLng){
         LatLong latLong = new LatLong(latLng.latitude,latLng.longitude);
         return latLong;
@@ -718,6 +775,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLng latLng = new LatLng(latLong.getLatitude(),latLong.getLongitude());
         return latLng;
     }
+    //
+
     public Waypoint make_waypoint(LatLng latLng) {
         Waypoint waypoint=new Waypoint();
         Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
@@ -907,7 +966,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
 
-    }
+    }//지도타입 버튼 설정
     public void onCADAtap(View view) {
         Button CADA = (Button)findViewById(R.id.CadaStral_button);
         if(Map_C==false) {
@@ -924,7 +983,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
 
-    }
+    }//지적도 버튼 설정
     public void onMapMoveTap(View view) {
         Button Maplock= (Button)findViewById(R.id.Maplock_button);
         if(MapLock==true) {
@@ -938,12 +997,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             alertUser("맵 이동");
         }
 
-    }
+    }//맵 고정 버튼 설정
     public void onClearButtenTap(View view) {
 
         line.setMap(null);
         //Drone_line.clear();
-        GO_M.setMap(null);
+
+        goalMarker.setMap(null);
         Point_A.setMap(null);
         Point_B.setMap(null);
         Square_Point.clear();
@@ -955,7 +1015,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         alertUser("맵 클리어");
 
-    }
+    }//맵 정리
 
     public void onBtnConnectTap(View view) {
         if (this.drone.isConnected()) {
@@ -963,11 +1023,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             this.drone.disconnect();
         }
         else {
-            ConnectionParameter connectionParams = ConnectionParameter.newUsbConnection(null);
+            ConnectionParameter connectionParams = ConnectionParameter.newUsbConnection(null);//USB텔레메트리로 연결  //ConectionParameter.newUdpConnection(null);// Wifi모듈 연결
             this.drone.connect(connectionParams);
         }
 
-    }
+    }//드론과 연결 설정
 
     public void onFlightModeSelected(View view) {
         VehicleMode vehicleMode = (VehicleMode) this.modeSelector.getSelectedItem();
@@ -1001,14 +1061,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View v) {
                 al += 1;
-                setTakeoff_al();
+                setTakeoffAltitude();
             }
         });
         al_down.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(al>0){al -= 1;}
-                setTakeoff_al();
+                setTakeoffAltitude();
             }
         });
 
@@ -1180,7 +1240,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             missionC=0;
             button.setText("미션등록");
         }
-    }
+    }//미션 전송, 시작, 중지
     protected double distanceBetweenPoints(LatLongAlt pointA, LatLongAlt pointB) {
         if (pointA == null || pointB == null) {
             return 0;
@@ -1416,28 +1476,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-    //삭제
-    public void mjpgstream(){
-        RaspberryStream = (WebView) findViewById(R.id.webView);
 
-        WebSettings streamingSet = RaspberryStream.getSettings();//Mobile Web Setting
-        streamingSet.setJavaScriptEnabled(true);//자바스크립트 허용
-        streamingSet.setLoadWithOverviewMode(true);//컨텐츠가 웹뷰보다 클 경우 스크린 크기에 맞게 조정
-
-        streamingSet.setBuiltInZoomControls(false);
-        streamingSet.setUseWideViewPort(true);
-
-        RaspberryStream.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                view.loadUrl(url);
-                return true;
-            }
-        });
-
-        //pi3 스트리밍 ip
-        RaspberryStream.loadUrl("http://192.168.43.84:8090/?action=stream");
-    }
 
 
 }
