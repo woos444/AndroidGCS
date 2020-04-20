@@ -944,18 +944,41 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         alertUser("맵 클리어");
 
     }
+
     public void onBtnConnectTap(View view) {
         if (this.drone.isConnected()) {
+
             this.drone.disconnect();
-        } else {
+
+        }
+        else {
            // Spinner connectionSelector = (Spinner) findViewById(R.id.selectConnectionType);
            // int selectedConnectionType = connectionSelector.getSelectedItemPosition();
 
-            ConnectionParameter connectionParams = ConnectionParameter.newUdpConnection(null);
+            ConnectionParameter connectionParams = ConnectionParameter.newUsbConnection(null);
             this.drone.connect(connectionParams);
         }
 
     }
+
+    /*
+    public void onBtnConnectTap(View view) {
+        if (this.drone.isConnected()) {
+            this.drone.disconnect();
+        }
+        else {
+            Spinner connectionSelector = (Spinner) findViewById(R.id.selectConnectionType);
+            int selectedConnectionType = connectionSelector.getSelectedItemPosition();
+
+            ConnectionParameter connectionParams = selectedConnectionType == ConnectionType.TYPE_USB
+                ? ConnectionParameter.newUsbConnection(null)
+                : ConnectionParameter.newUdpConnection(null);
+
+            this.drone.connect(connectionParams);
+        }
+
+    }
+     */
     public void onFlightModeSelected(View view) {
         VehicleMode vehicleMode = (VehicleMode) this.modeSelector.getSelectedItem();
 
