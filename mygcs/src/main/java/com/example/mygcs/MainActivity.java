@@ -334,6 +334,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
 
             case AttributeEvent.SPEED_UPDATED:
+                //수정
                 updateSpeed();
                 break;
 
@@ -440,6 +441,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
         altitudeTextView.setText(String.format("%3.1f", droneAltitude.getRelativeAltitude()) + "m");
     }
+
+    //제거
     protected void updateSpeed() {
         TextView speedTextView = (TextView) findViewById(R.id.speedValueTextView);
         Speed droneSpeed = this.drone.getAttribute(AttributeType.SPEED);
@@ -1173,6 +1176,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
 
+
+
+    //수정
     public void onCameraModeChange(View view){
         final Button btnconnect= (Button)findViewById(R.id.btnConnect);
         final Button btntackoffaltitude= (Button)findViewById(R.id.tackoff_al);
@@ -1393,6 +1399,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
     }
+
+
+    //
     public void mjpgstream(){
         RaspberryStream = (WebView) findViewById(R.id.webView);
 

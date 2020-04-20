@@ -24,7 +24,7 @@
         </activity>
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
-            android:value="onl294onua" />
+            android:value="tkhhzbb5rp"/>
     </application>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
