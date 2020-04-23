@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     Marker Home_M = new Marker();
     Marker goalMarker = new Marker();//드론의 이동 목적지 마커
 
-    int connectmode =1 ; // 0: USB텔레메트리로 연결 , 1: Wifi모듈 연결
+    int connectmode =0 ; // 0: USB텔레메트리로 연결 , 1: Wifi모듈 연결
 
     //변경되는값
     int changmaptype = 0; //0: 위성지도 , 1: 지형도  , 2: 일반지도
