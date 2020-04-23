@@ -11,229 +11,203 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+
     </FrameLayout>
 
-    <Button
-        android:id="@+id/Mission_start"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/btnArmTakeOff"
-        android:visibility="invisible"
-        android:text="임무등록"
-        android:onClick="onMissionStartTap"/>
-
     <RelativeLayout
-        android:id = "@+id/Control_Type"
-        android:layout_width="250dp"
-        android:layout_height="50dp"
-        android:gravity="center_vertical"
-        android:orientation="vertical"
-        android:layout_above="@+id/tackoff"
-        android:background="#00FFFFFF">
-    <Button
-        android:id="@+id/Area_monitoring"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="0dp"
-        android:layout_marginBottom="0dp"
-        android:textSize="10dp"
-        android:layout_toEndOf="@+id/Interval_monitoring"
-        android:text="면적감시"
-        android:visibility="invisible"/>
-    <Button
-        android:id="@+id/Interval_monitoring"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="0dp"
-        android:layout_marginBottom="0dp"
-        android:textSize="10dp"
-        android:layout_toEndOf="@+id/Flight_mode"
-        android:text="간격감시"
-        android:visibility="invisible"/>
-    <Button
-        android:id="@+id/Flight_mode"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="0dp"
-        android:layout_marginBottom="0dp"
-        android:textSize="10dp"
-        android:layout_toEndOf="@+id/normalmode"
-        android:text="경로비행"
-        android:visibility="invisible"/>
-    <Button
-        android:id="@+id/normalmode"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="0dp"
-        android:layout_marginBottom="0dp"
-        android:textSize="10dp"
-        android:layout_toEndOf="@+id/control_type"
-        android:text="일반모드"
-        android:visibility="invisible"/>
-    <Button
-        android:id="@+id/control_type"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="0dp"
-        android:text="일반모드"
-        android:textSize="10dp"
-        android:onClick="onControlTypeTap" />
+        android:id="@+id/GCSmodeView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible">
+
+
+        <!--오른쪽 툴-->
+        <Button
+            android:id="@+id/CadaStral_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="0dp"
+            android:layout_marginBottom="0dp"
+            android:onClick="onCADAtap"
+            android:text="지적도off" />
+
+        <Button
+            android:id="@+id/Clear_Butten"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/CadaStral_button"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="0dp"
+            android:layout_marginBottom="0dp"
+            android:onClick="onClearButtenTap"
+            android:text="Clear" />
+
+        <Button
+            android:id="@+id/Maplock_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_toStartOf="@+id/CadaStral_button"
+            android:onClick="onMapMoveTap"
+            android:text="맵이동" />
+
+        <Button
+            android:id="@+id/Maptype_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_toStartOf="@+id/Maplock_button"
+            android:onClick="ChangeMaptype"
+            android:text="위성지도" />
+
+
+        <!--왼쪽 툴-->
+
+        <Button
+            android:id="@+id/btnArmTakeOff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_column="1"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="0dp"
+            android:layout_marginBottom="0dp"
+            android:onClick="onArmButtonTap"
+            android:visibility="invisible" />
+
+        <Button
+            android:id="@+id/btnConnect"
+            android:layout_width="99dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginBottom="0dp"
+            android:layout_toEndOf="@+id/btnArmTakeOff"
+            android:onClick="onBtnConnectTap"
+            android:text="Connect"
+            android:textSize="10dp" />
+
+        <Button
+            android:id="@+id/Mission_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/btnArmTakeOff"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="0dp"
+            android:layout_marginBottom="0dp"
+            android:onClick="onMissionStartTap"
+            android:text="임무등록"
+            android:visibility="invisible" />
+
+
+        <RelativeLayout
+            android:id="@+id/tackoff"
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:layout_above="@+id/Mission_start"
+            android:background="#00FFFFFF"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/tackoff_al"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="0dp"
+                android:layout_marginBottom="0dp"
+                android:onClick="onTakeoffALTap"
+                android:textSize="7dp" />
+
+            <Button
+                android:id="@+id/al_UP"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="0dp"
+                android:layout_marginBottom="0dp"
+                android:layout_toEndOf="@+id/tackoff_al"
+                android:drawableBottom="@drawable/up_arrow_26px"
+                android:visibility="invisible" />
+
+            <Button
+                android:id="@+id/al_DOWN"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="0dp"
+                android:layout_marginBottom="0dp"
+                android:layout_toEndOf="@+id/al_UP"
+                android:drawableBottom="@drawable/down_arrow_26px"
+                android:visibility="invisible" />
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/Control_Type"
+            android:layout_width="250dp"
+            android:layout_height="50dp"
+            android:layout_above="@+id/tackoff"
+            android:background="#00FFFFFF"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/Area_monitoring"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="0dp"
+                android:layout_marginBottom="0dp"
+                android:layout_toEndOf="@+id/Interval_monitoring"
+                android:text="면적감시"
+                android:textSize="10dp"
+                android:visibility="invisible" />
+
+            <Button
+                android:id="@+id/Interval_monitoring"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="0dp"
+                android:layout_marginBottom="0dp"
+                android:layout_toEndOf="@+id/Flight_mode"
+                android:text="간격감시"
+                android:textSize="10dp"
+                android:visibility="invisible" />
+
+            <Button
+                android:id="@+id/Flight_mode"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="0dp"
+                android:layout_marginBottom="0dp"
+                android:layout_toEndOf="@+id/normalmode"
+                android:text="경로비행"
+                android:textSize="10dp"
+                android:visibility="invisible" />
+
+            <Button
+                android:id="@+id/normalmode"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="0dp"
+                android:layout_marginBottom="0dp"
+                android:layout_toEndOf="@+id/control_type"
+                android:text="일반모드"
+                android:textSize="10dp"
+                android:visibility="invisible" />
+
+            <Button
+                android:id="@+id/control_type"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginBottom="0dp"
+                android:onClick="onControlTypeTap"
+                android:text="일반모드"
+                android:textSize="10dp" />
+        </RelativeLayout>
+
+
     </RelativeLayout>
-
-
-    <RelativeLayout
-        android:id="@+id/tackoff"
-        android:layout_width="150dp"
-        android:layout_height="50dp"
-        android:gravity="center_vertical"
-        android:orientation="vertical"
-        android:background="#00FFFFFF"
-        android:layout_above="@+id/Mission_start">
-
-    <Button
-        android:id="@+id/tackoff_al"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-
-        android:layout_marginStart="0dp"
-        android:layout_marginBottom="0dp"
-        android:textSize="7dp"
-        android:onClick="onTakeoffALTap" />
-
-    <Button
-        android:id="@+id/al_UP"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="0dp"
-        android:layout_marginBottom="0dp"
-        android:layout_toEndOf="@+id/tackoff_al"
-        android:drawableBottom="@drawable/up_arrow_26px"
-        android:visibility="invisible" />
-
-    <Button
-        android:id="@+id/al_DOWN"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="0dp"
-        android:layout_marginBottom="0dp"
-        android:layout_toEndOf="@+id/al_UP"
-        android:drawableBottom="@drawable/down_arrow_26px"
-        android:visibility="invisible" />
-    </RelativeLayout>
-
-    <Button
-        android:id="@+id/Clear_Butten"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/CadaStral_button"
-        android:layout_alignEnd="@+id/map"
-        android:layout_marginEnd="0dp"
-        android:layout_marginBottom="0dp"
-        android:onClick="onClearButtenTap"
-        android:text="Clear" />
-
-    <TableLayout
-        android:id="@+id/MapChange"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/map"
-        android:layout_marginEnd="0dp"
-        android:layout_marginBottom="0dp"
-        android:layout_toStartOf="@+id/CadaStral_button">
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <Button
-                android:id="@+id/SatlliteMap_bt"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="위성지도"
-                android:visibility="invisible" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <Button
-                android:id="@+id/TerrainMap_bt"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="지형도"
-                android:visibility="invisible" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <Button
-                android:id="@+id/BasicMap_bt"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="일반지도"
-                android:visibility="invisible" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <Button
-                android:id="@+id/Maptype_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="일반지도" />
-        </TableRow>
-    </TableLayout>
-
-    <Button
-        android:id="@+id/btnConnect"
-        android:layout_width="99dp"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/map"
-        android:layout_marginStart="0dp"
-        android:layout_marginBottom="0dp"
-        android:layout_toEndOf="@+id/btnArmTakeOff"
-        android:onClick="onBtnConnectTap"
-        android:text="Connect"
-        android:textSize="10dp"/>
-
-    <Button
-        android:id="@+id/btnArmTakeOff"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_column="1"
-        android:layout_alignStart="@+id/map"
-        android:layout_alignBottom="@+id/map"
-        android:layout_marginStart="0dp"
-        android:layout_marginBottom="0dp"
-        android:onClick="onArmButtonTap"
-        android:visibility="invisible" />
-
-    <Button
-        android:id="@+id/Maplock_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/map"
-        android:layout_marginEnd="0dp"
-        android:layout_marginBottom="0dp"
-        android:layout_toStartOf="@+id/MapChange"
-        android:text="맵이동"
-        android:onClick="onMapMoveTap"/>
-
-    <Button
-        android:id="@+id/CadaStral_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/map"
-        android:layout_alignBottom="@+id/map"
-        android:layout_marginEnd="0dp"
-        android:layout_marginBottom="0dp"
-        android:onClick="onCADAtap"
-        android:text="지적도off" />
 
 
     <RelativeLayout
@@ -377,9 +351,9 @@
         android:layout_alignEnd="@+id/map"
         android:layout_marginTop="0dp"
         android:layout_marginEnd="0dp"
-        android:text="camera"
+        android:text="joystick"
         android:textSize="10sp"
-        android:onClick="onCameraModeChange"/>
+        android:onClick="ChangeJoystickMode"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
@@ -403,7 +377,7 @@
 
         <TableRow
             android:id="@+id/VoltageTelemRow"
-            android:layout_width="50dp"
+            android:layout_width="70dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp">
 
@@ -421,7 +395,7 @@
 
             <TextView
                 android:id="@+id/VoltageValueTextView"
-                android:layout_width="fill_parent"
+                android:layout_width="28dp"
                 android:layout_height="wrap_content"
                 android:layout_column="1"
                 android:layout_gravity="left"
@@ -468,7 +442,7 @@
 
         <TableRow
             android:id="@+id/AltTelemRow"
-            android:layout_width="50dp"
+            android:layout_width="70dp"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/map"
             android:layout_marginStart="0dp"

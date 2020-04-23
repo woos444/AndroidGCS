@@ -102,6 +102,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     Marker Home_M = new Marker();
     Marker goalMarker = new Marker();
 
+    int MaptypeChangenum = 0;
+
     int cameraType = 0;
     int control_mode = 0;
     int missionC=0;
@@ -185,7 +187,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             fm.beginTransaction().add(R.id.map, mNaverMapFragment).commit();
         }
         mNaverMapFragment.getMapAsync(this);
-        Maptype();
 
         InfoWindow=(TableRow)findViewById(R.id.jeongbochang);
         InfoWindow.bringToFront();
@@ -274,12 +275,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(@NonNull final NaverMap naverMap) {
         this.naverMap=naverMap;
+        naverMap.setMapType(NaverMap.MapType.Satellite);
         naverMap.setLocationSource(locationSource);
         naverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
 
         UiSettings uiSettings = naverMap.getUiSettings();
         uiSettings.setZoomControlEnabled(false);
-        MissionSelect();
+        //MissionSelect();
 
     }
     @Override
@@ -339,7 +341,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
 
             case AttributeEvent.GUIDED_POINT_UPDATED:
-                //MissionSelect();
+                MissionSelect();
                 break;
 
             case AttributeEvent.MISSION_SENT:
@@ -618,24 +620,47 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 goalMarker.setHeight(70);
                 goalMarker.setWidth(70);
                 goalMarker.setMap(naverMap);
-                alertUser(latLng.latitude+" , "+latLng.longitude);
-
-
-                /*VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_GUIDED, new SimpleCommandListener() {
-                    @Override
-                    public void onSuccess() {alertUser("가이드모드");}
-                });
-                //LatLong goA =  new LatLong(latLng.latitude, latLng.longitude);*/
-
                 ControlApi.getApi(this.drone).goTo(change_LngLong(latLng), true, new SimpleCommandListener() {
                     @Override
                     public void onSuccess() { alertUser("출발"); }
                     @Override
                     public void onError(int executionError) { alertUser("실패"); }
                 });
+            }
 
 
+            //ㄹ경로를 만들고 경로를 따라 주행
+            else if (control_mode == 2){
+                if (getPoint_AB == true){
 
+                    goalMarker.setMap(null);
+                    MP=true;
+                    A_line.clear();
+                    mission1.clear();
+                    Square_Point.clear();
+                    Square_line.setMap(null);
+                    Mission_Point.clear();
+                    Mission_line.setMap(null);
+                    aaa.setMap(null);
+                    bbb.setMap(null);
+                    Point_B.setMap(null);
+
+                    A_line.add(latLng);
+                    Point_A.setPosition(A_line.get(0));
+                    Point_A.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px));
+                    Point_A.setMap(naverMap);
+                    Point_B.setMap(null);
+                    getPoint_AB = false;
+                }
+                else if (getPoint_AB == false) {
+                    A_line.add(latLng);
+                    Point_B.setPosition(A_line.get(1));
+                    Point_B.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px_3));
+                    Point_B.setMap(naverMap);
+                    getPoint_AB = true;
+
+                    show();
+                }
             }
 
 
@@ -765,7 +790,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
     }
-    //
+
     //좌표변수 변수값 변경함수
     public LatLong change_LngLong(LatLng latLng){
         LatLong latLong = new LatLong(latLng.latitude,latLng.longitude);
@@ -775,7 +800,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLng latLng = new LatLng(latLong.getLatitude(),latLong.getLongitude());
         return latLng;
     }
-    //
 
     public Waypoint make_waypoint(LatLng latLng) {
         Waypoint waypoint=new Waypoint();
@@ -915,58 +939,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-
-    public void Maptype() {
-        final Button Maptype= (Button)findViewById(R.id.Maptype_button);
-        final Button T_bt = (Button)findViewById(R.id.TerrainMap_bt);
-        final Button B_bt = (Button)findViewById(R.id.BasicMap_bt);
-        final Button S_bt = (Button)findViewById(R.id.SatlliteMap_bt);
-        Maptype.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (T_bt.getVisibility()==View.INVISIBLE) {
-                    T_bt.setVisibility(View.VISIBLE);
-                    B_bt.setVisibility(View.VISIBLE);
-                    S_bt.setVisibility(View.VISIBLE);
-                }
-                else if(T_bt.getVisibility()==View.VISIBLE)
-                {
-                    T_bt.setVisibility(View.INVISIBLE);
-                    B_bt.setVisibility(View.INVISIBLE);
-                    S_bt.setVisibility(View.INVISIBLE);
-
-                }
-            }
-        });
-
-        T_bt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Maptype.setText(T_bt.getText());
-                naverMap.setMapType(NaverMap.MapType.Terrain);
-                alertUser("지형도");
-            }
-        });
-        S_bt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Maptype.setText(S_bt.getText());
-                naverMap.setMapType(NaverMap.MapType.Satellite);
-                alertUser("위성지도");
-            }
-        });
-        B_bt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Maptype.setText(B_bt.getText());
-                naverMap.setMapType(NaverMap.MapType.Basic);
-                alertUser("일반지도");
-            }
-        });
+    public void ChangeMaptype(View view) {
+        Button maptypetext = (Button)findViewById(R.id.Maptype_button);
+        if(MaptypeChangenum == 0) {
+            maptypetext.setText("지형도");
+            naverMap.setMapType(NaverMap.MapType.Terrain);
+            MaptypeChangenum = 1;
+        }
+        else if(MaptypeChangenum == 1) {
+            maptypetext.setText("일반지도");
+            naverMap.setMapType(NaverMap.MapType.Basic);
+            MaptypeChangenum = 2;
+        }
+        else if(MaptypeChangenum == 2) {
+            maptypetext.setText("위성지도");
+            naverMap.setMapType(NaverMap.MapType.Satellite);
+            MaptypeChangenum = 0;
+        }
 
 
-
-    }//지도타입 버튼 설정
+    }//맵타입 버튼 설정
     public void onCADAtap(View view) {
         Button CADA = (Button)findViewById(R.id.CadaStral_button);
         if(Map_C==false) {
@@ -1023,7 +1015,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             this.drone.disconnect();
         }
         else {
-            ConnectionParameter connectionParams = ConnectionParameter.newUsbConnection(null);//USB텔레메트리로 연결  //ConectionParameter.newUdpConnection(null);// Wifi모듈 연결
+            ConnectionParameter connectionParams = ConnectionParameter.newUsbConnection(null);//USB텔레메트리로 연결
+           // ConnectionParameter connectionParams = ConnectionParameter.newUdpConnection(null);// Wifi모듈 연결
             this.drone.connect(connectionParams);
         }
 
@@ -1225,6 +1218,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     }
+
     public void onMissionStartTap(View view){
         Button button = (Button)findViewById(R.id.Mission_start);
         if(missionC==0) {
@@ -1241,6 +1235,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             button.setText("미션등록");
         }
     }//미션 전송, 시작, 중지
+
+
     protected double distanceBetweenPoints(LatLongAlt pointA, LatLongAlt pointB) {
         if (pointA == null || pointB == null) {
             return 0;
@@ -1253,48 +1249,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
 
-    //수정
-    public void onCameraModeChange(View view){
-        final Button btnconnect= (Button)findViewById(R.id.btnConnect);
-        final Button btntackoffaltitude= (Button)findViewById(R.id.tackoff_al);
-        final Button btncontroltype= (Button)findViewById(R.id.control_type);
-        final Button btnclear= (Button)findViewById(R.id.Clear_Butten);
-        final Button btncadastral= (Button)findViewById(R.id.CadaStral_button);
-        final Button btnmaptypechange= (Button)findViewById(R.id.Maptype_button);
-        final Button btnmaplock= (Button)findViewById(R.id.Maplock_button);
-        final Button btnarm= (Button)findViewById(R.id.btnArmTakeOff);
 
+    public void ChangeJoystickMode(View view){
+        final RelativeLayout GCSmode = findViewById(R.id.GCSmodeView);
         final RelativeLayout videocontrolview= findViewById(R.id.VideoControlView);
-        if(cameraType==0){
-            btncadastral.setVisibility(View.INVISIBLE);
-            btnconnect.setVisibility(View.INVISIBLE);
-            btntackoffaltitude.setVisibility(View.INVISIBLE);
-            btncontroltype.setVisibility(View.INVISIBLE);
-            btnclear.setVisibility(View.INVISIBLE);
-            btnmaptypechange.setVisibility(View.INVISIBLE);
-            btnmaplock.setVisibility(View.INVISIBLE);
-            btnarm.setVisibility(View.INVISIBLE);
 
+        if(cameraType==0){
+            GCSmode.setVisibility(View.INVISIBLE);
             videocontrolview.setVisibility(View.VISIBLE);
             cameraType=1;
         }
         else if(cameraType==1)
         {
-            btncadastral.setVisibility(View.VISIBLE);
-            btnconnect.setVisibility(View.VISIBLE);
-            btntackoffaltitude.setVisibility(View.VISIBLE);
-            btncontroltype.setVisibility(View.VISIBLE);
-            btnclear.setVisibility(View.VISIBLE);
-            btnmaptypechange.setVisibility(View.VISIBLE);
-            btnmaplock.setVisibility(View.VISIBLE);
-            btnarm.setVisibility(View.VISIBLE);
-
+            GCSmode.setVisibility(View.VISIBLE);
             videocontrolview.setVisibility(View.INVISIBLE);
             cameraType=0;
-
         }
 
-    }
+    }//조이스틱 모드 , GCS모드를 변경합니다.
 
     public void joystick(){
 
