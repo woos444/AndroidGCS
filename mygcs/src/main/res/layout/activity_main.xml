@@ -112,7 +112,7 @@
             android:orientation="vertical">
 
             <Button
-                android:id="@+id/tackoff_al"
+                android:id="@+id/AltitudeSet"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_marginStart="0dp"
@@ -121,22 +121,22 @@
                 android:textSize="7dp" />
 
             <Button
-                android:id="@+id/al_UP"
+                android:id="@+id/AltitudeUP"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_marginStart="0dp"
                 android:layout_marginBottom="0dp"
-                android:layout_toEndOf="@+id/tackoff_al"
+                android:layout_toEndOf="@+id/AltitudeSet"
                 android:drawableBottom="@drawable/up_arrow_26px"
                 android:visibility="invisible" />
 
             <Button
-                android:id="@+id/al_DOWN"
+                android:id="@+id/AltitudeDOWN"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_marginStart="0dp"
                 android:layout_marginBottom="0dp"
-                android:layout_toEndOf="@+id/al_UP"
+                android:layout_toEndOf="@+id/AltitudeUP"
                 android:drawableBottom="@drawable/down_arrow_26px"
                 android:visibility="invisible" />
 
@@ -216,6 +216,14 @@
         android:layout_height="match_parent"
         android:visibility="invisible">
 
+
+        <Button
+            android:id="@+id/btnRTL"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:onClick="setRTLmode"
+            android:text="RTL" />
 
         <RelativeLayout
             android:id="@+id/layout_joystick"

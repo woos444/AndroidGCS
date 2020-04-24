@@ -94,14 +94,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     RecyclerView NotificationWindow;
 
     boolean MP = true;
-    boolean MapLock=true;
+    boolean MapLock = true; //드론위치로 맵 잠금 on,off
     boolean cadastralmap = false; //지적도 on,off
     boolean getPoint_AB = true;
     Marker droneMarker = new Marker();//드론의 위치마커
     Marker Home_M = new Marker();
     Marker goalMarker = new Marker();//드론의 이동 목적지 마커
 
-    int connectmode =0 ; // 0: USB텔레메트리로 연결 , 1: Wifi모듈 연결
+    int connectmode = 1  ; // 0: USB텔레메트리로 연결 , 1: Wifi모듈 연결
 
     //변경되는값
     int changmaptype = 0; //0: 위성지도 , 1: 지형도  , 2: 일반지도
@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     Mission dronemission = new Mission();
 
-    ArrayList<LatLng> A_line = new ArrayList();
+    ArrayList<LatLng> startpoint = new ArrayList();
     ArrayList<LatLng> Square_Point = new ArrayList();
     ArrayList<LatLng> Drone_line = new ArrayList();
     ArrayList<LatLng> Mission_Point = new ArrayList();
@@ -597,15 +597,47 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         rcv_init();
         rcv_getData();
     }//리사이클러뷰 안내문 출력
+
     protected void setTakeoffAltitude(){
-        Button takeoff_al = (Button)findViewById(R.id.tackoff_al);
-        String al_text = (int)altitudevalue+"m\n이륙고도";
-        final SpannableStringBuilder sps = new SpannableStringBuilder(al_text);
+        Button altitudeset = (Button)findViewById(R.id.AltitudeSet);
+        String altitudetext = (int)altitudevalue+"m\n이륙고도";
+        final SpannableStringBuilder sps = new SpannableStringBuilder(altitudetext);
         sps.setSpan(new AbsoluteSizeSpan(30),1,3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        takeoff_al.setText(sps);
+        altitudeset.setText(sps);
         alertUser(altitudevalue+"m 이륙고도");
 
     }//이륙고도설정
+    public void onTakeoffALTap(View view){
+        Button altitudeup = (Button)findViewById(R.id.AltitudeUP);
+        Button altitudedown = (Button)findViewById(R.id.AltitudeDOWN);
+        if (altitudeup.getVisibility()==View.INVISIBLE)
+        {
+            altitudeup.setVisibility(View.VISIBLE);
+            altitudedown.setVisibility(View.VISIBLE);
+
+        }
+        else if (altitudeup.getVisibility()==View.VISIBLE)
+        {
+            altitudeup.setVisibility(View.INVISIBLE);
+            altitudedown.setVisibility(View.INVISIBLE);
+        }
+
+        altitudeup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                altitudevalue += 1;
+                setTakeoffAltitude();
+            }
+        });
+        altitudedown.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(altitudevalue>0){altitudevalue -= 1;}
+                setTakeoffAltitude();
+            }
+        });
+
+    }//이륙 고도값 변경
 
 
     protected void MissionSelect() {
@@ -635,7 +667,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     goalMarker.setMap(null);
                     MP=true;
-                    A_line.clear();
+                    startpoint.clear();
                     dronemission.clear();
                     Square_Point.clear();
                     Square_line.setMap(null);
@@ -643,18 +675,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Mission_line.setMap(null);
                     aaa.setMap(null);
                     bbb.setMap(null);
-                    Point_B.setMap(null);
 
-                    A_line.add(latLng);
-                    Point_A.setPosition(A_line.get(0));
+                    startpoint.add(latLng);
+                    Point_A.setPosition(startpoint.get(0));
                     Point_A.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px));
                     Point_A.setMap(naverMap);
                     Point_B.setMap(null);
                     getPoint_AB = false;
                 }
                 else if (getPoint_AB == false) {
-                    A_line.add(latLng);
-                    Point_B.setPosition(A_line.get(1));
+                    startpoint.add(latLng);
+                    Point_B.setPosition(startpoint.get(1));
                     Point_B.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px_3));
                     Point_B.setMap(naverMap);
                     getPoint_AB = true;
@@ -684,9 +715,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
         });
-    }
-
-
+    }//드론미션 생성
 
 
     //미션 전송,시작,중단 함수
@@ -723,12 +752,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void show() {
 
-        final List<String> interval_L = new ArrayList<>();
-        interval_L.add("3");
-        interval_L.add("5");
-        interval_L.add("10");
-        interval_L.add("20");
-        final CharSequence[] items2 =  interval_L.toArray(new String[ interval_L.size()]);
+        final List<String> intervalline = new ArrayList<>();
+        intervalline.add("3");
+        intervalline.add("5");
+        intervalline.add("10");
+        intervalline.add("20");
+        final CharSequence[] items2 =  intervalline.toArray(new String[ intervalline.size()]);
 
         final List SelectedItems2  = new ArrayList();
         int defaultItem2 = 0;
@@ -792,7 +821,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                         if (!SelectedItems2.isEmpty()) {
                             int index = (int) SelectedItems2.get(0);
-                            msg2 = interval_L.get(index);
+                            msg2 = intervalline.get(index);
                             M_L = Integer.parseInt(msg2);
                             Log.i("test1","거리"+M_W);
                             Log.i("test2","간격"+M_L);
@@ -800,8 +829,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             for(int i=0 ; i<=M_W ; i++)
                             {
                                 if(i%M_L==0) {
-                                    LatLong n = MathUtils.newCoordFromBearingAndDistance(change_LngLong(A_line.get(0)), 90 + (int) MathUtils.getHeadingFromCoordinates(change_LngLong(A_line.get(0)), change_LngLong(A_line.get(1))), i);
-                                    LatLong m = MathUtils.newCoordFromBearingAndDistance(change_LngLong(A_line.get(1)), 90 + (int) MathUtils.getHeadingFromCoordinates(change_LngLong(A_line.get(0)), change_LngLong(A_line.get(1))), i);
+                                    LatLong n = MathUtils.newCoordFromBearingAndDistance(change_LngLong(startpoint.get(0)), 90 + (int) MathUtils.getHeadingFromCoordinates(change_LngLong(startpoint.get(0)), change_LngLong(startpoint.get(1))), i);
+                                    LatLong m = MathUtils.newCoordFromBearingAndDistance(change_LngLong(startpoint.get(1)), 90 + (int) MathUtils.getHeadingFromCoordinates(change_LngLong(startpoint.get(0)), change_LngLong(startpoint.get(1))), i);
                                     if (MP == true) {
                                         Mission_Point.add(change_LongLng(n));
                                         Mission_Point.add(change_LongLng(m));
@@ -828,7 +857,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             bbb.setMap(naverMap);
                             aaa.setMap(naverMap);
 
-                            alertUser("A to B = "+(int)MathUtils.getDistance2D(change_LngLong(A_line.get(0)),change_LngLong(A_line.get(1)))+"m");
+                            alertUser("A to B = "+(int)MathUtils.getDistance2D(change_LngLong(startpoint.get(0)),change_LngLong(startpoint.get(1)))+"m");
 
                             Mission_line.setCoords(Mission_Point);
                             Mission_line.setWidth(10);
@@ -850,6 +879,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }//ㄹ경로주행
 
 
+    public void setRTLmode(View view){
+        VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_RTL, new SimpleCommandListener() {
+            @Override
+            public void onSuccess() {alertUser("집으로");}
+        });
+
+
+    }//RTL버튼 클릭 이밴트
     public void ChangeMaptype(View view) {
         Button maptypetext = (Button)findViewById(R.id.Maptype_button);
         if(changmaptype == 0) {
@@ -869,7 +906,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
 
-    }//맵타입 버튼 설정
+    }//맵타입 버튼 클릭 이밴트
     public void onCADAtap(View view) {
         Button CADA = (Button)findViewById(R.id.CadaStral_button);
         if(cadastralmap == false) {
@@ -886,7 +923,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
 
-    }//지적도 버튼 설정
+    }//지적도 버튼 클릭 이밴트
     public void onMapMoveTap(View view) {
         Button Maplock= (Button)findViewById(R.id.Maplock_button);
         if(MapLock==true) {
@@ -900,7 +937,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             alertUser("맵 이동");
         }
 
-    }//맵 고정 버튼 설정
+    }//맵 고정 버튼 클릭 이밴트
     public void onClearButtenTap(View view) {
 
         line.setMap(null);
@@ -918,7 +955,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         alertUser("맵 클리어");
 
-    }//맵 정리
+    }//맵정리 버튼 클릭 이밴트
     public void onBtnConnectTap(View view) {
         if (this.drone.isConnected()) {
 
@@ -939,7 +976,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
 
-    }//드론과 연결 설정
+    }//드론과 연결버튼 클릭 이밴트
 
     public void onFlightModeSelected(View view) {
         VehicleMode vehicleMode = (VehicleMode) this.modeSelector.getSelectedItem();
@@ -953,38 +990,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onTimeout() {
             }
         });
-    }
-    public void onTakeoffALTap(View view){
-        Button al_up = (Button)findViewById(R.id.al_UP);
-        Button al_down = (Button)findViewById(R.id.al_DOWN);
-                if (al_up.getVisibility()==View.INVISIBLE)
-                {
-                    al_up.setVisibility(View.VISIBLE);
-                    al_down.setVisibility(View.VISIBLE);
+    }//드론비행모드 변경확인
 
-                }
-                else if (al_up.getVisibility()==View.VISIBLE)
-                {
-                    al_up.setVisibility(View.INVISIBLE);
-                    al_down.setVisibility(View.INVISIBLE);
-                }
-
-        al_up.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                altitudevalue += 1;
-                setTakeoffAltitude();
-            }
-        });
-        al_down.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(altitudevalue>0){altitudevalue -= 1;}
-                setTakeoffAltitude();
-            }
-        });
-
-    }
     public void onArmButtonTap(View view) {
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
         drone = this.drone;
@@ -1220,6 +1227,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         || arg1.getAction() == MotionEvent.ACTION_MOVE) {
                     int Xpoint = jstickLeft.getX();
                     int Ypoint = jstickLeft.getY();
+
                     if(Xpoint<0){Xpoint= -Xpoint;}
                     else if(Xpoint>200){Xpoint=200;}
                     if(Ypoint<0){Ypoint= -Ypoint;}
@@ -1227,6 +1235,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     double XmotorValue = Xpoint*speedYaw;
                     double YmotorValue = Ypoint*speedUpDown;
+
+                    Log.i("XmotorValue","="+XmotorValue);
+                    Log.i("YmotorValue","="+YmotorValue);
 
                     if(jstickLeft.getDistance()>200) { float distance = 200; }
 
