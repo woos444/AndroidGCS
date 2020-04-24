@@ -884,8 +884,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onSuccess() {alertUser("집으로");}
         });
-
-
     }//RTL버튼 클릭 이밴트
     public void ChangeMaptype(View view) {
         Button maptypetext = (Button)findViewById(R.id.Maptype_button);
@@ -1184,12 +1182,28 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if(dronecontroltype == 0){
             GCSmode.setVisibility(View.INVISIBLE);
             joystickcontrolview.setVisibility(View.VISIBLE);
+            VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_LOITER, new SimpleCommandListener() {
+                @Override
+                public void onSuccess() {alertUser("수동조종모드");}
+                @Override
+                public void onError(int executionError) { alertUser("LOITER전환실패"); }
+            });
+
+
             dronecontroltype = 1;
         }
         else if(dronecontroltype == 1)
         {
             GCSmode.setVisibility(View.VISIBLE);
             joystickcontrolview.setVisibility(View.INVISIBLE);
+
+            VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_GUIDED, new SimpleCommandListener() {
+                @Override
+                public void onSuccess() {alertUser("GCS모드");}
+                @Override
+                public void onError(int executionError) { alertUser("GUIDED전환실패"); }
+            });
+
             dronecontroltype = 0;
         }
 
@@ -1236,8 +1250,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     double XmotorValue = Xpoint*speedYaw;
                     double YmotorValue = Ypoint*speedUpDown;
 
-                    Log.i("XmotorValue","="+XmotorValue);
-                    Log.i("YmotorValue","="+YmotorValue);
+                    /*Log.i("XmotorValue","="+XmotorValue);
+                    Log.i("YmotorValue","="+YmotorValue);*/
 
                     if(jstickLeft.getDistance()>200) { float distance = 200; }
 
@@ -1246,39 +1260,51 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         rc_override.chan3_raw = 1500 + (int)YmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
                         alertUser("상승");
-                    } else if(direction == JoyStickClass.STICK_UPRIGHT) {
-                        rc_override.chan3_raw = 1500 + (int)YmotorValue;
-                        rc_override.chan4_raw = 1500 + (int)XmotorValue;
-                        ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
+                    }
 
-                    } else if(direction == JoyStickClass.STICK_RIGHT) {
-                        rc_override.chan4_raw = 1500 + (int)XmotorValue;
-                        ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
-                        alertUser("시계회전");
-                    } else if(direction == JoyStickClass.STICK_DOWNRIGHT) {
-                        rc_override.chan3_raw = 1500 - (int)YmotorValue;
-                        rc_override.chan4_raw = 1500 + (int)XmotorValue;
-                        ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
-
-                    } else if(direction == JoyStickClass.STICK_DOWN) {
+                    else if(direction == JoyStickClass.STICK_DOWN) {
                         rc_override.chan3_raw = 1500 - (int)YmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
                         alertUser("하강");
-                    } else if(direction == JoyStickClass.STICK_DOWNLEFT) {
+                    }
+                    else if(direction == JoyStickClass.STICK_RIGHT) {
+                        rc_override.chan4_raw = 1500 + (int)XmotorValue;
+                        ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
+                        alertUser("시계회전");
+                    }
+                    else if(direction == JoyStickClass.STICK_LEFT) {
+                        rc_override.chan4_raw = 1500 - (int)XmotorValue;
+                        ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
+                        alertUser("반시계회전");
+                    }
+
+                     /*else if(direction == JoyStickClass.STICK_UPRIGHT) {
+                        rc_override.chan3_raw = 1500 + (int)YmotorValue;
+                        rc_override.chan4_raw = 1500 + (int)XmotorValue;
+                        ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
+
+                    } */
+                    /*else if(direction == JoyStickClass.STICK_DOWNRIGHT) {
+                        rc_override.chan3_raw = 1500 - (int)YmotorValue;
+                        rc_override.chan4_raw = 1500 + (int)XmotorValue;
+                        ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
+
+                    } */
+
+                    /*else if(direction == JoyStickClass.STICK_DOWNLEFT) {
                         rc_override.chan3_raw = 1500 - (int)YmotorValue;
                         rc_override.chan4_raw = 1500 - (int)XmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
 
-                    } else if(direction == JoyStickClass.STICK_LEFT) {
-                        rc_override.chan4_raw = 1500 - (int)XmotorValue;
-                        ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
-                        alertUser("반시계회전");
-                    } else if(direction == JoyStickClass.STICK_UPLEFT) {
+                    } */
+
+                    /*else if(direction == JoyStickClass.STICK_UPLEFT) {
                         rc_override.chan3_raw = 1500 + (int)YmotorValue;
                         rc_override.chan4_raw = 1500 - (int)XmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
 
-                    } else if(direction == JoyStickClass.STICK_NONE) {
+                    } */
+                    else if(direction == JoyStickClass.STICK_NONE) {
                         rc_override.chan1_raw = 1500;
                         rc_override.chan2_raw = 1500;
                         rc_override.chan3_raw = 1500;
@@ -1286,7 +1312,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
                         alertUser("정지");
                     }
-                } else if(arg1.getAction() == MotionEvent.ACTION_UP) {
+                }
+                else if(arg1.getAction() == MotionEvent.ACTION_UP) {
                     rc_override.chan1_raw = 1500;
                     rc_override.chan2_raw = 1500;
                     rc_override.chan3_raw = 1500;
