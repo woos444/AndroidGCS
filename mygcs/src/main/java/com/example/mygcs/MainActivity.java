@@ -96,9 +96,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     boolean pointsetorder = true;
     boolean MapLock = true; //드론위치로 맵 잠금 on,off
     boolean cadastralmap = false; //지적도 on,off
-    boolean getstartPoint_AB = true;
+    boolean missionstartwhether = true;//미션시작여부
     Marker droneMarker = new Marker();//드론의 위치마커
-    Marker Home_M = new Marker();
+
     Marker goalMarker = new Marker();//드론의 이동 목적지 마커
 
     int connectmode = 1  ; // 0: USB텔레메트리로 연결 , 1: Wifi모듈 연결
@@ -108,8 +108,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     int dronecontroltype = 0; //0: joystick모드  , 1: GCS모드
     int changemissionmode = 0; //0: 일반모드 , 1: 경로비행 , 2: 간격감시 , 3: 면적감시
     int missionC=0;
-
-    int waypointstart = 0; //경로설정 시작여부 0: 시작 , 1: 진행중
 
     int distancevalue=0;
     int intervalvalue=0;
@@ -127,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     LatLng dronelocation; //드론의 위치좌표
     LatLng Home_A;
     LatLongAlt My_A;
+    Marker Home_M = new Marker();
 
     private RecyclerViewAdapter adapter;
     ArrayList<String> listTitle = new ArrayList<>();
@@ -143,6 +142,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ArrayList<LatLng> Square_Point = new ArrayList();
     ArrayList<LatLng> movingpoint = new ArrayList();//드론의 지나온 이동 포인트
     ArrayList<LatLng> missionroutepoint = new ArrayList();//미션에 들어갈 포인트 리스트
+
+    ArrayList<Marker> WayPointMarker = new ArrayList();
 
     private double yawvalue;
     private Spinner modeSelector;
@@ -251,14 +252,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 rcv_init();
                 for (int i = 0 ;i < listTitle.size();i++) {
-                    recyclerview_Data data = new recyclerview_Data();
-                    // 각 List의 값들을 data 객체에 set 해줍니다.
-                    //recyclerview_Data data = new recyclerview_Data();
+                    recyclerview_Data data = new recyclerview_Data();// 각 List의 값들을 data 객체에 set 해줍니다.
                     data.setTitle(listTitle.get(i));
-                    data.setResId(R.drawable.icons8_star_64px);
-                    // 각 값이 들어간 data를 adapter에 추가합니다.
-                    adapter.addItem(data);
-                    // adapter의 값이 변경되었다는 것을 알려줍니다.
+                    data.setResId(R.drawable.icons8_star_64px);// 각 값이 들어간 data를 adapter에 추가합니다.
+                    adapter.addItem(data);// adapter의 값이 변경되었다는 것을 알려줍니다.
                 }
                 adapter.notifyDataSetChanged();
 
@@ -605,7 +602,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         final SpannableStringBuilder sps = new SpannableStringBuilder(altitudetext);
         sps.setSpan(new AbsoluteSizeSpan(30),1,3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         altitudeset.setText(sps);
-        alertUser(altitudevalue+"m 이륙고도");
+        /*alertUser(altitudevalue+"m 이륙고도");*/
 
     }//이륙고도설정
     public void onTakeoffALTap(View view){
@@ -628,6 +625,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View v) {
                 altitudevalue += 1;
                 setTakeoffAltitude();
+                alertUser(altitudevalue+"m 이륙고도");
             }
         });
         altitudedown.setOnClickListener(new View.OnClickListener() {
@@ -635,6 +633,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View v) {
                 if(altitudevalue>0){altitudevalue -= 1;}
                 setTakeoffAltitude();
+                alertUser(altitudevalue+"m 이륙고도");
             }
         });
 
@@ -664,7 +663,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             //ㄹ경로를 만들고 경로를 따라 주행
             else if (changemissionmode == 1){
-                if (getstartPoint_AB == true){
+                if (missionstartwhether == true){
 
 
 
@@ -677,14 +676,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     missionpoint_A.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px));
                     missionpoint_A.setMap(naverMap);
 
-                    getstartPoint_AB = false;
+                    missionstartwhether = false;
                 }
-                else if (getstartPoint_AB == false) {
+                else if (missionstartwhether == false) {
                     missionpointlist.add(latLng);
                     missionpoint_B.setPosition(missionpointlist.get(1));
                     missionpoint_B.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px_3));
                     missionpoint_B.setMap(naverMap);
-                    getstartPoint_AB = true;
+                    missionstartwhether = true;
 
                     Pathsetting();
                 }
@@ -692,7 +691,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             //여러개의 웨이포인트를 따라 주행
             else if (changemissionmode == 2){
-                if(waypointstart == 0) {
+                if(missionstartwhether == true) {
 
                     missionpointlist.clear();
                     pointsetorder = true;
@@ -704,16 +703,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     waypoint.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px));
                     waypoint.setCaptionText(missionroutepoint.size()+"");
 
-                    routeline.setCoords(missionroutepoint);
-                    routeline.setWidth(10);
-                    routeline.setColor(Color.GREEN);
-                    routeline.setMap(naverMap);
+                    WayPointMarker.add(waypoint);
+                    WayPointMarker.get(WayPointMarker.size()-1).setMap(naverMap);
 
-
-
-                    waypointstart = 1;
+                    missionstartwhether = false;
                 }
-                else if(waypointstart ==1) {
+                else if(missionstartwhether == false) {
 
                     missionroutepoint.add(latLng);
                     Marker waypoint = new Marker();
@@ -721,11 +716,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     waypoint.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px));
                     waypoint.setCaptionText(missionroutepoint.size()+"");
 
+                    WayPointMarker.add(waypoint);
+                    WayPointMarker.get(WayPointMarker.size()-1).setMap(naverMap);
+
+
                     routeline.setCoords(missionroutepoint);
                     routeline.setWidth(10);
                     routeline.setColor(Color.GREEN);
                     routeline.setMap(naverMap);
-
 
                 }
 
@@ -1016,7 +1014,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onSuccess() { alertUser("비행모드변경 성공"); }
             @Override
-            public void onError(int executionError) { alertUser("비행모드변경실패: " + executionError); }
+            public void onError(int executionError) { alertUser("비행모드변경 실패: " + executionError); }
             @Override
             public void onTimeout() {
             }
@@ -1452,6 +1450,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLng latLng = new LatLng(latLong.getLatitude(),latLong.getLongitude());
         return latLng;
     }
+    //
     public void ResetValue() {
         Square_Point.clear();
         missionroutepoint.clear();
@@ -1464,10 +1463,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         addmissionpoint_A.setMap(null);
         addmissionpoint_B.setMap(null);
 
+        for(int i = 0; i < WayPointMarker.size(); i++)
+        {
+            WayPointMarker.get(i).setMap(null);
+        }
+        WayPointMarker.clear();
+        missionstartwhether = true;
+
     }//여러값들 초기화
-
-
-
 
 
 
