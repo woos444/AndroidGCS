@@ -375,7 +375,7 @@
     <TableRow
         android:id="@+id/jeongbochang"
         android:layout_width="match_parent"
-        android:layout_height="23dp"
+        android:layout_height="26dp"
         android:layout_alignStart="@+id/map"
         android:layout_alignEnd="@+id/map"
         android:layout_marginStart="0dp"
@@ -615,7 +615,19 @@
                 android:textSize="10dp" />
         </TableRow>
 
+
+
     </TableRow>
+
+    <ImageView
+        android:id="@+id/ThePeachLogo"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/jeongbochang"
+        android:layout_alignBottom="@+id/jeongbochang"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="5dp"
+        android:src="@drawable/thepeach" />
 
 
 </RelativeLayout>

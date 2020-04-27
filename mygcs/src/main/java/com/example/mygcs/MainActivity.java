@@ -93,10 +93,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     TableRow InfoWindow;
     RecyclerView NotificationWindow;
 
-    boolean MP = true;
+    boolean pointsetorder = true;
     boolean MapLock = true; //드론위치로 맵 잠금 on,off
     boolean cadastralmap = false; //지적도 on,off
-    boolean getPoint_AB = true;
+    boolean getstartPoint_AB = true;
     Marker droneMarker = new Marker();//드론의 위치마커
     Marker Home_M = new Marker();
     Marker goalMarker = new Marker();//드론의 이동 목적지 마커
@@ -109,40 +109,42 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     int changemissionmode = 0; //0: 일반모드 , 1: 경로비행 , 2: 간격감시 , 3: 면적감시
     int missionC=0;
 
-    int M_W=0;
-    int M_L=0;
+    int waypointstart = 0; //경로설정 시작여부 0: 시작 , 1: 진행중
+
+    int distancevalue=0;
+    int intervalvalue=0;
 
     //조이스틱 조작시 드론의 속도
     double speedYaw =1.25;
     double speedUpDown = 1.5;
     double speedMove = 1.25;
 
-    Marker Point_A = new Marker();
-    Marker Point_B = new Marker();
-    Marker aaa = new Marker();
-    Marker bbb = new Marker();
-    LatLng dronelocation;
+    Marker missionpoint_A = new Marker();
+    Marker missionpoint_B = new Marker();
+    Marker addmissionpoint_A = new Marker();
+    Marker addmissionpoint_B = new Marker();
+
+    LatLng dronelocation; //드론의 위치좌표
     LatLng Home_A;
     LatLongAlt My_A;
 
     private RecyclerViewAdapter adapter;
     ArrayList<String> listTitle = new ArrayList<>();
 
-    //초기고도설정값
-    double altitudevalue=3;
+    double altitudevalue=3;//고도설정값
 
     PolylineOverlay Square_line= new PolylineOverlay();
-    PolylineOverlay Mission_line = new PolylineOverlay();
-    PolylineOverlay line= new PolylineOverlay();
+    PolylineOverlay routeline = new PolylineOverlay();
+    PolylineOverlay dronepathdisplay= new PolylineOverlay();//드론의 이동경로 표시선
 
     Mission dronemission = new Mission();
 
-    ArrayList<LatLng> startpoint = new ArrayList();
+    ArrayList<LatLng> missionpointlist = new ArrayList();//
     ArrayList<LatLng> Square_Point = new ArrayList();
-    ArrayList<LatLng> Drone_line = new ArrayList();
-    ArrayList<LatLng> Mission_Point = new ArrayList();
+    ArrayList<LatLng> movingpoint = new ArrayList();//드론의 지나온 이동 포인트
+    ArrayList<LatLng> missionroutepoint = new ArrayList();//미션에 들어갈 포인트 리스트
 
-    private double yaw_value;
+    private double yawvalue;
     private Spinner modeSelector;
 
     NaverMap naverMap;
@@ -350,7 +352,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Button button = (Button)findViewById(R.id.Mission_start);
                 button.setText("미션시작");
                 missionC=1;
-
                 break;
 
             case AttributeEvent.ALTITUDE_UPDATED:
@@ -460,8 +461,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void updateYAW() {
         TextView YAWTextView = (TextView) findViewById(R.id.YAWValueTextView);
         Attitude YAW = this.drone.getAttribute(AttributeType.ATTITUDE);
-        yaw_value = YAW.getYaw();
-        YAWTextView.setText(String.format("%.0f", yaw_value)+"deg");
+        yawvalue = YAW.getYaw();
+        YAWTextView.setText(String.format("%.0f", yawvalue)+"deg");
     }//드론의방향
 
 
@@ -540,16 +541,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         dronelocation = change_LongLng(GpsLocation);
 
         //아이콘이 바라보는 방향 조절
-        if(yaw_value>=0){ droneAngle =(float) yaw_value;}
-        else if(yaw_value<0) {droneAngle = (float)(180+(180+yaw_value)); }
+        if(yawvalue>=0){ droneAngle =(float) yawvalue;}
+        else if(yawvalue<0) {droneAngle = (float)(180+(180+yawvalue)); }
 
         //드론의 이동경로 표시
-        Drone_line.add(dronelocation);
+        movingpoint.add(dronelocation);
 
-        line.setCoords(Drone_line);
-        line.setWidth(20);
-        line.setColor(Color.YELLOW);
-        line.setJoinType(PolylineOverlay.LineJoin.Round);
+        dronepathdisplay.setCoords(movingpoint);
+        dronepathdisplay.setWidth(20);
+        dronepathdisplay.setColor(Color.YELLOW);
+        dronepathdisplay.setJoinType(PolylineOverlay.LineJoin.Round);
 
 
         //드론의 위치 표시
@@ -561,7 +562,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         droneMarker.setWidth(100);
         droneMarker.setAnchor(new PointF((float)0.5,(float)0.85));
         droneMarker.setMap(naverMap);
-        line.setMap(naverMap);
+        dronepathdisplay.setMap(naverMap);
 
         //맵잠금시 드론위치로 화면 고정
         if (MapLock==true) { naverMap.moveCamera(null); }
@@ -663,37 +664,73 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             //ㄹ경로를 만들고 경로를 따라 주행
             else if (changemissionmode == 1){
-                if (getPoint_AB == true){
+                if (getstartPoint_AB == true){
 
-                    goalMarker.setMap(null);
-                    MP=true;
-                    startpoint.clear();
+
+
+                    missionpointlist.clear();
+                    pointsetorder=true;
                     dronemission.clear();
-                    Square_Point.clear();
-                    Square_line.setMap(null);
-                    Mission_Point.clear();
-                    Mission_line.setMap(null);
-                    aaa.setMap(null);
-                    bbb.setMap(null);
 
-                    startpoint.add(latLng);
-                    Point_A.setPosition(startpoint.get(0));
-                    Point_A.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px));
-                    Point_A.setMap(naverMap);
-                    Point_B.setMap(null);
-                    getPoint_AB = false;
+                    missionpointlist.add(latLng);
+                    missionpoint_A.setPosition(missionpointlist.get(0));
+                    missionpoint_A.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px));
+                    missionpoint_A.setMap(naverMap);
+
+                    getstartPoint_AB = false;
                 }
-                else if (getPoint_AB == false) {
-                    startpoint.add(latLng);
-                    Point_B.setPosition(startpoint.get(1));
-                    Point_B.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px_3));
-                    Point_B.setMap(naverMap);
-                    getPoint_AB = true;
+                else if (getstartPoint_AB == false) {
+                    missionpointlist.add(latLng);
+                    missionpoint_B.setPosition(missionpointlist.get(1));
+                    missionpoint_B.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px_3));
+                    missionpoint_B.setMap(naverMap);
+                    getstartPoint_AB = true;
 
-                    show();
+                    Pathsetting();
                 }
             }
 
+            //여러개의 웨이포인트를 따라 주행
+            else if (changemissionmode == 2){
+                if(waypointstart == 0) {
+
+                    missionpointlist.clear();
+                    pointsetorder = true;
+                    dronemission.clear();
+
+                    missionroutepoint.add(latLng);
+                    Marker waypoint = new Marker();
+                    waypoint.setPosition(latLng);
+                    waypoint.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px));
+                    waypoint.setCaptionText(missionroutepoint.size()+"");
+
+                    routeline.setCoords(missionroutepoint);
+                    routeline.setWidth(10);
+                    routeline.setColor(Color.GREEN);
+                    routeline.setMap(naverMap);
+
+
+
+                    waypointstart = 1;
+                }
+                else if(waypointstart ==1) {
+
+                    missionroutepoint.add(latLng);
+                    Marker waypoint = new Marker();
+                    waypoint.setPosition(latLng);
+                    waypoint.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px));
+                    waypoint.setCaptionText(missionroutepoint.size()+"");
+
+                    routeline.setCoords(missionroutepoint);
+                    routeline.setWidth(10);
+                    routeline.setColor(Color.GREEN);
+                    routeline.setMap(naverMap);
+
+
+                }
+
+
+            }
             /*else if (control_mode == 1){
 
                 VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_GUIDED, new SimpleCommandListener() {
@@ -717,11 +754,141 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }//드론미션 생성
 
+    public void Pathsetting() {
+
+
+        //간격값 설정창
+        final List<String> intervalList = new ArrayList<>();
+        intervalList.add("3");
+        intervalList.add("5");
+        intervalList.add("10");
+        intervalList.add("20");
+        final CharSequence[] items2 =  intervalList.toArray(new String[ intervalList.size()]);
+
+        final List SelectedItems2  = new ArrayList();
+        int defaultItem2 = 0;
+        SelectedItems2.add(defaultItem2);
+        AlertDialog.Builder spacingsetting = new AlertDialog.Builder(this);
+
+        //거리값 설정창
+        final List<String> distanceList = new ArrayList<>();
+        distanceList.add("10");
+        distanceList.add("20");
+        distanceList.add("50");
+        distanceList.add("100");
+        final CharSequence[] items1 =  distanceList.toArray(new String[ distanceList.size()]);
+
+        final List SelectedItems1  = new ArrayList();
+        int defaultItem1 = 0;
+        SelectedItems1.add(defaultItem1);
+
+
+        //거리설정
+        AlertDialog.Builder distancesetting = new AlertDialog.Builder(this);
+        distancesetting.setTitle("거리설정");
+        distancesetting.setSingleChoiceItems(items1, defaultItem1,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        SelectedItems1.clear();
+                        SelectedItems1.add(which);
+                    }
+                });
+        distancesetting.setPositiveButton("Ok",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        String msg1="";
+
+                        if (!SelectedItems1.isEmpty()) {
+                            int index = (int) SelectedItems1.get(0);
+                            msg1 = distanceList.get(index);
+                            distancevalue = Integer.parseInt(msg1);
+                            spacingsetting.show();
+                        }
+                    }
+                });
+        distancesetting.setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+
+
+        //간격설정
+        spacingsetting.setTitle("간격 설정");
+        spacingsetting.setSingleChoiceItems(items2, defaultItem2,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        SelectedItems2.clear();
+                        SelectedItems2.add(which);
+                    }
+                });
+        spacingsetting.setPositiveButton("Ok",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        String msg2="";
+
+                        if (!SelectedItems2.isEmpty()) {
+                            int index = (int) SelectedItems2.get(0);
+                            msg2 = intervalList.get(index);
+                            intervalvalue = Integer.parseInt(msg2);
+                            Log.i("test1","거리"+distancevalue);
+                            Log.i("test2","간격"+intervalvalue);
+
+                            for(int i=0 ; i<=distancevalue ; i++)
+                            {
+                                if(i%intervalvalue==0) {
+                                    LatLong n = MathUtils.newCoordFromBearingAndDistance(change_LngLong(missionpointlist.get(0)), 90 + (int) MathUtils.getHeadingFromCoordinates(change_LngLong(missionpointlist.get(0)), change_LngLong(missionpointlist.get(1))), i);
+                                    LatLong m = MathUtils.newCoordFromBearingAndDistance(change_LngLong(missionpointlist.get(1)), 90 + (int) MathUtils.getHeadingFromCoordinates(change_LngLong(missionpointlist.get(0)), change_LngLong(missionpointlist.get(1))), i);
+                                    if (pointsetorder == true) {
+                                        missionroutepoint.add(change_LongLng(n));
+                                        missionroutepoint.add(change_LongLng(m));
+                                        pointsetorder = false;
+                                    } else if (pointsetorder == false) {
+                                        missionroutepoint.add(change_LongLng(m));
+                                        missionroutepoint.add(change_LongLng(n));
+                                        pointsetorder = true;
+                                    }
+                                }
+
+                            }
+
+
+                            addmissionpoint_A.setPosition(missionroutepoint.get(missionroutepoint.size()-1));
+                            addmissionpoint_A.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px_3));
+                            addmissionpoint_B.setPosition(missionroutepoint.get(missionroutepoint.size()-2));
+                            addmissionpoint_B.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px_3));
+
+                            addmissionpoint_B.setMap(naverMap);
+                            addmissionpoint_A.setMap(naverMap);
+
+                            alertUser("A to B = "+(int)MathUtils.getDistance2D(change_LngLong(missionpointlist.get(0)),change_LngLong(missionpointlist.get(1)))+"m");
+
+                            routeline.setCoords(missionroutepoint);
+                            routeline.setWidth(10);
+                            routeline.setColor(Color.GREEN);
+                            routeline.setMap(naverMap);
+
+                        }
+                    }
+                });
+        spacingsetting.setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+        distancesetting.show();
+
+    }//ㄹ경로주행
+
 
     //미션 전송,시작,중단 함수
     protected void Send_MiSSION(){
-        for(int i = 0; i<Mission_Point.size();i++) {
-            dronemission.addMissionItem(make_waypoint(Mission_Point.get(i)));
+        for(int i = 0; i<missionroutepoint.size();i++) {
+            dronemission.addMissionItem(makewaypoint(missionroutepoint.get(i)));
         }
         MissionApi.getApi(this.drone).setMission(dronemission,true);
     }
@@ -741,143 +908,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     //
 
 
-    public Waypoint make_waypoint(LatLng latLng) {
+    public Waypoint makewaypoint(LatLng latLng) {
         Waypoint waypoint=new Waypoint();
         Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
         LatLongAlt a =new LatLongAlt(latLng.latitude,latLng.longitude,droneAltitude.getRelativeAltitude());
         waypoint.setDelay(1);
         waypoint.setCoordinate(a);
         return waypoint;
-    }
-
-    public void show() {
-
-        final List<String> intervalline = new ArrayList<>();
-        intervalline.add("3");
-        intervalline.add("5");
-        intervalline.add("10");
-        intervalline.add("20");
-        final CharSequence[] items2 =  intervalline.toArray(new String[ intervalline.size()]);
-
-        final List SelectedItems2  = new ArrayList();
-        int defaultItem2 = 0;
-        SelectedItems2.add(defaultItem2);
-        AlertDialog.Builder builder2 = new AlertDialog.Builder(this);
-
-        /////////////////
-        final List<String> interval_W = new ArrayList<>();
-        interval_W.add("10");
-        interval_W.add("20");
-        interval_W.add("50");
-        interval_W.add("100");
-        final CharSequence[] items1 =  interval_W.toArray(new String[ interval_W.size()]);
-
-        final List SelectedItems1  = new ArrayList();
-        int defaultItem1 = 0;
-        SelectedItems1.add(defaultItem1);
-
-        AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
-        builder1.setTitle("거리설정");
-        builder1.setSingleChoiceItems(items1, defaultItem1,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        SelectedItems1.clear();
-                        SelectedItems1.add(which);
-                }
-                });
-        builder1.setPositiveButton("Ok",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        String msg1="";
-
-                        if (!SelectedItems1.isEmpty()) {
-                            int index = (int) SelectedItems1.get(0);
-                            msg1 = interval_W.get(index);
-                            M_W = Integer.parseInt(msg1);
-                            builder2.show();
-                        }
-                    }
-                });
-        builder1.setNegativeButton("Cancel",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                });
-        builder2.setTitle("간격 설정");
-        builder2.setSingleChoiceItems(items2, defaultItem2,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        SelectedItems2.clear();
-                        SelectedItems2.add(which);
-                    }
-                });
-        builder2.setPositiveButton("Ok",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        String msg2="";
-
-                        if (!SelectedItems2.isEmpty()) {
-                            int index = (int) SelectedItems2.get(0);
-                            msg2 = intervalline.get(index);
-                            M_L = Integer.parseInt(msg2);
-                            Log.i("test1","거리"+M_W);
-                            Log.i("test2","간격"+M_L);
-
-                            for(int i=0 ; i<=M_W ; i++)
-                            {
-                                if(i%M_L==0) {
-                                    LatLong n = MathUtils.newCoordFromBearingAndDistance(change_LngLong(startpoint.get(0)), 90 + (int) MathUtils.getHeadingFromCoordinates(change_LngLong(startpoint.get(0)), change_LngLong(startpoint.get(1))), i);
-                                    LatLong m = MathUtils.newCoordFromBearingAndDistance(change_LngLong(startpoint.get(1)), 90 + (int) MathUtils.getHeadingFromCoordinates(change_LngLong(startpoint.get(0)), change_LngLong(startpoint.get(1))), i);
-                                    if (MP == true) {
-                                        Mission_Point.add(change_LongLng(n));
-                                        Mission_Point.add(change_LongLng(m));
-                                        MP = false;
-                                    } else if (MP == false) {
-                                        Mission_Point.add(change_LongLng(m));
-                                        Mission_Point.add(change_LongLng(n));
-                                        MP = true;
-                                    }
-                                }
-
-                            }
-
-                        /*Square_Point.add(A_line.get(0));
-                                    Square_Point.add(change_LongLng(n));
-                                    Square_Point.add(change_LongLng(m));
-                                    Square_Point.add(A_line.get(1));*/
-
-                            aaa.setPosition(Mission_Point.get(Mission_Point.size()-1));
-                            aaa.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px));
-                            bbb.setPosition(Mission_Point.get(Mission_Point.size()-2));
-                            bbb.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px_3));
-
-                            bbb.setMap(naverMap);
-                            aaa.setMap(naverMap);
-
-                            alertUser("A to B = "+(int)MathUtils.getDistance2D(change_LngLong(startpoint.get(0)),change_LngLong(startpoint.get(1)))+"m");
-
-                            Mission_line.setCoords(Mission_Point);
-                            Mission_line.setWidth(10);
-                            Mission_line.setColor(Color.GREEN);
-                            Mission_line.setMap(naverMap);
-
-
-                        }
-                    }
-                });
-        builder2.setNegativeButton("Cancel",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                });
-        builder1.show();
-
-    }//ㄹ경로주행
-
+    }//미션수행시 드론의 웨이포인트를 생성
 
     public void setRTLmode(View view){
         VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_RTL, new SimpleCommandListener() {
@@ -938,22 +976,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }//맵 고정 버튼 클릭 이밴트
     public void onClearButtenTap(View view) {
 
-        line.setMap(null);
-        //Drone_line.clear();
+        ResetValue();
 
-        goalMarker.setMap(null);
-        Point_A.setMap(null);
-        Point_B.setMap(null);
-        Square_Point.clear();
-        Square_line.setMap(null);
-        Mission_Point.clear();
-        Mission_line.setMap(null);
-        aaa.setMap(null);
-        bbb.setMap(null);
+        movingpoint.clear();
+        dronepathdisplay.setMap(null);
 
         alertUser("맵 클리어");
 
     }//맵정리 버튼 클릭 이밴트
+
+
+
     public void onBtnConnectTap(View view) {
         if (this.drone.isConnected()) {
 
@@ -1000,7 +1033,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 public void onError(int executionError) { alertUser("착륙불가"); }
                 @Override
                 public void onTimeout() {
-                    alertUser("착륙불가");
+                    alertUser("작업시간초과");
                 }
             });
         } else if (vehicleState.isArmed()) {
@@ -1016,7 +1049,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     alertUser("이륙불가");
                 }
                 @Override
-                public void onTimeout() { alertUser("이륙시간초과"); }
+                public void onTimeout() { alertUser("작업시간초과"); }
             });
 
         } else if (!vehicleState.isConnected()) {
@@ -1049,7 +1082,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             });
             alert.show();
         }
-    }
+    }//시동 , 이륙 , 착륙
     public void onControlTypeTap(View view){
 
         Button normalmode = (Button)findViewById(R.id.normalmode);
@@ -1080,6 +1113,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View v) {
                 changemissionmode = 0;
+                ResetValue();
                 normalmode.setVisibility(View.INVISIBLE);
                 Flight_mode.setVisibility(View.INVISIBLE);
                 Interval_monitoring.setVisibility(View.INVISIBLE);
@@ -1096,6 +1130,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View v) {
                 changemissionmode = 1;
+                ResetValue();
                 normalmode.setVisibility(View.INVISIBLE);
                 Flight_mode.setVisibility(View.INVISIBLE);
                 Interval_monitoring.setVisibility(View.INVISIBLE);
@@ -1113,6 +1148,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View v) {
 
                 changemissionmode = 2;
+                ResetValue();
                 normalmode.setVisibility(View.INVISIBLE);
                 Flight_mode.setVisibility(View.INVISIBLE);
                 Interval_monitoring.setVisibility(View.INVISIBLE);
@@ -1129,6 +1165,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View v) {
                 changemissionmode = 3;
+                ResetValue();
                 normalmode.setVisibility(View.INVISIBLE);
                 Flight_mode.setVisibility(View.INVISIBLE);
                 Interval_monitoring.setVisibility(View.INVISIBLE);
@@ -1403,7 +1440,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-    }
+    }//조이스틱 조작시 드론이동설정
 
 
     //좌표변수 변수값 변경함수
@@ -1415,6 +1452,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLng latLng = new LatLng(latLong.getLatitude(),latLong.getLongitude());
         return latLng;
     }
+    public void ResetValue() {
+        Square_Point.clear();
+        missionroutepoint.clear();
+
+        goalMarker.setMap(null);
+        missionpoint_A.setMap(null);
+        missionpoint_B.setMap(null);
+        Square_line.setMap(null);
+        routeline.setMap(null);
+        addmissionpoint_A.setMap(null);
+        addmissionpoint_B.setMap(null);
+
+    }//여러값들 초기화
+
 
 
 
