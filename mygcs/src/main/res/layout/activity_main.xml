@@ -22,16 +22,7 @@
 
 
         <!--오른쪽 툴-->
-        <Button
-            android:id="@+id/CadaStral_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginRight="0dp"
-            android:layout_marginBottom="0dp"
-            android:onClick="onCADAtap"
-            android:text="지적도off" />
+
 
         <Button
             android:id="@+id/Clear_Butten"
@@ -48,19 +39,44 @@
             android:id="@+id/Maplock_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_toStartOf="@+id/CadaStral_button"
+            android:layout_above="@+id/Clear_Butten"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="0dp"
+            android:layout_marginBottom="0dp"
             android:onClick="onMapMoveTap"
             android:text="맵이동" />
 
+
+        <Button
+            android:id="@+id/SettingMapType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="0dp"
+            android:layout_marginBottom="0dp"
+            android:onClick="mapSet"
+            android:text="지도타입설정"
+            android:textSize="10dp"/>
+
+        <Button
+            android:id="@+id/CadaStral_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_toStartOf="@+id/SettingMapType"
+            android:onClick="onCADAtap"
+            android:text="지적도off"
+            android:visibility="invisible"/>
         <Button
             android:id="@+id/Maptype_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_toStartOf="@+id/Maplock_button"
+            android:layout_toStartOf="@+id/CadaStral_button"
             android:onClick="ChangeMaptype"
-            android:text="위성지도" />
+            android:text="위성지도"
+            android:visibility="invisible"/>
 
 
         <!--왼쪽 툴-->
@@ -219,11 +235,11 @@
 
         <Button
             android:id="@+id/btnRTL"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
             android:layout_centerInParent="true"
-            android:onClick="setRTLmode"
-            android:text="RTL" />
+            android:background="@drawable/rtl"
+            android:onClick="setRTLmode" />
 
         <RelativeLayout
             android:id="@+id/layout_joystick"
@@ -351,17 +367,18 @@
         </LinearLayout>-->
 
     </RelativeLayout>
+
     <Button
-        android:id="@+id/btncameraMode"
+        android:id="@+id/btnjoystickMode"
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:layout_below="@+id/jeongbochang"
         android:layout_alignEnd="@+id/map"
-        android:layout_marginTop="0dp"
+        android:layout_marginTop="5dp"
         android:layout_marginEnd="0dp"
-        android:text="joystick"
-        android:textSize="10sp"
-        android:onClick="ChangeJoystickMode"/>
+        android:background="@drawable/controller"
+        android:onClick="ChangeJoystickMode"
+        android:textSize="10sp" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"

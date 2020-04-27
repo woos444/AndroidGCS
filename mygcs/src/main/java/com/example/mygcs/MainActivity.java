@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.PointF;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
@@ -24,6 +25,7 @@ import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TableRow;
@@ -166,6 +168,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         locationSource = new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
 
+
+
         final Context context = getApplicationContext();
         this.controlTower = new ControlTower(context);
         this.drone = new Drone(context);
@@ -192,8 +196,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         mNaverMapFragment.getMapAsync(this);
 
-        InfoWindow=(TableRow)findViewById(R.id.jeongbochang);
-        InfoWindow.bringToFront();
         NotificationWindow=(RecyclerView)findViewById(R.id.recyclerView);
         NotificationWindow.bringToFront();
         //////
@@ -942,22 +944,41 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }//맵타입 버튼 클릭 이밴트
     public void onCADAtap(View view) {
-        Button CADA = (Button)findViewById(R.id.CadaStral_button);
-        if(cadastralmap == false) {
-            CADA.setText("지적도on");
+        Button btncadastralmap = (Button) findViewById(R.id.CadaStral_button);
+        if (cadastralmap == false) {
+            btncadastralmap.setText("지적도on");
             alertUser("지적도on");
-            naverMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_CADASTRAL,true);
-            cadastralmap=true;
-        }
-        else if(cadastralmap==true){
-            CADA.setText("지적도off");
+            naverMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_CADASTRAL, true);
+            cadastralmap = true;
+        } else if (cadastralmap == true) {
+            btncadastralmap.setText("지적도off");
             alertUser("지적도off");
-            naverMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_CADASTRAL,false);
-            cadastralmap=false;
+            naverMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_CADASTRAL, false);
+            cadastralmap = false;
+        }
+    }//지적도 버튼 클릭 이밴트
+
+
+    public void mapSet(View view) {
+        Button btnmaptype = (Button)findViewById(R.id.Maptype_button);
+        Button btncadastralmap = (Button) findViewById(R.id.CadaStral_button);
+
+        if(btnmaptype.getVisibility()==View.INVISIBLE)
+        {
+            btnmaptype.setVisibility(View.VISIBLE);
+            btncadastralmap.setVisibility(View.VISIBLE);
+        }
+        else if(btnmaptype.getVisibility()==View.VISIBLE)
+        {
+            btnmaptype.setVisibility(View.INVISIBLE);
+            btncadastralmap.setVisibility(View.INVISIBLE);
+
         }
 
 
-    }//지적도 버튼 클릭 이밴트
+
+
+    }
     public void onMapMoveTap(View view) {
         Button Maplock= (Button)findViewById(R.id.Maplock_button);
         if(MapLock==true) {
@@ -1213,10 +1234,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void ChangeJoystickMode(View view){
         final RelativeLayout GCSmode = findViewById(R.id.GCSmodeView);
         final RelativeLayout joystickcontrolview= findViewById(R.id.JoystickControlView);
+        Button btnchangemode = (Button)findViewById(R.id.btnjoystickMode);
 
         if(dronecontroltype == 0){
             GCSmode.setVisibility(View.INVISIBLE);
             joystickcontrolview.setVisibility(View.VISIBLE);
+
             VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_LOITER, new SimpleCommandListener() {
                 @Override
                 public void onSuccess() {alertUser("수동조종모드");}
@@ -1225,6 +1248,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             });
 
 
+            btnchangemode.setBackgroundResource(R.drawable.map);
             dronecontroltype = 1;
         }
         else if(dronecontroltype == 1)
@@ -1239,6 +1263,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 public void onError(int executionError) { alertUser("GUIDED전환실패"); }
             });
 
+            btnchangemode.setBackgroundResource(R.drawable.controller);
             dronecontroltype = 0;
         }
 
