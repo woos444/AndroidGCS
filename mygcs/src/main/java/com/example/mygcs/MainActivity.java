@@ -4,13 +4,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.PointF;
-import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableStringBuilder;
@@ -19,18 +18,13 @@ import android.text.style.AbsoluteSizeSpan;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TableRow;
 import android.widget.TextView;
-
 
 import com.MAVLink.common.msg_rc_channels_override;
 import com.naver.maps.geometry.LatLng;
@@ -48,15 +42,11 @@ import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
 import com.o3dr.android.client.apis.ControlApi;
 import com.o3dr.android.client.apis.ExperimentalApi;
-import com.o3dr.android.client.apis.VehicleApi;
 import com.o3dr.android.client.apis.MissionApi;
+import com.o3dr.android.client.apis.VehicleApi;
 import com.o3dr.android.client.interfaces.DroneListener;
 import com.o3dr.android.client.interfaces.LinkListener;
 import com.o3dr.android.client.interfaces.TowerListener;
-import com.o3dr.services.android.lib.mavlink.MavlinkMessageWrapper;
-import com.o3dr.services.android.lib.util.MathUtils;
-import com.o3dr.services.android.lib.drone.mission.item.spatial.Waypoint;
-import com.o3dr.services.android.lib.drone.mission.Mission;
 import com.o3dr.services.android.lib.coordinate.LatLong;
 import com.o3dr.services.android.lib.coordinate.LatLongAlt;
 import com.o3dr.services.android.lib.drone.attribute.AttributeEvent;
@@ -64,22 +54,24 @@ import com.o3dr.services.android.lib.drone.attribute.AttributeType;
 import com.o3dr.services.android.lib.drone.companion.solo.SoloAttributes;
 import com.o3dr.services.android.lib.drone.companion.solo.SoloState;
 import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
+import com.o3dr.services.android.lib.drone.mission.Mission;
+import com.o3dr.services.android.lib.drone.mission.item.spatial.Waypoint;
 import com.o3dr.services.android.lib.drone.property.Altitude;
 import com.o3dr.services.android.lib.drone.property.Attitude;
 import com.o3dr.services.android.lib.drone.property.Battery;
 import com.o3dr.services.android.lib.drone.property.Gps;
-import com.o3dr.services.android.lib.drone.property.Home;
-import com.o3dr.services.android.lib.drone.property.Speed;
 import com.o3dr.services.android.lib.drone.property.State;
 import com.o3dr.services.android.lib.drone.property.Type;
 import com.o3dr.services.android.lib.drone.property.VehicleMode;
 import com.o3dr.services.android.lib.gcs.link.LinkConnectionStatus;
+import com.o3dr.services.android.lib.mavlink.MavlinkMessageWrapper;
 import com.o3dr.services.android.lib.model.AbstractCommandListener;
 import com.o3dr.services.android.lib.model.SimpleCommandListener;
+import com.o3dr.services.android.lib.util.MathUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback , DroneListener, TowerListener, LinkListener {
 
@@ -110,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     int dronecontroltype = 0; //0: joystick모드  , 1: GCS모드
     int changemissionmode = 0; //0: 일반모드 , 1: 경로비행 , 2: 간격감시 , 3: 면적감시
     int missionC=0;
+    int waypointCount=0;
 
     int distancevalue=0;
     int intervalvalue=0;
@@ -199,11 +192,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         NotificationWindow=(RecyclerView)findViewById(R.id.recyclerView);
         NotificationWindow.bringToFront();
         //////
-        rc_override = new msg_rc_channels_override();
-        rc_override.chan1_raw = 1500; //right; 2000 //left
-        rc_override.chan2_raw = 1500;
-        rc_override.chan3_raw = 1500; //back; 2000 //forward
-        rc_override.chan4_raw = 1500;
+
 
         rc_override.target_system = 0;
         rc_override.target_component = 0;
@@ -348,10 +337,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             case AttributeEvent.MISSION_SENT:
                 alertUser("미션전송완료");
-                Button button = (Button)findViewById(R.id.Mission_start);
-                button.setText("미션시작");
-                missionC=1;
                 break;
+            /*case AttributeEvent.MISSION_ITEM_REACHED:
+                waypointCount++;
+                MissionCount();
+                break;*/
+
+
 
             case AttributeEvent.ALTITUDE_UPDATED:
                 //updateDistanceFromHome();
@@ -599,7 +591,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }//리사이클러뷰 안내문 출력
 
     protected void setTakeoffAltitude(){
-        Button altitudeset = (Button)findViewById(R.id.AltitudeSet);
+        Button altitudeset = (Button)findViewById(R.id.btnAltitudeSet);
         String altitudetext = (int)altitudevalue+"m\n이륙고도";
         final SpannableStringBuilder sps = new SpannableStringBuilder(altitudetext);
         sps.setSpan(new AbsoluteSizeSpan(30),1,3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -608,8 +600,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }//이륙고도설정
     public void onTakeoffALTap(View view){
-        Button altitudeup = (Button)findViewById(R.id.AltitudeUP);
-        Button altitudedown = (Button)findViewById(R.id.AltitudeDOWN);
+        Button altitudeup = (Button)findViewById(R.id.btnAltitudeUP);
+        Button altitudedown = (Button)findViewById(R.id.btnAltitudeDOWN);
         if (altitudeup.getVisibility()==View.INVISIBLE)
         {
             altitudeup.setVisibility(View.VISIBLE);
@@ -667,8 +659,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             else if (changemissionmode == 1){
                 if (missionstartwhether == true){
 
-
-
+                    ResetValue();
                     missionpointlist.clear();
                     pointsetorder=true;
                     dronemission.clear();
@@ -883,6 +874,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         distancesetting.show();
 
     }//ㄹ경로주행
+    public void MissionCount()
+    {
+        if(waypointCount == missionroutepoint.size())
+        {
+            //VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_GUIDED);
+            Button button = (Button)findViewById(R.id.btnMission);
+            alertUser("미션종료");
+            missionC=0;
+            waypointCount=0;
+            button.setText("미션등록");
+
+
+        }
+
+    }//미션종료 확인
+
 
 
     //미션 전송,시작,중단 함수
@@ -924,7 +931,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }//RTL버튼 클릭 이밴트
     public void ChangeMaptype(View view) {
-        Button maptypetext = (Button)findViewById(R.id.Maptype_button);
+        Button maptypetext = (Button)findViewById(R.id.btnMaptypeset);
         if(changmaptype == 0) {
             maptypetext.setText("지형도");
             naverMap.setMapType(NaverMap.MapType.Terrain);
@@ -944,7 +951,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }//맵타입 버튼 클릭 이밴트
     public void onCADAtap(View view) {
-        Button btncadastralmap = (Button) findViewById(R.id.CadaStral_button);
+        Button btncadastralmap = (Button) findViewById(R.id.btnCadastralMap);
         if (cadastralmap == false) {
             btncadastralmap.setText("지적도on");
             alertUser("지적도on");
@@ -960,8 +967,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     public void mapSet(View view) {
-        Button btnmaptype = (Button)findViewById(R.id.Maptype_button);
-        Button btncadastralmap = (Button) findViewById(R.id.CadaStral_button);
+        Button btnmaptype = (Button)findViewById(R.id.btnMaptypeset);
+        Button btncadastralmap = (Button) findViewById(R.id.btnCadastralMap);
 
         if(btnmaptype.getVisibility()==View.INVISIBLE)
         {
@@ -980,7 +987,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
     public void onMapMoveTap(View view) {
-        Button Maplock= (Button)findViewById(R.id.Maplock_button);
+        Button Maplock= (Button)findViewById(R.id.btnMaplock);
         if(MapLock==true) {
             MapLock=false;
             Maplock.setText("맵잠금");
@@ -1110,7 +1117,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Button Area_monitoring = (Button)findViewById(R.id.Area_monitoring);
         Button control_type = (Button)findViewById(R.id.control_type);
 
-        Button mission_s = (Button)findViewById(R.id.Mission_start);
+        Button mission_s = (Button)findViewById(R.id.btnMission);
 
         if (normalmode.getVisibility()==View.INVISIBLE)
         {
@@ -1201,9 +1208,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void onMissionStartTap(View view){
-        Button button = (Button)findViewById(R.id.Mission_start);
+        Button button = (Button)findViewById(R.id.btnMission);
         if(missionC==0) {
             Send_MiSSION();
+            button.setText("미션시작");
+            missionC=1;
         }
         else if(missionC==1) {
             Start_MiSSION();
@@ -1212,10 +1221,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         else if (missionC==2) {
             Stop_MiSSION();
-            missionC=0;
-            button.setText("미션등록");
+            missionC=1;
+            button.setText("미션시작");
         }
-    }//미션 전송, 시작, 중지
+    }//미션 전송, 시작
+
+
+
 
 
     protected double distanceBetweenPoints(LatLongAlt pointA, LatLongAlt pointB) {
@@ -1266,6 +1278,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             btnchangemode.setBackgroundResource(R.drawable.controller);
             dronecontroltype = 0;
         }
+
+        rc_override = new msg_rc_channels_override();
+        rc_override.chan1_raw = 1500; //right; 2000 //left
+        rc_override.chan2_raw = 1500;
+        rc_override.chan3_raw = 1500; //back; 2000 //forward
+        rc_override.chan4_raw = 1500;
+        ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
 
     }//조이스틱 모드 , GCS모드를 변경합니다.
 
@@ -1338,32 +1357,32 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         alertUser("반시계회전");
                     }
 
-                     /*else if(direction == JoyStickClass.STICK_UPRIGHT) {
+                     else if(direction == JoyStickClass.STICK_UPRIGHT) {
                         rc_override.chan3_raw = 1500 + (int)YmotorValue;
                         rc_override.chan4_raw = 1500 + (int)XmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
 
-                    } */
-                    /*else if(direction == JoyStickClass.STICK_DOWNRIGHT) {
+                    }
+                    else if(direction == JoyStickClass.STICK_DOWNRIGHT) {
                         rc_override.chan3_raw = 1500 - (int)YmotorValue;
                         rc_override.chan4_raw = 1500 + (int)XmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
 
-                    } */
+                    }
 
-                    /*else if(direction == JoyStickClass.STICK_DOWNLEFT) {
+                    else if(direction == JoyStickClass.STICK_DOWNLEFT) {
                         rc_override.chan3_raw = 1500 - (int)YmotorValue;
                         rc_override.chan4_raw = 1500 - (int)XmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
 
-                    } */
+                    }
 
-                    /*else if(direction == JoyStickClass.STICK_UPLEFT) {
+                    else if(direction == JoyStickClass.STICK_UPLEFT) {
                         rc_override.chan3_raw = 1500 + (int)YmotorValue;
                         rc_override.chan4_raw = 1500 - (int)XmotorValue;
                         ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
 
-                    } */
+                    }
                     else if(direction == JoyStickClass.STICK_NONE) {
                         rc_override.chan1_raw = 1500;
                         rc_override.chan2_raw = 1500;

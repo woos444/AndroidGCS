@@ -12,6 +12,13 @@
         android:layout_height="match_parent">
 
 
+        <Button
+            android:id="@+id/btnArmTakeOff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:onClick="onArmButtonTap"
+            android:visibility="invisible" />
     </FrameLayout>
 
     <RelativeLayout
@@ -25,21 +32,21 @@
 
 
         <Button
-            android:id="@+id/Clear_Butten"
+            android:id="@+id/btnMapClear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/CadaStral_button"
+            android:layout_above="@+id/btnCadastralMap"
             android:layout_alignParentRight="true"
             android:layout_marginRight="0dp"
             android:layout_marginBottom="0dp"
             android:onClick="onClearButtenTap"
-            android:text="Clear" />
+            android:text="정리" />
 
         <Button
-            android:id="@+id/Maplock_button"
+            android:id="@+id/btnMaplock"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/Clear_Butten"
+            android:layout_above="@+id/btnMapClear"
             android:layout_alignParentRight="true"
             android:layout_marginRight="0dp"
             android:layout_marginBottom="0dp"
@@ -48,7 +55,7 @@
 
 
         <Button
-            android:id="@+id/SettingMapType"
+            android:id="@+id/btnSettingMap"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -60,75 +67,75 @@
             android:textSize="10dp"/>
 
         <Button
-            android:id="@+id/CadaStral_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/btnCadastralMap"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_alignParentBottom="true"
-            android:layout_toStartOf="@+id/SettingMapType"
+            android:layout_toStartOf="@+id/btnSettingMap"
             android:onClick="onCADAtap"
+            android:visibility="invisible"
             android:text="지적도off"
-            android:visibility="invisible"/>
+            android:textSize="9dp"/>
         <Button
-            android:id="@+id/Maptype_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/btnMaptypeset"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_alignParentBottom="true"
-            android:layout_toStartOf="@+id/CadaStral_button"
+            android:layout_toStartOf="@+id/btnCadastralMap"
             android:onClick="ChangeMaptype"
+            android:visibility="invisible"
             android:text="위성지도"
-            android:visibility="invisible"/>
+            android:textSize="10dp"/>
 
 
         <!--왼쪽 툴-->
 
         <Button
-            android:id="@+id/btnArmTakeOff"
+            android:id="@+id/btnConnect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_column="1"
             android:layout_alignParentLeft="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="0dp"
             android:layout_marginBottom="0dp"
-            android:onClick="onArmButtonTap"
-            android:visibility="invisible" />
 
-        <Button
-            android:id="@+id/btnConnect"
-            android:layout_width="99dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_marginStart="0dp"
-            android:layout_marginBottom="0dp"
-            android:layout_toEndOf="@+id/btnArmTakeOff"
             android:onClick="onBtnConnectTap"
             android:text="Connect"
             android:textSize="10dp" />
 
         <Button
-            android:id="@+id/Mission_start"
+        android:id="@+id/btnMission"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btnConnect"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="0dp"
+        android:layout_marginBottom="0dp"
+        android:onClick="onMissionStartTap"
+        android:text="임무등록"
+        android:visibility="invisible" />
+        <!--<Button
+            android:id="@+id/btnMissionStop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/btnArmTakeOff"
-            android:layout_alignParentLeft="true"
-            android:layout_marginLeft="0dp"
-            android:layout_marginBottom="0dp"
-            android:onClick="onMissionStartTap"
-            android:text="임무등록"
-            android:visibility="invisible" />
+            android:layout_above="@+id/btnConnect"
+            android:layout_toEndOf="@+id/btnMission"
+            android:onClick="onMissionStopTap"
+            android:text="임무중지"
+            android:visibility="invisible" />-->
 
 
         <RelativeLayout
             android:id="@+id/tackoff"
             android:layout_width="150dp"
             android:layout_height="50dp"
-            android:layout_above="@+id/Mission_start"
+            android:layout_above="@+id/btnMission"
             android:background="#00FFFFFF"
             android:gravity="center_vertical"
             android:orientation="vertical">
 
             <Button
-                android:id="@+id/AltitudeSet"
+                android:id="@+id/btnAltitudeSet"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_marginStart="0dp"
@@ -137,22 +144,22 @@
                 android:textSize="7dp" />
 
             <Button
-                android:id="@+id/AltitudeUP"
+                android:id="@+id/btnAltitudeUP"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_marginStart="0dp"
                 android:layout_marginBottom="0dp"
-                android:layout_toEndOf="@+id/AltitudeSet"
+                android:layout_toEndOf="@+id/btnAltitudeSet"
                 android:drawableBottom="@drawable/up_arrow_26px"
                 android:visibility="invisible" />
 
             <Button
-                android:id="@+id/AltitudeDOWN"
+                android:id="@+id/btnAltitudeDOWN"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_marginStart="0dp"
                 android:layout_marginBottom="0dp"
-                android:layout_toEndOf="@+id/AltitudeUP"
+                android:layout_toEndOf="@+id/btnAltitudeUP"
                 android:drawableBottom="@drawable/down_arrow_26px"
                 android:visibility="invisible" />
 
