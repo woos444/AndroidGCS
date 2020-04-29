@@ -36,38 +36,36 @@
 
         <Button
             android:id="@+id/btnMapClear"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/btnCadastralMap"
+            android:layout_width="50dp"
+            android:layout_height="45dp"
+            android:layout_above="@+id/btnMapLock"
             android:layout_alignParentRight="true"
             android:layout_marginRight="0dp"
             android:layout_marginBottom="0dp"
             android:onClick="onClearButtenTap"
-            android:text="정리" />
+            android:background="@drawable/pressed_btnmapclear"/>
 
         <Button
-            android:id="@+id/btnMaplock"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/btnMapClear"
+            android:id="@+id/btnMapLock"
+            android:layout_width="50dp"
+            android:layout_height="45dp"
+            android:layout_above="@+id/btnSettingMap"
             android:layout_alignParentRight="true"
             android:layout_marginRight="0dp"
             android:layout_marginBottom="0dp"
             android:onClick="onMapMoveTap"
-            android:text="맵이동" />
-
+            android:background="@drawable/selected_btnmaplock" />
 
         <Button
             android:id="@+id/btnSettingMap"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="50dp"
+            android:layout_height="45dp"
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
             android:layout_marginRight="0dp"
             android:layout_marginBottom="0dp"
             android:onClick="mapSet"
-            android:text="지도타입설정"
-            android:textSize="10dp"/>
+            android:background="@drawable/pressed_btnsettingmap"/>
 
         <Button
             android:id="@+id/btnCadastralMap"
@@ -386,9 +384,9 @@
         android:layout_alignEnd="@+id/map"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="0dp"
-        android:background="@drawable/pressed_btncontrollerchange_joystick"
+        android:background="@drawable/selected_btncontrollerchange"
         android:onClick="ChangeJoystickMode"
-        android:textSize="10sp" />
+        />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"

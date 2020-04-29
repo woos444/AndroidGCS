@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TableRow;
@@ -994,15 +995,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
     public void onMapMoveTap(View view) {
-        Button Maplock= (Button)findViewById(R.id.btnMaplock);
+        Button Maplock= (Button) findViewById(R.id.btnMapLock);
         if(MapLock==true) {
             MapLock=false;
-            Maplock.setText("맵잠금");
+            Maplock.setSelected(true);
             alertUser("맵 잠금");
         }
         else if(MapLock==false) {
             MapLock=true;
-            Maplock.setText("맵이동");
+            Maplock.setSelected(false);
             alertUser("맵 이동");
         }
 
@@ -1290,7 +1291,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             rc_override.chan4_raw = 1500;
             ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
 
-            btnchangemode.setBackgroundResource(R.drawable.pressed_btncontrollerchange_map);
+            btnchangemode.setSelected(true);
             dronecontroltype = 1;
         }
         else if(dronecontroltype == 1)
@@ -1305,7 +1306,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 public void onError(int executionError) { alertUser("GUIDED전환실패"); }
             });
 
-            btnchangemode.setBackgroundResource(R.drawable.pressed_btncontrollerchange_joystick);
+            btnchangemode.setSelected(false);
             dronecontroltype = 0;
         }
 
