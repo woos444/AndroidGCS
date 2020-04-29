@@ -12,13 +12,7 @@
         android:layout_height="match_parent">
 
 
-        <Button
-            android:id="@+id/btnArmTakeOff"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal"
-            android:onClick="onArmButtonTap"
-            android:visibility="invisible" />
+
     </FrameLayout>
 
     <RelativeLayout
@@ -26,6 +20,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="visible">
+
+        <Button
+            android:id="@+id/btnArmTakeOff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_alignParentBottom="true"
+            android:onClick="onArmButtonTap"
+            android:visibility="invisible" />
 
 
         <!--오른쪽 툴-->
@@ -114,19 +117,10 @@
         android:onClick="onMissionStartTap"
         android:text="임무등록"
         android:visibility="invisible" />
-        <!--<Button
-            android:id="@+id/btnMissionStop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/btnConnect"
-            android:layout_toEndOf="@+id/btnMission"
-            android:onClick="onMissionStopTap"
-            android:text="임무중지"
-            android:visibility="invisible" />-->
 
 
         <RelativeLayout
-            android:id="@+id/tackoff"
+            android:id="@+id/TackOffAltitudeSet"
             android:layout_width="150dp"
             android:layout_height="50dp"
             android:layout_above="@+id/btnMission"
@@ -167,60 +161,60 @@
 
 
         <RelativeLayout
-            android:id="@+id/Control_Type"
+            android:id="@+id/ControlTypeSet"
             android:layout_width="250dp"
             android:layout_height="50dp"
-            android:layout_above="@+id/tackoff"
+            android:layout_above="@+id/TackOffAltitudeSet"
             android:background="#00FFFFFF"
             android:gravity="center_vertical"
             android:orientation="vertical">
 
             <Button
-                android:id="@+id/Area_monitoring"
+                android:id="@+id/btnSetAreaMonitoring"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_marginStart="0dp"
                 android:layout_marginBottom="0dp"
-                android:layout_toEndOf="@+id/Interval_monitoring"
+                android:layout_toEndOf="@+id/btnSetIntervalMonitoring"
                 android:text="면적감시"
                 android:textSize="10dp"
                 android:visibility="invisible" />
 
             <Button
-                android:id="@+id/Interval_monitoring"
+                android:id="@+id/btnSetIntervalMonitoring"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_marginStart="0dp"
                 android:layout_marginBottom="0dp"
-                android:layout_toEndOf="@+id/Flight_mode"
+                android:layout_toEndOf="@+id/btnSetFlightMode"
                 android:text="간격감시"
                 android:textSize="10dp"
                 android:visibility="invisible" />
 
             <Button
-                android:id="@+id/Flight_mode"
+                android:id="@+id/btnSetFlightMode"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_marginStart="0dp"
                 android:layout_marginBottom="0dp"
-                android:layout_toEndOf="@+id/normalmode"
+                android:layout_toEndOf="@+id/btnSetNormalMode"
                 android:text="경로비행"
                 android:textSize="10dp"
                 android:visibility="invisible" />
 
             <Button
-                android:id="@+id/normalmode"
+                android:id="@+id/btnSetNormalMode"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_marginStart="0dp"
                 android:layout_marginBottom="0dp"
-                android:layout_toEndOf="@+id/control_type"
+                android:layout_toEndOf="@+id/btnConrtolTypeOpen"
                 android:text="일반모드"
                 android:textSize="10dp"
                 android:visibility="invisible" />
 
             <Button
-                android:id="@+id/control_type"
+                android:id="@+id/btnConrtolTypeOpen"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_marginBottom="0dp"
@@ -228,6 +222,15 @@
                 android:text="일반모드"
                 android:textSize="10dp" />
         </RelativeLayout>
+
+        <Button
+            android:id="@+id/btnConnectType"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_above="@+id/ControlTypeSet"
+            android:onClick="onConnecttypeChange"
+            android:text="WIFI"
+            android:textSize="10dp" />
 
 
     </RelativeLayout>
@@ -376,14 +379,14 @@
     </RelativeLayout>
 
     <Button
-        android:id="@+id/btnjoystickMode"
+        android:id="@+id/btnControllerChange"
         android:layout_width="70dp"
         android:layout_height="70dp"
-        android:layout_below="@+id/jeongbochang"
+        android:layout_below="@+id/InformationWindow"
         android:layout_alignEnd="@+id/map"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="0dp"
-        android:background="@drawable/controller"
+        android:background="@drawable/pressed_btncontrollerchange_joystick"
         android:onClick="ChangeJoystickMode"
         android:textSize="10sp" />
 
@@ -391,13 +394,13 @@
         android:id="@+id/recyclerView"
         android:layout_width="152dp"
         android:layout_height="76dp"
-        android:layout_below="@+id/jeongbochang"
+        android:layout_below="@+id/InformationWindow"
         android:layout_alignStart="@+id/map"
         android:layout_marginStart="0dp"
         android:background="#00FFFFFF" />
 
     <TableRow
-        android:id="@+id/jeongbochang"
+        android:id="@+id/InformationWindow"
         android:layout_width="match_parent"
         android:layout_height="26dp"
         android:layout_alignStart="@+id/map"
@@ -647,8 +650,8 @@
         android:id="@+id/ThePeachLogo"
         android:layout_width="40dp"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/jeongbochang"
-        android:layout_alignBottom="@+id/jeongbochang"
+        android:layout_alignRight="@+id/InformationWindow"
+        android:layout_alignBottom="@+id/InformationWindow"
         android:layout_alignParentTop="true"
         android:layout_marginBottom="5dp"
         android:src="@drawable/thepeach" />

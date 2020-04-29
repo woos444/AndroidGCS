@@ -87,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     TableRow InfoWindow;
     RecyclerView NotificationWindow;
 
+    boolean connectconfirm = false;//드론연결 여부
     boolean pointsetorder = true;
     boolean MapLock = true; //드론위치로 맵 잠금 on,off
     boolean cadastralmap = false; //지적도 on,off
@@ -95,13 +96,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     Marker goalMarker = new Marker();//드론의 이동 목적지 마커
 
-    int connectmode = 1  ; // 0: USB텔레메트리로 연결 , 1: Wifi모듈 연결
+    int connecttype = 1  ; // 0: USB텔레메트리로 연결 , 1: Wifi모듈 연결
 
     //변경되는값
     int changmaptype = 0; //0: 위성지도 , 1: 지형도  , 2: 일반지도
     int dronecontroltype = 0; //0: joystick모드  , 1: GCS모드
     int changemissionmode = 0; //0: 일반모드 , 1: 경로비행 , 2: 간격감시 , 3: 면적감시
-    int missionC=0;
+    int missionC=0;//미션의 진행상황    0: 미션등록대기 , 1: 미션등록완료  , 2: 미션시작
     int waypointCount=0;
 
     int distancevalue=0;
@@ -138,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ArrayList<LatLng> movingpoint = new ArrayList();//드론의 지나온 이동 포인트
     ArrayList<LatLng> missionroutepoint = new ArrayList();//미션에 들어갈 포인트 리스트
 
-    ArrayList<Marker> WayPointMarker = new ArrayList();
+    ArrayList<Marker> waypointmarkerlist = new ArrayList();
 
     private double yawvalue;
     private Spinner modeSelector;
@@ -192,7 +193,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         NotificationWindow=(RecyclerView)findViewById(R.id.recyclerView);
         NotificationWindow.bringToFront();
         //////
-
+        rc_override = new msg_rc_channels_override();
+        rc_override.chan1_raw = 1500; //right; 2000 //left
+        rc_override.chan2_raw = 1500;
+        rc_override.chan3_raw = 1500; //back; 2000 //forward
+        rc_override.chan4_raw = 1500;
 
         rc_override.target_system = 0;
         rc_override.target_component = 0;
@@ -299,6 +304,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             case AttributeEvent.STATE_CONNECTED:
                 alertUser("드론연결");
                 updateConnectedButton(this.drone.isConnected());
+                connectconfirm = true;
                 updateArmButton();
                 checkSoloState();
                 break;
@@ -306,6 +312,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             case AttributeEvent.STATE_DISCONNECTED:
                 alertUser("드론분리");
                updateConnectedButton(this.drone.isConnected());
+                connectconfirm = false;
                 updateArmButton();
                 break;
 
@@ -338,10 +345,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             case AttributeEvent.MISSION_SENT:
                 alertUser("미션전송완료");
                 break;
-            /*case AttributeEvent.MISSION_ITEM_REACHED:
+            case AttributeEvent.MISSION_ITEM_REACHED:
                 waypointCount++;
                 MissionCount();
-                break;*/
+                break;
 
 
 
@@ -678,7 +685,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     missionpoint_B.setMap(naverMap);
                     missionstartwhether = true;
 
-                    Pathsetting();
+                    PathSetting();
                 }
             }
 
@@ -696,8 +703,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     waypoint.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px));
                     waypoint.setCaptionText(missionroutepoint.size()+"");
 
-                    WayPointMarker.add(waypoint);
-                    WayPointMarker.get(WayPointMarker.size()-1).setMap(naverMap);
+                    waypointmarkerlist.add(waypoint);
+                    waypointmarkerlist.get(waypointmarkerlist.size()-1).setMap(naverMap);
 
                     missionstartwhether = false;
                 }
@@ -709,8 +716,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     waypoint.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px));
                     waypoint.setCaptionText(missionroutepoint.size()+"");
 
-                    WayPointMarker.add(waypoint);
-                    WayPointMarker.get(WayPointMarker.size()-1).setMap(naverMap);
+                    waypointmarkerlist.add(waypoint);
+                    waypointmarkerlist.get(waypointmarkerlist.size()-1).setMap(naverMap);
 
 
                     routeline.setCoords(missionroutepoint);
@@ -745,7 +752,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }//드론미션 생성
 
-    public void Pathsetting() {
+    public void PathSetting() {
 
 
         //간격값 설정창
@@ -1019,13 +1026,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             this.drone.disconnect();
         }
         else {
-            if (connectmode == 0)
+            if (connecttype == 0)
             {
                 ConnectionParameter connectionParams = ConnectionParameter.newUsbConnection(null);//USB텔레메트리로 연결
 
                 this.drone.connect(connectionParams);
             }
-            else if(connectmode == 1)
+            else if(connecttype == 1)
             {
                 ConnectionParameter connectionParams = ConnectionParameter.newUdpConnection(null);// Wifi모듈 연결
                 this.drone.connect(connectionParams);
@@ -1111,11 +1118,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }//시동 , 이륙 , 착륙
     public void onControlTypeTap(View view){
 
-        Button normalmode = (Button)findViewById(R.id.normalmode);
-        Button Flight_mode = (Button)findViewById(R.id.Flight_mode);
-        Button Interval_monitoring = (Button)findViewById(R.id.Interval_monitoring);
-        Button Area_monitoring = (Button)findViewById(R.id.Area_monitoring);
-        Button control_type = (Button)findViewById(R.id.control_type);
+        Button normalmode = (Button)findViewById(R.id.btnSetNormalMode);
+        Button Flight_mode = (Button)findViewById(R.id.btnSetFlightMode);
+        Button Interval_monitoring = (Button)findViewById(R.id.btnSetIntervalMonitoring);
+        Button Area_monitoring = (Button)findViewById(R.id.btnSetAreaMonitoring);
+        Button control_type = (Button)findViewById(R.id.btnConrtolTypeOpen);
 
         Button mission_s = (Button)findViewById(R.id.btnMission);
 
@@ -1226,6 +1233,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }//미션 전송, 시작
 
+    public void onConnecttypeChange(View view){
+        Button button =(Button)findViewById(R.id.btnConnectType);
+
+        if(connectconfirm == false) {
+            if (connecttype == 0) {
+                button.setText("WIFI");
+                connecttype = 1;
+            }
+            else if (connecttype == 1) {
+                button.setText("USB");
+                connecttype = 0;
+            }
+        }
+
+    }//드론과 연결 타입 변경
+
+
 
 
 
@@ -1246,7 +1270,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void ChangeJoystickMode(View view){
         final RelativeLayout GCSmode = findViewById(R.id.GCSmodeView);
         final RelativeLayout joystickcontrolview= findViewById(R.id.JoystickControlView);
-        Button btnchangemode = (Button)findViewById(R.id.btnjoystickMode);
+        Button btnchangemode = (Button)findViewById(R.id.btnControllerChange);
 
         if(dronecontroltype == 0){
             GCSmode.setVisibility(View.INVISIBLE);
@@ -1260,7 +1284,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             });
 
 
-            btnchangemode.setBackgroundResource(R.drawable.map);
+            rc_override.chan1_raw = 1500; //right; 2000 //left
+            rc_override.chan2_raw = 1500;
+            rc_override.chan3_raw = 1500; //back; 2000 //forward
+            rc_override.chan4_raw = 1500;
+            ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
+
+            btnchangemode.setBackgroundResource(R.drawable.pressed_btncontrollerchange_map);
             dronecontroltype = 1;
         }
         else if(dronecontroltype == 1)
@@ -1275,16 +1305,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 public void onError(int executionError) { alertUser("GUIDED전환실패"); }
             });
 
-            btnchangemode.setBackgroundResource(R.drawable.controller);
+            btnchangemode.setBackgroundResource(R.drawable.pressed_btncontrollerchange_joystick);
             dronecontroltype = 0;
         }
-
-        rc_override = new msg_rc_channels_override();
-        rc_override.chan1_raw = 1500; //right; 2000 //left
-        rc_override.chan2_raw = 1500;
-        rc_override.chan3_raw = 1500; //back; 2000 //forward
-        rc_override.chan4_raw = 1500;
-        ExperimentalApi.getApi(drone).sendMavlinkMessage(new MavlinkMessageWrapper(rc_override));
 
     }//조이스틱 모드 , GCS모드를 변경합니다.
 
@@ -1328,9 +1351,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     double XmotorValue = Xpoint*speedYaw;
                     double YmotorValue = Ypoint*speedUpDown;
-
-                    /*Log.i("XmotorValue","="+XmotorValue);
-                    Log.i("YmotorValue","="+YmotorValue);*/
 
                     if(jstickLeft.getDistance()>200) { float distance = 200; }
 
@@ -1507,11 +1527,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         addmissionpoint_A.setMap(null);
         addmissionpoint_B.setMap(null);
 
-        for(int i = 0; i < WayPointMarker.size(); i++)
+        for(int i = 0; i < waypointmarkerlist.size(); i++)
         {
-            WayPointMarker.get(i).setMap(null);
+            waypointmarkerlist.get(i).setMap(null);
         }
-        WayPointMarker.clear();
+        waypointmarkerlist.clear();
         missionstartwhether = true;
 
     }//여러값들 초기화
