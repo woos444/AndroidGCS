@@ -385,8 +385,7 @@
         android:layout_marginTop="5dp"
         android:layout_marginEnd="0dp"
         android:background="@drawable/selected_btncontrollerchange"
-        android:onClick="ChangeJoystickMode"
-        />
+        android:onClick="ChangeJoystickMode" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
