@@ -2,6 +2,7 @@ package com.example.mygcs;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.Bundle;
@@ -97,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     Marker goalMarker = new Marker();//드론의 이동 목적지 마커
 
-    int connecttype = 1  ; // 0: USB텔레메트리로 연결 , 1: Wifi모듈 연결
+    int connecttype = 1; // 0: USB텔레메트리로 연결 , 1: Wifi모듈 연결
 
     //변경되는값
     int changmaptype = 0; //0: 위성지도 , 1: 지형도  , 2: 일반지도
@@ -162,8 +163,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_main);
 
         locationSource = new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
-
-
 
         final Context context = getApplicationContext();
         this.controlTower = new ControlTower(context);
@@ -312,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             case AttributeEvent.STATE_DISCONNECTED:
                 alertUser("드론분리");
-               updateConnectedButton(this.drone.isConnected());
+                updateConnectedButton(this.drone.isConnected());
                 connectconfirm = false;
                 updateArmButton();
                 break;
@@ -433,13 +432,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         if (vehicleState.isFlying()) {
             // Land
-            armButton.setText("LAND");
+            armButton.setBackgroundResource(R.drawable.dronelending);
         } else if (vehicleState.isArmed()) {
             // Take off
-            armButton.setText("TAKE OFF");
+            armButton.setBackgroundResource(R.drawable.dronetakeoff);
         } else if (vehicleState.isConnected()) {
             // Connected but not Armed
-            armButton.setText("ARM");
+            armButton.setBackgroundResource(R.drawable.dronearming);
         }
     }//시동
     protected void updateAltitude() {
@@ -604,7 +603,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         final SpannableStringBuilder sps = new SpannableStringBuilder(altitudetext);
         sps.setSpan(new AbsoluteSizeSpan(30),1,3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         altitudeset.setText(sps);
-        /*alertUser(altitudevalue+"m 이륙고도");*/
 
     }//이륙고도설정
     public void onTakeoffALTap(View view){
@@ -1249,6 +1247,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
     }//드론과 연결 타입 변경
+
+    public void disconnectGCS(View view){
+        Intent intent = new Intent(getApplicationContext(), StartActivity.class);
+        startActivity(intent);
+
+    }
 
 
 

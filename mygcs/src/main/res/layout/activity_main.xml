@@ -23,8 +23,8 @@
 
         <Button
             android:id="@+id/btnArmTakeOff"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="130dp"
+            android:layout_height="40dp"
             android:layout_centerInParent="true"
             android:layout_alignParentBottom="true"
             android:onClick="onArmButtonTap"
@@ -651,7 +651,8 @@
         android:layout_alignBottom="@+id/InformationWindow"
         android:layout_alignParentTop="true"
         android:layout_marginBottom="5dp"
-        android:src="@drawable/thepeach" />
+        android:src="@drawable/thepeach"
+        android:onClick="disconnectGCS"/>
 
 
 </RelativeLayout>
