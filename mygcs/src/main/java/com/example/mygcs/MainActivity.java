@@ -22,7 +22,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TableRow;
@@ -38,6 +37,7 @@ import com.naver.maps.map.OnMapReadyCallback;
 import com.naver.maps.map.UiSettings;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.OverlayImage;
+import com.naver.maps.map.overlay.PolygonOverlay;
 import com.naver.maps.map.overlay.PolylineOverlay;
 import com.naver.maps.map.util.FusedLocationSource;
 import com.o3dr.android.client.ControlTower;
@@ -139,9 +139,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ArrayList<LatLng> missionpointlist = new ArrayList();//
     ArrayList<LatLng> Square_Point = new ArrayList();
     ArrayList<LatLng> movingpoint = new ArrayList();//드론의 지나온 이동 포인트
-    ArrayList<LatLng> missionroutepoint = new ArrayList();//미션에 들어갈 포인트 리스트
+    ArrayList<LatLng> missionroutelist = new ArrayList();//미션에 들어갈 포인트 리스트
 
     ArrayList<Marker> waypointmarkerlist = new ArrayList();
+
+    PolygonOverlay missionpolygon = new PolygonOverlay();
 
     private double yawvalue;
     private Spinner modeSelector;
@@ -696,11 +698,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     pointsetorder = true;
                     dronemission.clear();
 
-                    missionroutepoint.add(latLng);
+                    missionroutelist.add(latLng);
                     Marker waypoint = new Marker();
                     waypoint.setPosition(latLng);
                     waypoint.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px));
-                    waypoint.setCaptionText(missionroutepoint.size()+"");
+                    waypoint.setCaptionText(missionroutelist.size()+"");
 
                     waypointmarkerlist.add(waypoint);
                     waypointmarkerlist.get(waypointmarkerlist.size()-1).setMap(naverMap);
@@ -709,17 +711,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
                 else if(missionstartwhether == false) {
 
-                    missionroutepoint.add(latLng);
+                    missionroutelist.add(latLng);
                     Marker waypoint = new Marker();
                     waypoint.setPosition(latLng);
                     waypoint.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px));
-                    waypoint.setCaptionText(missionroutepoint.size()+"");
+                    waypoint.setCaptionText(missionroutelist.size()+"");
 
                     waypointmarkerlist.add(waypoint);
                     waypointmarkerlist.get(waypointmarkerlist.size()-1).setMap(naverMap);
 
 
-                    routeline.setCoords(missionroutepoint);
+                    routeline.setCoords(missionroutelist);
                     routeline.setWidth(10);
                     routeline.setColor(Color.GREEN);
                     routeline.setMap(naverMap);
@@ -728,25 +730,45 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
             }
-            /*else if (control_mode == 1){
 
-                VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_GUIDED, new SimpleCommandListener() {
-                    @Override
-                    public void onSuccess() {alertUser("가이드모드");}
-                });
+            else if (changemissionmode == 3){
+                if(missionstartwhether == true) {
 
-                ControlApi.getApi(this.drone).turnTo(180,1.0f, true, new SimpleCommandListener() {
-                    @Override
-                    public void onSuccess() { alertUser("회전"); }
-                    @Override
-                    public void onError(int executionError) { alertUser("실패"); }
-                });
+                    missionpointlist.clear();
+                    pointsetorder = true;
+                    dronemission.clear();
 
-            }*/
+                    missionpointlist.add(latLng);
+                    Marker waypoint = new Marker();
+                    waypoint.setPosition(latLng);
+                    waypoint.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px));
+                    waypoint.setCaptionText(missionpointlist.size()+"");
+
+                    waypointmarkerlist.add(waypoint);
+                    waypointmarkerlist.get(waypointmarkerlist.size()-1).setMap(naverMap);
+
+                    missionstartwhether = false;
+                }
+                else if(missionstartwhether == false) {
+
+                    missionpointlist.add(latLng);
+                    Marker waypoint = new Marker();
+                    waypoint.setPosition(latLng);
+                    waypoint.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px));
+                    waypoint.setCaptionText(missionpointlist.size()+"");
+
+                    waypointmarkerlist.add(waypoint);
+                    waypointmarkerlist.get(waypointmarkerlist.size()-1).setMap(naverMap);
+
+                    if(missionpointlist.size()>2){
+                        PathSett();
+                    }
 
 
+                }
 
 
+            }
 
         });
     }//드론미션 생성
@@ -840,12 +862,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     LatLong n = MathUtils.newCoordFromBearingAndDistance(change_LngLong(missionpointlist.get(0)), 90 + (int) MathUtils.getHeadingFromCoordinates(change_LngLong(missionpointlist.get(0)), change_LngLong(missionpointlist.get(1))), i);
                                     LatLong m = MathUtils.newCoordFromBearingAndDistance(change_LngLong(missionpointlist.get(1)), 90 + (int) MathUtils.getHeadingFromCoordinates(change_LngLong(missionpointlist.get(0)), change_LngLong(missionpointlist.get(1))), i);
                                     if (pointsetorder == true) {
-                                        missionroutepoint.add(change_LongLng(n));
-                                        missionroutepoint.add(change_LongLng(m));
+                                        missionroutelist.add(change_LongLng(n));
+                                        missionroutelist.add(change_LongLng(m));
                                         pointsetorder = false;
                                     } else if (pointsetorder == false) {
-                                        missionroutepoint.add(change_LongLng(m));
-                                        missionroutepoint.add(change_LongLng(n));
+                                        missionroutelist.add(change_LongLng(m));
+                                        missionroutelist.add(change_LongLng(n));
                                         pointsetorder = true;
                                     }
                                 }
@@ -853,9 +875,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             }
 
 
-                            addmissionpoint_A.setPosition(missionroutepoint.get(missionroutepoint.size()-1));
+                            addmissionpoint_A.setPosition(missionroutelist.get(missionroutelist.size()-1));
                             addmissionpoint_A.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px_3));
-                            addmissionpoint_B.setPosition(missionroutepoint.get(missionroutepoint.size()-2));
+                            addmissionpoint_B.setPosition(missionroutelist.get(missionroutelist.size()-2));
                             addmissionpoint_B.setIcon(OverlayImage.fromResource(R.drawable.icons8_map_pin_24px_3));
 
                             addmissionpoint_B.setMap(naverMap);
@@ -863,7 +885,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                             alertUser("A to B = "+(int)MathUtils.getDistance2D(change_LngLong(missionpointlist.get(0)),change_LngLong(missionpointlist.get(1)))+"m");
 
-                            routeline.setCoords(missionroutepoint);
+                            routeline.setCoords(missionroutelist);
                             routeline.setWidth(10);
                             routeline.setColor(Color.GREEN);
                             routeline.setMap(naverMap);
@@ -880,9 +902,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         distancesetting.show();
 
     }//ㄹ경로주행
+    public void PathSett(){
+        missionpolygon.setCoords(missionpointlist);
+        missionpolygon.setOutlineWidth(5);
+        missionpolygon.setOutlineColor(Color.GREEN);
+
+        missionpolygon.setMap(naverMap);
+
+    }
     public void MissionCount()
     {
-        if(waypointCount == missionroutepoint.size())
+        if(waypointCount == missionroutelist.size())
         {
             //VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_GUIDED);
             Button button = (Button)findViewById(R.id.btnMission);
@@ -900,8 +930,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //미션 전송,시작,중단 함수
     protected void Send_MiSSION(){
-        for(int i = 0; i<missionroutepoint.size();i++) {
-            dronemission.addMissionItem(makewaypoint(missionroutepoint.get(i)));
+        for(int i = 0; i< missionroutelist.size(); i++) {
+            dronemission.addMissionItem(makewaypoint(missionroutelist.get(i)));
         }
         MissionApi.getApi(this.drone).setMission(dronemission,true);
     }
@@ -1522,8 +1552,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     //
     public void ResetValue() {
         Square_Point.clear();
-        missionroutepoint.clear();
+        missionroutelist.clear();
 
+
+        missionpolygon.setMap(null);
         goalMarker.setMap(null);
         missionpoint_A.setMap(null);
         missionpoint_B.setMap(null);
