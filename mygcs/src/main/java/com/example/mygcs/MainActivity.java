@@ -94,6 +94,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     boolean MapLock = true; //드론위치로 맵 잠금 on,off
     boolean cadastralmap = false; //지적도 on,off
     boolean missionstartwhether = true;//미션시작여부
+    boolean missionstartready = false;
+
     Marker droneMarker = new Marker();//드론의 위치마커
 
     Marker goalMarker = new Marker();//드론의 이동 목적지 마커
@@ -130,6 +132,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     double altitudevalue=3;//고도설정값
 
+    double distancepoint =0;
+
     PolylineOverlay Square_line= new PolylineOverlay();
     PolylineOverlay routeline = new PolylineOverlay();
     PolylineOverlay dronepathdisplay= new PolylineOverlay();//드론의 이동경로 표시선
@@ -137,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     Mission dronemission = new Mission();
 
     ArrayList<LatLng> missionpointlist = new ArrayList();//
-    ArrayList<LatLng> Square_Point = new ArrayList();
+    ArrayList<LatLng> temporaryPoint = new ArrayList();
     ArrayList<LatLng> movingpoint = new ArrayList();//드론의 지나온 이동 포인트
     ArrayList<LatLng> missionroutelist = new ArrayList();//미션에 들어갈 포인트 리스트
 
@@ -346,6 +350,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             case AttributeEvent.MISSION_SENT:
                 alertUser("미션전송완료");
+                missionstartready = true;
                 break;
             case AttributeEvent.MISSION_ITEM_REACHED:
                 waypointCount++;
@@ -608,18 +613,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }//이륙고도설정
     public void onTakeoffALTap(View view){
+        RelativeLayout tackoffaltitudeset  = (RelativeLayout)findViewById(R.id.TackOffAltitudeSet);
         Button altitudeup = (Button)findViewById(R.id.btnAltitudeUP);
         Button altitudedown = (Button)findViewById(R.id.btnAltitudeDOWN);
-        if (altitudeup.getVisibility()==View.INVISIBLE)
-        {
-            altitudeup.setVisibility(View.VISIBLE);
-            altitudedown.setVisibility(View.VISIBLE);
 
-        }
-        else if (altitudeup.getVisibility()==View.VISIBLE)
+        if (tackoffaltitudeset.getVisibility()==View.INVISIBLE)
         {
-            altitudeup.setVisibility(View.INVISIBLE);
-            altitudedown.setVisibility(View.INVISIBLE);
+            tackoffaltitudeset.setVisibility(View.VISIBLE);
+        }
+        else if (tackoffaltitudeset.getVisibility()==View.VISIBLE)
+        {
+            tackoffaltitudeset.setVisibility(View.INVISIBLE);
         }
 
         altitudeup.setOnClickListener(new View.OnClickListener() {
@@ -737,6 +741,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     missionpointlist.clear();
                     pointsetorder = true;
                     dronemission.clear();
+                    missionpolygon.setMap(null);
 
                     missionpointlist.add(latLng);
                     Marker waypoint = new Marker();
@@ -761,7 +766,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     waypointmarkerlist.get(waypointmarkerlist.size()-1).setMap(naverMap);
 
                     if(missionpointlist.size()>2){
-                        PathSett();
+                        missionpolygon.setCoords(missionpointlist);
+                        missionpolygon.setOutlineWidth(5);
+                        missionpolygon.setOutlineColor(Color.GREEN);
+                        missionpolygon.setMap(naverMap);
                     }
 
 
@@ -903,52 +911,109 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }//ㄹ경로주행
     public void PathSett(){
-        missionpolygon.setCoords(missionpointlist);
-        missionpolygon.setOutlineWidth(5);
-        missionpolygon.setOutlineColor(Color.GREEN);
 
-        missionpolygon.setMap(naverMap);
+        //간격값 설정창
+        final List<String> intervalList = new ArrayList<>();
+        intervalList.add("3");
+        intervalList.add("5");
+        intervalList.add("10");
+        intervalList.add("20");
+        final CharSequence[] items2 =  intervalList.toArray(new String[ intervalList.size()]);
 
-    }
-    public void MissionCount()
-    {
-        if(waypointCount == missionroutelist.size())
-        {
-            //VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_GUIDED);
-            Button button = (Button)findViewById(R.id.btnMission);
-            alertUser("미션종료");
-            missionC=0;
-            waypointCount=0;
-            button.setText("미션등록");
+        final List SelectedItems2  = new ArrayList();
+        int defaultItem2 = 0;
+        SelectedItems2.add(defaultItem2);
+        AlertDialog.Builder spacingsetting = new AlertDialog.Builder(this);
+
+        spacingsetting.setTitle("간격 설정");
+        spacingsetting.setSingleChoiceItems(items2, defaultItem2,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        SelectedItems2.clear();
+                        SelectedItems2.add(which);
+                    }
+                });
+        spacingsetting.setPositiveButton("Ok",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        String msg2="";
+
+                        if (!SelectedItems2.isEmpty()) {
+                            int index = (int) SelectedItems2.get(0);
+                            msg2 = intervalList.get(index);
+                            intervalvalue = Integer.parseInt(msg2);
+
+                            for (int i = 0; i < missionpointlist.size(); i++) {
+                                if (i == missionpointlist.size() - 1) { distancepoint = distanceBetweenPoints(change_LngLong(missionpointlist.get(i)), change_LngLong(missionpointlist.get(0)))*1000; }//두 좌표 사이의 거리를 계산
+                                else { distancepoint = distanceBetweenPoints(change_LngLong(missionpointlist.get(i)), change_LngLong(missionpointlist.get(i + 1)))*1000; }// 두 좌표 사이의 거리를 계산
+
+                                for(int j = 0 ; j < distancepoint ; j ++ ) {
+                                    if(j%intervalvalue ==0) {
+                                        LatLong routepoint;
+                                        if(i == missionpointlist.size() - 1) {
+                                            routepoint = MathUtils.newCoordFromBearingAndDistance(change_LngLong(missionpointlist.get(i)), 0 + (int) MathUtils.getHeadingFromCoordinates(change_LngLong(missionpointlist.get(i)), change_LngLong(missionpointlist.get(0))), j);
+
+                                            double dis = distanceBetweenPoints(change_LngLong(missionpointlist.get(i)), routepoint)*1000;
 
 
-        }
+                                            if(dis > distancepoint)
+                                            {routepoint = change_LngLong(missionpointlist.get(0));}
+                                        }
+                                        else{
+                                            routepoint = MathUtils.newCoordFromBearingAndDistance(change_LngLong(missionpointlist.get(i)), 0 + (int) MathUtils.getHeadingFromCoordinates(change_LngLong(missionpointlist.get(i)), change_LngLong(missionpointlist.get(i+1))), j);
+                                            double dis = distanceBetweenPoints(change_LngLong(missionpointlist.get(i)), routepoint)*1000;
+                                            if(dis > distancepoint)
+                                            {routepoint = change_LngLong(missionpointlist.get(i+1));}
 
-    }//미션종료 확인
+                                        }
+
+                                        temporaryPoint.add(change_LongLng(routepoint));
+
+                                    }
+                                }
+                            }
+
+
+                            for(int i = 0; i < temporaryPoint.size()/2 ; i++)
+                            {
+                                int a= temporaryPoint.size()-1;
+
+                                if (pointsetorder == true) {
+                                    missionroutelist.add(temporaryPoint.get(i));
+                                    missionroutelist.add(temporaryPoint.get(a - i));
+                                    pointsetorder = false;
+                                }
+                                else if(pointsetorder == false)
+                                {
+                                    missionroutelist.add(temporaryPoint.get(a - i));
+                                    missionroutelist.add(temporaryPoint.get(i));
+                                    pointsetorder = true;
+
+
+                                }
+                            }
+                            routeline.setCoords(missionroutelist);
+                            routeline.setWidth(10);
+                            routeline.setColor(Color.BLUE);
+                            routeline.setMap(naverMap);
 
 
 
-    //미션 전송,시작,중단 함수
-    protected void Send_MiSSION(){
-        for(int i = 0; i< missionroutelist.size(); i++) {
-            dronemission.addMissionItem(makewaypoint(missionroutelist.get(i)));
-        }
-        MissionApi.getApi(this.drone).setMission(dronemission,true);
-    }
-    protected void Start_MiSSION(){
-        VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_AUTO, new SimpleCommandListener() {
-            @Override
-            public void onSuccess() {alertUser("미션시작"); }
-        });
-    }
-    protected void Stop_MiSSION(){
-        VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_LOITER, new SimpleCommandListener() {
-            @Override
-            public void onSuccess() {alertUser("미션중지"); }
-        });
+                        }
+                    }
+                });
+        spacingsetting.setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
 
-    }
-    //
+                    }
+                });
+        spacingsetting.show();
+
+
+    }//다각형을 만들고 그 안을 경로주행
+
 
 
     public Waypoint makewaypoint(LatLng latLng) {
@@ -966,62 +1031,66 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onSuccess() {alertUser("집으로");}
         });
     }//RTL버튼 클릭 이밴트
-    public void ChangeMaptype(View view) {
-        Button maptypetext = (Button)findViewById(R.id.btnMaptypeset);
-        if(changmaptype == 0) {
-            maptypetext.setText("지형도");
-            naverMap.setMapType(NaverMap.MapType.Terrain);
-            changmaptype = 1;
-        }
-        else if(changmaptype == 1) {
-            maptypetext.setText("일반지도");
-            naverMap.setMapType(NaverMap.MapType.Basic);
-            changmaptype = 2;
-        }
-        else if(changmaptype == 2) {
-            maptypetext.setText("위성지도");
-            naverMap.setMapType(NaverMap.MapType.Satellite);
-            changmaptype = 0;
-        }
-
-
-    }//맵타입 버튼 클릭 이밴트
-    public void onCADAtap(View view) {
-        Button btncadastralmap = (Button) findViewById(R.id.btnCadastralMap);
-        if (cadastralmap == false) {
-            btncadastralmap.setText("지적도on");
-            alertUser("지적도on");
-            naverMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_CADASTRAL, true);
-            cadastralmap = true;
-        } else if (cadastralmap == true) {
-            btncadastralmap.setText("지적도off");
-            alertUser("지적도off");
-            naverMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_CADASTRAL, false);
-            cadastralmap = false;
-        }
-    }//지적도 버튼 클릭 이밴트
 
 
     public void mapSet(View view) {
-        Button btnmaptype = (Button)findViewById(R.id.btnMaptypeset);
+        RelativeLayout settingmap = (RelativeLayout)findViewById(R.id.SettingMap);
+        Button maptypetext = (Button)findViewById(R.id.btnMaptypeset);
         Button btncadastralmap = (Button) findViewById(R.id.btnCadastralMap);
 
-        if(btnmaptype.getVisibility()==View.INVISIBLE)
-        {
-            btnmaptype.setVisibility(View.VISIBLE);
-            btncadastralmap.setVisibility(View.VISIBLE);
-        }
-        else if(btnmaptype.getVisibility()==View.VISIBLE)
-        {
-            btnmaptype.setVisibility(View.INVISIBLE);
-            btncadastralmap.setVisibility(View.INVISIBLE);
+        if(settingmap.getVisibility()==View.INVISIBLE) { settingmap.setVisibility(View.VISIBLE); }
+        else if(settingmap.getVisibility()==View.VISIBLE) { settingmap.setVisibility(View.INVISIBLE); }
 
-        }
+        maptypetext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(changmaptype == 0) {
+                    maptypetext.setText("지형도");
+                    naverMap.setMapType(NaverMap.MapType.Terrain);
+                    changmaptype = 1;
+                }
+                else if(changmaptype == 1) {
+                    maptypetext.setText("일반지도");
+                    naverMap.setMapType(NaverMap.MapType.Basic);
+                    changmaptype = 2;
+                }
+                else if(changmaptype == 2) {
+                    maptypetext.setText("위성지도");
+                    naverMap.setMapType(NaverMap.MapType.Satellite);
+                    changmaptype = 0;
+                }
+
+            }
+        });
+
+
+        btncadastralmap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (cadastralmap == false) {
+                    btncadastralmap.setText("지적도on");
+                    alertUser("지적도on");
+                    naverMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_CADASTRAL, true);
+                    cadastralmap = true;
+                } else if (cadastralmap == true) {
+                    btncadastralmap.setText("지적도off");
+                    alertUser("지적도off");
+                    naverMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_CADASTRAL, false);
+                    cadastralmap = false;
+                }
+
+            }
+        });
 
 
 
 
-    }
+
+
+
+
+    }//지적도, 맵타입 설정
     public void onMapMoveTap(View view) {
         Button Maplock= (Button) findViewById(R.id.btnMapLock);
         if(MapLock==true) {
@@ -1046,8 +1115,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         alertUser("맵 클리어");
 
     }//맵정리 버튼 클릭 이밴트
-
-
 
     public void onBtnConnectTap(View view) {
         if (this.drone.isConnected()) {
@@ -1145,30 +1212,28 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             alert.show();
         }
     }//시동 , 이륙 , 착륙
-    public void onControlTypeTap(View view){
+
+    //미션설정
+    public void onMissionTypeTap(View view){
 
         Button normalmode = (Button)findViewById(R.id.btnSetNormalMode);
         Button Flight_mode = (Button)findViewById(R.id.btnSetFlightMode);
         Button Interval_monitoring = (Button)findViewById(R.id.btnSetIntervalMonitoring);
         Button Area_monitoring = (Button)findViewById(R.id.btnSetAreaMonitoring);
-        Button control_type = (Button)findViewById(R.id.btnConrtolTypeOpen);
+        RelativeLayout changemissiontype = (RelativeLayout)findViewById(R.id.ControlTypeSet);
 
-        Button mission_s = (Button)findViewById(R.id.btnMission);
+        Button control_type = (Button)findViewById(R.id.btnMissionTypeOpen);
 
-        if (normalmode.getVisibility()==View.INVISIBLE)
+        Button btnroutemake = (Button)findViewById(R.id.btnRouteMake);
+        Button btnmissionstart = (Button)findViewById(R.id.btnMission);
+
+        if (changemissiontype.getVisibility()==View.INVISIBLE)
         {
-            normalmode.setVisibility(View.VISIBLE);
-            Flight_mode.setVisibility(View.VISIBLE);
-            Interval_monitoring.setVisibility(View.VISIBLE);
-            Area_monitoring.setVisibility(View.VISIBLE);
-
+            changemissiontype.setVisibility(View.VISIBLE);
         }
-        else if (normalmode.getVisibility()==View.VISIBLE)
+        else if (changemissiontype.getVisibility()==View.VISIBLE)
         {
-            normalmode.setVisibility(View.INVISIBLE);
-            Flight_mode.setVisibility(View.INVISIBLE);
-            Interval_monitoring.setVisibility(View.INVISIBLE);
-            Area_monitoring.setVisibility(View.INVISIBLE);
+            changemissiontype.setVisibility(View.INVISIBLE);
         }
 
         normalmode.setOnClickListener(new View.OnClickListener() {
@@ -1176,12 +1241,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View v) {
                 changemissionmode = 0;
                 ResetValue();
-                normalmode.setVisibility(View.INVISIBLE);
-                Flight_mode.setVisibility(View.INVISIBLE);
-                Interval_monitoring.setVisibility(View.INVISIBLE);
-                Area_monitoring.setVisibility(View.INVISIBLE);
+                changemissiontype.setVisibility(View.INVISIBLE);
+                btnmissionstart.setVisibility(View.INVISIBLE);
+                btnroutemake.setVisibility(View.INVISIBLE);
                 control_type.setText(normalmode.getText());
-                mission_s.setVisibility(View.INVISIBLE);
                 alertUser("일반모드");
 
 
@@ -1193,11 +1256,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View v) {
                 changemissionmode = 1;
                 ResetValue();
-                normalmode.setVisibility(View.INVISIBLE);
-                Flight_mode.setVisibility(View.INVISIBLE);
-                Interval_monitoring.setVisibility(View.INVISIBLE);
-                Area_monitoring.setVisibility(View.INVISIBLE);
-                mission_s.setVisibility(View.VISIBLE);
+                changemissiontype.setVisibility(View.INVISIBLE);
+                btnmissionstart.setVisibility(View.VISIBLE);
+                btnroutemake.setVisibility(View.INVISIBLE);
                 control_type.setText(Flight_mode.getText());
                 alertUser("경로비행");
 
@@ -1211,12 +1272,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 changemissionmode = 2;
                 ResetValue();
-                normalmode.setVisibility(View.INVISIBLE);
-                Flight_mode.setVisibility(View.INVISIBLE);
-                Interval_monitoring.setVisibility(View.INVISIBLE);
-                Area_monitoring.setVisibility(View.INVISIBLE);
+                changemissiontype.setVisibility(View.INVISIBLE);
+                btnmissionstart.setVisibility(View.VISIBLE);
+                btnroutemake.setVisibility(View.INVISIBLE);
                 control_type.setText(Interval_monitoring.getText());
-                mission_s.setVisibility(View.VISIBLE);
                 alertUser("간격감시");
 
                 //Log.i("mode","="+changemissionmode);
@@ -1228,10 +1287,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View v) {
                 changemissionmode = 3;
                 ResetValue();
-                normalmode.setVisibility(View.INVISIBLE);
-                Flight_mode.setVisibility(View.INVISIBLE);
-                Interval_monitoring.setVisibility(View.INVISIBLE);
-                Area_monitoring.setVisibility(View.INVISIBLE);
+                changemissiontype.setVisibility(View.INVISIBLE);
+                btnmissionstart.setVisibility(View.VISIBLE);
+                btnroutemake.setVisibility(View.VISIBLE);
                 control_type.setText(Area_monitoring.getText());
                 alertUser("면적감시");
 
@@ -1241,8 +1299,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
 
-    }
+    }//사용미션 선택
+    public void MissionCount() {
+        if(waypointCount == missionroutelist.size())
+        {
+            //VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_GUIDED);
+            alertUser("미션종료");
+            Button button = (Button)findViewById(R.id.btnMission);
+            missionC=0;
+            waypointCount=0;
+            missionstartready = false;
+            button.setText("미션등록");
 
+
+        }
+
+    }//미션종료 확인
     public void onMissionStartTap(View view){
         Button button = (Button)findViewById(R.id.btnMission);
         if(missionC==0) {
@@ -1250,7 +1322,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             button.setText("미션시작");
             missionC=1;
         }
-        else if(missionC==1) {
+        else if(missionC==1&&missionstartready == true) {
             Start_MiSSION();
             missionC=2;
             button.setText("미션중지");
@@ -1261,6 +1333,38 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             button.setText("미션시작");
         }
     }//미션 전송, 시작
+
+    //미션 전송,시작,중단 함수
+    protected void Send_MiSSION(){
+        for(int i = 0; i<missionroutelist.size();i++) {
+            dronemission.addMissionItem(makewaypoint(missionroutelist.get(i)));
+        }
+        MissionApi.getApi(this.drone).setMission(dronemission,true);
+    }
+    protected void Start_MiSSION(){
+        VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_AUTO, new SimpleCommandListener() {
+            @Override
+            public void onSuccess() {alertUser("미션시작"); }
+        });
+    }
+    protected void Stop_MiSSION(){
+        VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_LOITER, new SimpleCommandListener() {
+            @Override
+            public void onSuccess() {alertUser("미션중지"); }
+        });
+    }
+    //
+
+
+
+    public void onRouteMakeTap(View view){
+        if (changemissionmode == 3){
+            if(missionpointlist.size()>2){
+                PathSett();
+            }
+        }
+
+    }//미션에 사용될 경로를 생성
 
     public void onConnecttypeChange(View view){
         Button button =(Button)findViewById(R.id.btnConnectType);
@@ -1281,15 +1385,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void disconnectGCS(View view){
         Intent intent = new Intent(getApplicationContext(), StartActivity.class);
         startActivity(intent);
-
-    }
-
+    }//GCS연결을 끊고 시작화면으로 돌아갑니다
 
 
-
-
-
-    protected double distanceBetweenPoints(LatLongAlt pointA, LatLongAlt pointB) {
+    /*protected double distanceBetweenPoints(LatLongAlt pointA, LatLongAlt pointB) {
         if (pointA == null || pointB == null) {
             return 0;
         }
@@ -1297,10 +1396,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         double dy = pointA.getLongitude() - pointB.getLongitude();
         double dz = pointA.getAltitude() - pointB.getAltitude();
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
-    }
-
-
-
+    }*/
 
     public void ChangeJoystickMode(View view){
         final RelativeLayout GCSmode = findViewById(R.id.GCSmodeView);
@@ -1550,8 +1646,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         return latLng;
     }
     //
+    protected double distanceBetweenPoints(LatLong pointA, LatLong pointB) {
+        if (pointA == null || pointB == null) {
+            return 0;
+        }
+        double dx = pointA.getLatitude() - pointB.getLatitude();
+        double dy = pointA.getLongitude() - pointB.getLongitude();
+        return Math.sqrt(dx * dx + dy * dy)*100;
+
+    }//두 좌표사이의 거리
+
     public void ResetValue() {
-        Square_Point.clear();
+        temporaryPoint.clear();
         missionroutelist.clear();
 
 
@@ -1563,6 +1669,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         routeline.setMap(null);
         addmissionpoint_A.setMap(null);
         addmissionpoint_B.setMap(null);
+
+        Button button = (Button)findViewById(R.id.btnMission);
+        missionC=0;
+        waypointCount=0;
+        button.setText("미션등록");
 
         for(int i = 0; i < waypointmarkerlist.size(); i++)
         {

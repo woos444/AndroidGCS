@@ -11,8 +11,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
-
     </FrameLayout>
 
     <RelativeLayout
@@ -49,7 +47,7 @@
             android:id="@+id/btnMapLock"
             android:layout_width="50dp"
             android:layout_height="45dp"
-            android:layout_above="@+id/btnSettingMap"
+            android:layout_above="@+id/btnSettingMapOpen"
             android:layout_alignParentRight="true"
             android:layout_marginRight="0dp"
             android:layout_marginBottom="0dp"
@@ -57,7 +55,7 @@
             android:background="@drawable/selected_btnmaplock" />
 
         <Button
-            android:id="@+id/btnSettingMap"
+            android:id="@+id/btnSettingMapOpen"
             android:layout_width="50dp"
             android:layout_height="45dp"
             android:layout_alignParentRight="true"
@@ -67,26 +65,28 @@
             android:onClick="mapSet"
             android:background="@drawable/pressed_btnsettingmap"/>
 
+
+        <RelativeLayout
+            android:id="@+id/SettingMap"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:layout_toStartOf="@+id/btnSettingMapOpen"
+            android:visibility="invisible">
         <Button
             android:id="@+id/btnCadastralMap"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_alignParentBottom="true"
-            android:layout_toStartOf="@+id/btnSettingMap"
-            android:onClick="onCADAtap"
-            android:visibility="invisible"
+            android:layout_toEndOf="@+id/btnMaptypeset"
             android:text="지적도off"
             android:textSize="9dp"/>
         <Button
             android:id="@+id/btnMaptypeset"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_alignParentBottom="true"
-            android:layout_toStartOf="@+id/btnCadastralMap"
-            android:onClick="ChangeMaptype"
-            android:visibility="invisible"
             android:text="위성지도"
             android:textSize="10dp"/>
+    </RelativeLayout>
 
 
         <!--왼쪽 툴-->
@@ -116,24 +116,40 @@
         android:text="임무등록"
         android:visibility="invisible" />
 
+        <Button
+            android:id="@+id/btnRouteMake"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/btnMission"
+            android:layout_above="@+id/btnConnect"
+            android:layout_marginLeft="0dp"
+            android:layout_marginBottom="0dp"
+            android:onClick="onRouteMakeTap"
+            android:text="경로생성"
+            android:visibility="invisible" />
+
+
+        <Button
+            android:id="@+id/btnAltitudeSet"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_above="@+id/btnMission"
+            android:layout_marginStart="0dp"
+            android:layout_marginBottom="0dp"
+            android:onClick="onTakeoffALTap"
+            android:textSize="7dp" />
+
 
         <RelativeLayout
             android:id="@+id/TackOffAltitudeSet"
-            android:layout_width="150dp"
+            android:layout_width="100dp"
             android:layout_height="50dp"
+            android:layout_toEndOf="@+id/btnAltitudeSet"
             android:layout_above="@+id/btnMission"
-            android:background="#00FFFFFF"
             android:gravity="center_vertical"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="invisible">
 
-            <Button
-                android:id="@+id/btnAltitudeSet"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginStart="0dp"
-                android:layout_marginBottom="0dp"
-                android:onClick="onTakeoffALTap"
-                android:textSize="7dp" />
 
             <Button
                 android:id="@+id/btnAltitudeUP"
@@ -141,9 +157,7 @@
                 android:layout_height="50dp"
                 android:layout_marginStart="0dp"
                 android:layout_marginBottom="0dp"
-                android:layout_toEndOf="@+id/btnAltitudeSet"
-                android:drawableBottom="@drawable/up_arrow_26px"
-                android:visibility="invisible" />
+                android:drawableBottom="@drawable/up_arrow_26px" />
 
             <Button
                 android:id="@+id/btnAltitudeDOWN"
@@ -152,20 +166,20 @@
                 android:layout_marginStart="0dp"
                 android:layout_marginBottom="0dp"
                 android:layout_toEndOf="@+id/btnAltitudeUP"
-                android:drawableBottom="@drawable/down_arrow_26px"
-                android:visibility="invisible" />
+                android:drawableBottom="@drawable/down_arrow_26px" />
 
         </RelativeLayout>
 
 
         <RelativeLayout
             android:id="@+id/ControlTypeSet"
-            android:layout_width="250dp"
+            android:layout_width="200dp"
             android:layout_height="50dp"
+            android:layout_toEndOf="@+id/btnMissionTypeOpen"
             android:layout_above="@+id/TackOffAltitudeSet"
-            android:background="#00FFFFFF"
             android:gravity="center_vertical"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="invisible">
 
             <Button
                 android:id="@+id/btnSetAreaMonitoring"
@@ -175,8 +189,7 @@
                 android:layout_marginBottom="0dp"
                 android:layout_toEndOf="@+id/btnSetIntervalMonitoring"
                 android:text="면적감시"
-                android:textSize="10dp"
-                android:visibility="invisible" />
+                android:textSize="10dp" />
 
             <Button
                 android:id="@+id/btnSetIntervalMonitoring"
@@ -186,8 +199,7 @@
                 android:layout_marginBottom="0dp"
                 android:layout_toEndOf="@+id/btnSetFlightMode"
                 android:text="간격감시"
-                android:textSize="10dp"
-                android:visibility="invisible" />
+                android:textSize="10dp" />
 
             <Button
                 android:id="@+id/btnSetFlightMode"
@@ -197,8 +209,7 @@
                 android:layout_marginBottom="0dp"
                 android:layout_toEndOf="@+id/btnSetNormalMode"
                 android:text="경로비행"
-                android:textSize="10dp"
-                android:visibility="invisible" />
+                android:textSize="10dp" />
 
             <Button
                 android:id="@+id/btnSetNormalMode"
@@ -206,20 +217,21 @@
                 android:layout_height="50dp"
                 android:layout_marginStart="0dp"
                 android:layout_marginBottom="0dp"
-                android:layout_toEndOf="@+id/btnConrtolTypeOpen"
-                android:text="일반모드"
-                android:textSize="10dp"
-                android:visibility="invisible" />
-
-            <Button
-                android:id="@+id/btnConrtolTypeOpen"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginBottom="0dp"
-                android:onClick="onControlTypeTap"
                 android:text="일반모드"
                 android:textSize="10dp" />
+
+
         </RelativeLayout>
+
+        <Button
+            android:id="@+id/btnMissionTypeOpen"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="0dp"
+            android:layout_above="@+id/TackOffAltitudeSet"
+            android:onClick="onMissionTypeTap"
+            android:text="일반모드"
+            android:textSize="10dp" />
 
         <Button
             android:id="@+id/btnConnectType"
